@@ -8,12 +8,19 @@ const money = v => Number(v).toLocaleString('pt-BR', {
 });
 
 async function load() {
-  config = await (await fetch('/api/config')).json();
-  products = await (await fetch('/api/products')).json();
+  try {
+    config = await (await fetch('/api/config')).json();
+    products = await (await fetch('/api/products')).json();
 
-  renderConfig();
-  renderProducts();
-  renderCart();
+    console.log('Produtos carregados:', products);
+
+    renderConfig();
+    renderProducts();
+    renderCart();
+  } catch (error) {
+    console.error('Erro ao carregar loja:', error);
+    document.getElementById('products').innerHTML = '<p>Erro ao carregar produtos.</p>';
+  }
 }
 
 function renderConfig() {
@@ -26,7 +33,7 @@ function renderConfig() {
   }
 
   if (document.getElementById('footerInstagram')) {
-    footerInstagram.textContent = config.instagram || '@amcloset';
+    footerInstagram.textContent = '@useamcloseet';
   }
 
   const number = (config.whatsapp || '').replace(/\D/g, '');
@@ -38,17 +45,28 @@ function renderConfig() {
 }
 
 function renderProducts() {
-  document.getElementById('products').innerHTML = products.map(p => `
-    <article class="card produto-card">
-      <img src="${p.image}" alt="${p.name}">
-      <h3>${p.name}</h3>
-      <p>${p.description || ''}</p>
-      <b>${money(p.price)}</b>
-      <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
-      <small>Estoque: ${p.stock}</small>
-      <button onclick="add('${p.id}')">Adicionar ao carrinho</button>
-    </article>
-  `).join('');
+  const area = document.getElementById('products');
+
+  if (!products || !products.length) {
+    area.innerHTML = '<p>Nenhum produto cadastrado.</p>';
+    return;
+  }
+
+  area.innerHTML = products.map(p => {
+    const image = p.image || '/produto-1.svg';
+
+    return `
+      <article class="card produto-card">
+        <img src="${image}" alt="${p.name}" onerror="this.src='/produto-1.svg'">
+        <h3>${p.name}</h3>
+        <p>${p.description || ''}</p>
+        <b>${money(p.price)}</b>
+        <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
+        <small>Estoque: ${p.stock}</small>
+        <button onclick="add('${p.id}')">Adicionar ao carrinho</button>
+      </article>
+    `;
+  }).join('');
 }
 
 function add(id) {
