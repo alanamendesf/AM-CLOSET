@@ -1,0 +1,16 @@
+COMO PUBLICAR NO RENDER
+
+1. Extraia este ZIP no computador.
+2. No GitHub, crie um repositório novo.
+3. Envie TODOS os arquivos extraídos, não envie o ZIP fechado.
+4. No Render, crie New Web Service e conecte o repositório.
+5. Build Command: npm install
+6. Start Command: npm start
+7. Em Environment, adicione:
+   MERCADO_PAGO_ACCESS_TOKEN = sua chave APP_USR...
+   ADMIN_PASSWORD = uma senha para o painel
+   STORE_NAME = AM Closet
+8. Clique em Deploy.
+
+Painel administrativo:
+https://seu-site.onrender.com/admin
