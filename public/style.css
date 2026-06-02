@@ -224,3 +224,44 @@ footer p{
 .instagram-float:hover{
     opacity:.9;
 }
+.category-tabs{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:35px;
+}
+
+.category-tabs button{
+  background:white;
+  color:#111;
+  border:1px solid #ddd;
+  padding:10px 18px;
+  border-radius:999px;
+}
+
+.category-tabs button.categoria-ativa{
+  background:#111;
+  color:white;
+}
+
+.cart-produto-info{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.cart-produto-info img{
+  width:55px;
+  height:55px;
+  object-fit:cover;
+  border-radius:8px;
+}
+
+#cartCount{
+  background:#111;
+  color:white;
+  border-radius:999px;
+  padding:3px 8px;
+  font-size:12px;
+}
