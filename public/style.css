@@ -265,3 +265,57 @@ footer p{
   padding:3px 8px;
   font-size:12px;
 }
+.intro-loja.pequena{
+  padding:25px 20px 10px;
+}
+
+.intro-loja.pequena h1{
+  font-size:24px;
+  margin-bottom:5px;
+}
+
+.intro-loja.pequena p{
+  font-size:14px;
+  color:#777;
+}
+
+.menu-loja{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:14px;
+}
+
+.menu-loja a{
+  font-size:14px;
+}
+
+.category-tabs{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:35px;
+}
+
+.category-tabs button{
+  background:white;
+  color:#111;
+  border:1px solid #ddd;
+  padding:10px 18px;
+  border-radius:999px;
+}
+
+.category-tabs button.categoria-ativa{
+  background:#111;
+  color:white;
+}
+
+#cartCount{
+  background:#111;
+  color:white;
+  border-radius:999px;
+  padding:3px 8px;
+  font-size:12px;
+}
