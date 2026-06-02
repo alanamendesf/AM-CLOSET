@@ -19,12 +19,12 @@ fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 if (!fs.existsSync(path.join(DATA_DIR, 'products.json'))) fs.writeFileSync(path.join(DATA_DIR, 'products.json'), '[]');
 if (!fs.existsSync(path.join(DATA_DIR, 'orders.json'))) fs.writeFileSync(path.join(DATA_DIR, 'orders.json'), '[]');
 if (!fs.existsSync(path.join(DATA_DIR, 'config.json'))) {
-  fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify({
-    storeName: '𝙰𝙼 𝙲𝚕𝚘𝚜𝚎𝚝',
-    subtitle: 'Looks que valorizam você! ♡',
-    whatsapp: '',
-    instagram: '@useamcloseet'
-  }, null, 2));
+fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify({
+  storeName: '𝙰𝙼 𝙲𝚕𝚘𝚜𝚎𝚝',
+  subtitle: 'Looks que valorizam você! ♡',
+  whatsapp: '',
+  instagram: '@useamcloseet'
+}, null, 2));
 }
 
 app.use(cors());
