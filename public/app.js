@@ -48,15 +48,10 @@ function renderCategories() {
   const area = document.getElementById('categoryTabs');
   if (!area) return;
 
-  const categories = [
-    'Todos',
-    ...new Set(products.map(p => p.category || 'Sem categoria'))
-  ];
+  const categories = ['Todos', ...new Set(products.map(p => p.category || 'Sem categoria'))];
 
   area.innerHTML = categories.map(cat => `
-    <button
-      class="${selectedCategory === cat ? 'categoria-ativa' : ''}"
-      onclick="selectCategory('${cat}')">
+    <button class="${selectedCategory === cat ? 'categoria-ativa' : ''}" onclick="selectCategory('${cat}')">
       ${cat}
     </button>
   `).join('');
@@ -77,7 +72,7 @@ function renderProducts() {
     filteredProducts = products.filter(p => (p.category || 'Sem categoria') === selectedCategory);
   }
 
-  if (!filteredProducts || !filteredProducts.length) {
+  if (!filteredProducts.length) {
     area.innerHTML = '<p>Nenhum produto nessa categoria.</p>';
     return;
   }
@@ -150,6 +145,39 @@ function renderCart() {
   document.getElementById('total').textContent = 'Total: ' + money(total);
 }
 
+async function saveClient() {
+  const msg = document.getElementById('clientMsg');
+
+  const body = {
+    name: document.getElementById('clientName').value,
+    email: document.getElementById('clientEmail').value,
+    phone: document.getElementById('clientPhone').value
+  };
+
+  if (!body.name || !body.email || !body.phone) {
+    msg.textContent = 'Preencha nome, e-mail e WhatsApp.';
+    return;
+  }
+
+  const r = await fetch('/api/customers', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await r.json();
+
+  msg.textContent = data.error || 'Cadastro realizado com sucesso!';
+
+  if (!data.error) {
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientEmail').value = '';
+    document.getElementById('clientPhone').value = '';
+  }
+}
+
 async function checkout() {
   const msg = document.getElementById('msg');
 
@@ -181,7 +209,6 @@ async function checkout() {
       location.href = data.init_point;
     } else {
       msg.textContent = data.details || data.message || data.error || 'Erro ao finalizar.';
-      console.log('Erro checkout:', data);
     }
   } catch (error) {
     msg.textContent = 'Erro ao conectar com o checkout.';
