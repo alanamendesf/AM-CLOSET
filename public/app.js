@@ -82,8 +82,35 @@ function add(id) {
   } else {
     cart.push({ ...p, quantity: 1 });
   }
+function renderCart() {
+  const total = cart.reduce((s, i) => s + Number(i.price) * Number(i.quantity), 0);
 
-  renderCart();
+  const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
+
+  if (document.getElementById('cartCount')) {
+    document.getElementById('cartCount').textContent = quantidadeItens;
+  }
+
+  document.getElementById('cartItems').innerHTML =
+    cart.map(i => `
+      <div class="cartline">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <img
+            src="${i.image}"
+            style="width:50px;height:50px;object-fit:cover;border-radius:8px;"
+          >
+          <div>
+            <strong>${i.name}</strong><br>
+            <small>${i.quantity}x ${money(i.price)}</small>
+          </div>
+        </div>
+
+        <button onclick="removeItem('${i.id}')">x</button>
+      </div>
+    `).join('') || '<p>Carrinho vazio.</p>';
+
+  document.getElementById('total').textContent =
+    'Total: ' + money(total);
 }
 
 function removeItem(id) {
