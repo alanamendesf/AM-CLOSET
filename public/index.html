@@ -18,13 +18,20 @@
         <a href="#products">Produtos</a>
       </nav>
 
-      <a class="carrinho-topo" href="#cart">Carrinho</a>
+      <a class="carrinho-topo" href="#cart">
+        Carrinho <span id="cartCount">0</span>
+      </a>
     </div>
   </header>
 
   <main class="loja-main">
     <section class="intro-loja">
       <h1 id="storeNameText">AM Closet</h1>
+    </section>
+
+    <section class="categorias-area">
+      <h2>Categorias</h2>
+      <div id="categoryTabs" class="category-tabs"></div>
     </section>
 
     <section class="vitrine">
@@ -38,30 +45,33 @@
 
       <strong id="total">Total: R$ 0,00</strong>
 
-      <input id="name" placeholder="Seu nome">
-      <input id="email" placeholder="Seu e-mail">
+      <input id="name" placeholder="Seu nome" autocomplete="name">
+      <input id="email" placeholder="Seu e-mail" autocomplete="email">
 
       <button onclick="checkout()">Finalizar compra</button>
       <p id="msg"></p>
     </aside>
   </main>
 
- <a class="whatsapp" id="whatsappFloat" href="#" target="_blank">
-  WhatsApp
-</a>
+  <a class="instagram-float"
+     href="https://instagram.com/useamcloseet"
+     target="_blank">
+    Instagram
+  </a>
 
-<a class="instagram-float"
-   href="https://instagram.com/useamcloseet"
-   target="_blank">
-  Instagram
-</a>
+  <a class="whatsapp"
+     id="whatsappFloat"
+     href="#"
+     target="_blank">
+    WhatsApp
+  </a>
 
   <footer>
     <h3 id="footerStoreName">AM Closet</h3>
-    <p id="footerInstagram">@amcloset</p>
+    <p id="footerInstagram">@useamcloseet</p>
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-<script src="/app.js?v=30"></script>
+  <script src="/app.js?v=40"></script>
 </body>
 </html>
