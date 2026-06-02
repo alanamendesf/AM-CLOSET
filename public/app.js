@@ -12,13 +12,11 @@ async function load() {
     config = await (await fetch('/api/config')).json();
     products = await (await fetch('/api/products')).json();
 
-    console.log('Produtos carregados:', products);
-
     renderConfig();
     renderProducts();
     renderCart();
   } catch (error) {
-    console.error('Erro ao carregar loja:', error);
+    console.error(error);
     document.getElementById('products').innerHTML = '<p>Erro ao carregar produtos.</p>';
   }
 }
@@ -52,21 +50,17 @@ function renderProducts() {
     return;
   }
 
-  area.innerHTML = products.map(p => {
-    const image = p.image || '/produto-1.svg';
-
-    return `
-      <article class="card produto-card">
-        <img src="${image}" alt="${p.name}" onerror="this.src='/produto-1.svg'">
-        <h3>${p.name}</h3>
-        <p>${p.description || ''}</p>
-        <b>${money(p.price)}</b>
-        <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
-        <small>Estoque: ${p.stock}</small>
-        <button onclick="add('${p.id}')">Adicionar ao carrinho</button>
-      </article>
-    `;
-  }).join('');
+  area.innerHTML = products.map(p => `
+    <article class="card produto-card">
+      <img src="${p.image || '/produto-1.svg'}" alt="${p.name}" onerror="this.src='/produto-1.svg'">
+      <h3>${p.name}</h3>
+      <p>${p.description || ''}</p>
+      <b>${money(p.price)}</b>
+      <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
+      <small>Estoque: ${p.stock}</small>
+      <button onclick="add('${p.id}')">Adicionar ao carrinho</button>
+    </article>
+  `).join('');
 }
 
 function add(id) {
@@ -120,27 +114,33 @@ async function checkout() {
 
   msg.textContent = 'Criando pedido...';
 
-  const r = await fetch('/api/checkout', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      items: cart,
-      customer: {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value
-      }
-    })
-  });
+  try {
+    const r = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        items: cart,
+        customer: {
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value
+        }
+      })
+    });
 
-  const data = await r.json();
+    const data = await r.json();
 
-  if (data.init_point) {
-  location.href = data.init_point;
-} else {
-  msg.textContent = data.details || data.message || data.error || 'Erro ao finalizar.';
-  console.log('Erro Mercado Pago:', data);
+    if (data.init_point) {
+      location.href = data.init_point;
+    } else {
+      msg.textContent = data.details || data.message || data.error || 'Erro ao finalizar.';
+      console.log('Erro checkout:', data);
+    }
+  } catch (error) {
+    msg.textContent = 'Erro ao conectar com o checkout.';
+    console.error(error);
+  }
 }
 
 load();
