@@ -208,3 +208,19 @@ footer p{
     height:320px;
   }
 }
+.instagram-float{
+    position:fixed;
+    right:20px;
+    bottom:85px;
+    background:#E1306C;
+    color:white;
+    text-decoration:none;
+    padding:15px 20px;
+    border-radius:50px;
+    font-weight:bold;
+    z-index:999;
+}
+
+.instagram-float:hover{
+    opacity:.9;
+}
