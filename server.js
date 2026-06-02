@@ -16,16 +16,22 @@ const UPLOAD_DIR = path.join(PUBLIC_DIR, 'uploads');
 fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-if (!fs.existsSync(path.join(DATA_DIR, 'products.json'))) fs.writeFileSync(path.join(DATA_DIR, 'products.json'), '[]');
-if (!fs.existsSync(path.join(DATA_DIR, 'orders.json'))) fs.writeFileSync(path.join(DATA_DIR, 'orders.json'), '[]');
-if (!fs.existsSync(path.join(DATA_DIR, 'config.json'))) {
-fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify({
-  storeName: '𝙰𝙼 𝙲𝚕𝚘𝚜𝚎𝚝',
+function ensureFile(file, content) {
+  const fullPath = path.join(DATA_DIR, file);
+  if (!fs.existsSync(fullPath)) {
+    fs.writeFileSync(fullPath, JSON.stringify(content, null, 2));
+  }
+}
+
+ensureFile('products.json', []);
+ensureFile('orders.json', []);
+ensureFile('customers.json', []);
+ensureFile('config.json', {
+  storeName: 'AM Closet',
   subtitle: 'Looks que valorizam você! ♡',
   whatsapp: '',
   instagram: '@useamcloseet'
-}, null, 2));
-}
+});
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -55,20 +61,25 @@ function checkAdmin(req, res, next) {
   return res.status(401).json({ error: 'Senha do painel inválida.' });
 }
 
+/* CONFIGURAÇÕES */
+
 app.get('/api/config', (req, res) => {
   res.json(readJson('config.json'));
 });
 
 app.put('/api/config', checkAdmin, (req, res) => {
   const config = {
-    storeName: req.body.storeName || '𝙰𝙼 𝙲𝚕𝚘𝚜𝚎𝚝',
+    storeName: req.body.storeName || 'AM Closet',
     subtitle: req.body.subtitle || 'Looks que valorizam você! ♡',
     whatsapp: req.body.whatsapp || '',
-    instagram: req.body.instagram || ''
+    instagram: req.body.instagram || '@useamcloseet'
   };
+
   writeJson('config.json', config);
   res.json(config);
 });
+
+/* PRODUTOS */
 
 app.get('/api/products', (req, res) => {
   res.json(readJson('products.json'));
@@ -81,7 +92,7 @@ app.post('/api/products', checkAdmin, (req, res) => {
     id: String(Date.now()),
     name: req.body.name || '',
     price: Number(req.body.price || 0),
-    category: req.body.category || 'Roupas',
+    category: req.body.category || 'Sem categoria',
     image: req.body.image || '/produto-1.svg',
     description: req.body.description || '',
     stock: Number(req.body.stock || 0),
@@ -97,13 +108,15 @@ app.put('/api/products/:id', checkAdmin, (req, res) => {
   const products = readJson('products.json');
   const index = products.findIndex(p => p.id === req.params.id);
 
-  if (index === -1) return res.status(404).json({ error: 'Produto não encontrado.' });
+  if (index === -1) {
+    return res.status(404).json({ error: 'Produto não encontrado.' });
+  }
 
   products[index] = {
     ...products[index],
     name: req.body.name || '',
     price: Number(req.body.price || 0),
-    category: req.body.category || 'Roupas',
+    category: req.body.category || 'Sem categoria',
     image: req.body.image || products[index].image,
     description: req.body.description || '',
     stock: Number(req.body.stock || 0),
@@ -124,16 +137,57 @@ app.post('/api/upload', checkAdmin, upload.single('image'), (req, res) => {
   res.json({ image: '/uploads/' + req.file.filename });
 });
 
+/* CLIENTES */
+
+app.post('/api/customers', (req, res) => {
+  const customers = readJson('customers.json');
+
+  const customer = {
+    id: String(Date.now()),
+    name: req.body.name || '',
+    email: req.body.email || '',
+    phone: req.body.phone || '',
+    createdAt: new Date().toISOString()
+  };
+
+  if (!customer.name || !customer.email || !customer.phone) {
+    return res.status(400).json({ error: 'Preencha todos os dados.' });
+  }
+
+  customers.push(customer);
+  writeJson('customers.json', customers);
+
+  res.json({ ok: true, customer });
+});
+
+app.get('/api/customers', checkAdmin, (req, res) => {
+  res.json(readJson('customers.json'));
+});
+
+app.delete('/api/customers/:id', checkAdmin, (req, res) => {
+  const customers = readJson('customers.json').filter(c => c.id !== req.params.id);
+  writeJson('customers.json', customers);
+  res.json({ ok: true });
+});
+
+/* PEDIDOS */
+
 app.get('/api/orders', checkAdmin, (req, res) => {
   res.json(readJson('orders.json'));
 });
 
+/* CHECKOUT MERCADO PAGO */
+
 app.post('/api/checkout', async (req, res) => {
   try {
     const { items, customer } = req.body;
-    if (!items || !items.length) return res.status(400).json({ error: 'Carrinho vazio.' });
+
+    if (!items || !items.length) {
+      return res.status(400).json({ error: 'Carrinho vazio.' });
+    }
 
     const orders = readJson('orders.json');
+
     const order = {
       id: String(Date.now()),
       customer: customer || {},
@@ -153,7 +207,10 @@ app.post('/api/checkout', async (req, res) => {
       });
     }
 
-    const client = new MercadoPagoConfig({ accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN });
+    const client = new MercadoPagoConfig({
+      accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
+    });
+
     const preference = new Preference(client);
 
     const result = await preference.create({
@@ -169,21 +226,38 @@ app.post('/api/checkout', async (req, res) => {
           email: customer?.email || ''
         },
         external_reference: order.id,
-     back_urls: {
-  success: 'https://am-closet-1.onrender.com/sucesso.html',
-  failure: 'https://am-closet-1.onrender.com/falha.html',
-  pending: 'https://am-closet-1.onrender.com/pendente.html'
-}
+        back_urls: {
+          success: 'https://am-closet-1.onrender.com/sucesso.html',
+          failure: 'https://am-closet-1.onrender.com/falha.html',
+          pending: 'https://am-closet-1.onrender.com/pendente.html'
+        }
       }
     });
 
-    res.json({ init_point: result.init_point, orderId: order.id });
+    res.json({
+      init_point: result.init_point,
+      orderId: order.id
+    });
+
   } catch (err) {
-    res.status(500).json({ error: 'Erro ao criar checkout.', details: err.message });
+    console.error(err);
+    res.status(500).json({
+      error: 'Erro ao criar checkout.',
+      details: err.message
+    });
   }
 });
 
-app.get('/admin', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'admin.html')));
-app.get('*', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
+/* ROTAS */
 
-app.listen(PORT, () => console.log(`AM Closet rodando na porta ${PORT}`));
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`AM Closet rodando na porta ${PORT}`);
+});
