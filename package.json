@@ -2,13 +2,12 @@
   "name": "am-closet-render",
   "version": "1.0.0",
   "description": "AM Closet - loja online com carrinho, painel e Mercado Pago",
-  "main": "server.js",
+  "main": "servidor.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node servidor.js",
+    "dev": "node servidor.js"
   },
   "dependencies": {
-    "@mercadopago/sdk-js": "latest",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
