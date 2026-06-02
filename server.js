@@ -235,8 +235,8 @@ auto_return: 'approved',
 payment_methods: {
   installments: 12
 }
+      }
     });
-
     res.json({
       init_point: result.init_point,
       orderId: order.id
