@@ -226,12 +226,15 @@ app.post('/api/checkout', async (req, res) => {
           email: customer?.email || ''
         },
         external_reference: order.id,
-        back_urls: {
-          success: 'https://am-closet-1.onrender.com/sucesso.html',
-          failure: 'https://am-closet-1.onrender.com/falha.html',
-          pending: 'https://am-closet-1.onrender.com/pendente.html'
-        }
-      }
+       back_urls: {
+  success: 'https://am-closet-1.onrender.com/sucesso.html',
+  failure: 'https://am-closet-1.onrender.com/falha.html',
+  pending: 'https://am-closet-1.onrender.com/pendente.html'
+},
+auto_return: 'approved',
+payment_methods: {
+  installments: 12
+}
     });
 
     res.json({
