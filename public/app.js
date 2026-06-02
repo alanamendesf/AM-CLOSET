@@ -137,10 +137,10 @@ async function checkout() {
   const data = await r.json();
 
   if (data.init_point) {
-    location.href = data.init_point;
-  } else {
-    msg.textContent = data.message || data.error || 'Erro ao finalizar.';
-  }
+  location.href = data.init_point;
+} else {
+  msg.textContent = data.details || data.message || data.error || 'Erro ao finalizar.';
+  console.log('Erro Mercado Pago:', data);
 }
 
 load();
