@@ -1,19 +1,22 @@
 require('dotenv').config();
+
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+const SITE_URL = process.env.SITE_URL || 'https://am-closet-1.onrender.com';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const multer = require('multer');
-const { MercadoPagoConfig, Preference } = require('mercadopago');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
 
 const DATA_DIR = path.join(__dirname, 'data');
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -65,6 +68,15 @@ function checkAdmin(req, res, next) {
   const pass = req.headers['x-admin-password'];
   if (!process.env.ADMIN_PASSWORD || pass === process.env.ADMIN_PASSWORD) return next();
   return res.status(401).json({ error: 'Senha do painel inválida.' });
+}
+
+function roundMoney(value) {
+  return Math.round(Number(value) * 100) / 100;
+}
+
+function getPaymentFee(paymentMethod) {
+  if (paymentMethod === 'pix') return 0.0099;
+  return 0.0498;
 }
 
 /* CONFIGURAÇÕES */
@@ -153,9 +165,7 @@ app.post('/api/customers', async (req, res) => {
   };
 
   if (!customer.name || !customer.email || !customer.phone) {
-    return res.status(400).json({
-      error: 'Preencha todos os dados.'
-    });
+    return res.status(400).json({ error: 'Preencha todos os dados.' });
   }
 
   const { data, error } = await supabase
@@ -165,15 +175,10 @@ app.post('/api/customers', async (req, res) => {
     .single();
 
   if (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(500).json({ error: error.message });
   }
 
-  res.json({
-    ok: true,
-    customer: data
-  });
+  res.json({ ok: true, customer: data });
 });
 
 app.get('/api/customers', checkAdmin, async (req, res) => {
@@ -183,9 +188,7 @@ app.get('/api/customers', checkAdmin, async (req, res) => {
     .order('id', { ascending: false });
 
   if (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(500).json({ error: error.message });
   }
 
   res.json(data);
@@ -198,14 +201,10 @@ app.delete('/api/customers/:id', checkAdmin, async (req, res) => {
     .eq('id', req.params.id);
 
   if (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(500).json({ error: error.message });
   }
 
-  res.json({
-    ok: true
-  });
+  res.json({ ok: true });
 });
 
 /* PEDIDOS */
@@ -217,84 +216,130 @@ app.get('/api/orders', checkAdmin, async (req, res) => {
     .order('created_at', { ascending: false });
 
   if (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(500).json({ error: error.message });
   }
 
   res.json(data);
 });
 
-
 /* CHECKOUT MERCADO PAGO */
 
 app.post('/api/checkout', async (req, res) => {
   try {
-    const { items, customer } = req.body;
+    const { items, customer, paymentMethod } = req.body;
 
     if (!items || !items.length) {
       return res.status(400).json({ error: 'Carrinho vazio.' });
     }
 
-const { data: order, error: orderError } = await supabase
-  .from('orders')
-  .insert([{
-    customer: customer || {},
-    items,
-    status: 'Aguardando pagamento'
-  }])
-  .select()
-  .single();
+    const method = paymentMethod === 'pix' ? 'pix' : 'card';
+    const feePercent = getPaymentFee(method);
 
-if (orderError) {
-  return res.status(500).json({
-    error: 'Erro ao salvar pedido.',
-    details: orderError.message
-  });
-}
+    const subtotal = items.reduce((total, item) => {
+      return total + Number(item.price || 0) * Number(item.quantity || 1);
+    }, 0);
+
+    const feeValue = roundMoney(subtotal * feePercent);
+    const total = roundMoney(subtotal + feeValue);
+
+    const orderItems = items.map(i => ({
+      name: i.name,
+      quantity: Number(i.quantity || 1),
+      price: Number(i.price || 0)
+    }));
+
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .insert([{
+        customer: customer || {},
+        items: orderItems,
+        payment_method: method,
+        subtotal,
+        fee_percent: feePercent * 100,
+        fee_value: feeValue,
+        total,
+        status: 'Aguardando pagamento'
+      }])
+      .select()
+      .single();
+
+    if (orderError) {
+      return res.status(500).json({
+        error: 'Erro ao salvar pedido.',
+        details: orderError.message
+      });
+    }
 
     if (!process.env.MERCADO_PAGO_ACCESS_TOKEN || process.env.MERCADO_PAGO_ACCESS_TOKEN.includes('COLE_')) {
       return res.json({
         demo: true,
         orderId: order.id,
+        subtotal,
+        feeValue,
+        total,
         message: 'Pedido criado em modo teste. Configure Mercado Pago no Render.'
       });
     }
 
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
-});
+    const client = new MercadoPagoConfig({
+      accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
+    });
 
-const preference = new Preference(client);
+    const preference = new Preference(client);
 
-const preferenceData = {
-  items: items.map(i => ({
-    title: i.name,
-    quantity: Number(i.quantity || 1),
-    unit_price: Number(i.price),
-    currency_id: 'BRL'
-  })),
-  payer: {
-    name: customer?.name || '',
-    email: customer?.email || ''
-  },
-  external_reference: String(order.id),
-  back_urls: {
-    success: 'https://am-closet-1.onrender.com/sucesso.html',
-    failure: 'https://am-closet-1.onrender.com/falha.html',
-    pending: 'https://am-closet-1.onrender.com/pendente.html'
-  },
-  payment_methods: {
-    installments: 12
-  }
-};
+    const preferenceItems = items.map(i => ({
+      title: i.name,
+      quantity: Number(i.quantity || 1),
+      unit_price: roundMoney(Number(i.price || 0)),
+      currency_id: 'BRL'
+    }));
 
-const result = await preference.create({
-  body: preferenceData
-});
+    preferenceItems.push({
+      title: method === 'pix'
+        ? 'Taxa de pagamento PIX - 0,99%'
+        : 'Taxa de pagamento Cartão - 4,98%',
+      quantity: 1,
+      unit_price: feeValue,
+      currency_id: 'BRL'
+    });
+
+    const preferenceData = {
+      items: preferenceItems,
+      payer: {
+        name: customer?.name || '',
+        email: customer?.email || ''
+      },
+      external_reference: String(order.id),
+      notification_url: `${SITE_URL}/api/webhook/mercadopago`,
+      back_urls: {
+        success: `${SITE_URL}/sucesso.html`,
+        failure: `${SITE_URL}/falha.html`,
+        pending: `${SITE_URL}/pendente.html`
+      },
+      auto_return: 'approved',
+      payment_methods: {
+        installments: 12
+      }
+    };
+
+    if (method === 'pix') {
+      preferenceData.payment_methods.excluded_payment_types = [
+        { id: 'credit_card' },
+        { id: 'debit_card' },
+        { id: 'ticket' }
+      ];
+    }
+
+    const result = await preference.create({
+      body: preferenceData
+    });
+
     res.json({
       init_point: result.init_point,
-      orderId: order.id
+      orderId: order.id,
+      subtotal,
+      feeValue,
+      total
     });
 
   } catch (err) {
@@ -303,6 +348,67 @@ const result = await preference.create({
       error: 'Erro ao criar checkout.',
       details: err.message
     });
+  }
+});
+
+/* WEBHOOK MERCADO PAGO */
+
+app.post('/api/webhook/mercadopago', async (req, res) => {
+  try {
+    const body = req.body;
+
+    const paymentId =
+      body?.data?.id ||
+      body?.id ||
+      body?.resource?.split('/').pop();
+
+    if (!paymentId) {
+      return res.json({ ok: true });
+    }
+
+    if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
+      return res.json({ ok: true });
+    }
+
+    const client = new MercadoPagoConfig({
+      accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
+    });
+
+    const payment = new Payment(client);
+    const paymentData = await payment.get({ id: paymentId });
+
+    const orderId = paymentData.external_reference;
+
+    if (!orderId) {
+      return res.json({ ok: true });
+    }
+
+    let status = 'Aguardando pagamento';
+
+    if (paymentData.status === 'approved') {
+      status = 'Pago';
+    } else if (paymentData.status === 'pending') {
+      status = 'Pagamento pendente';
+    } else if (paymentData.status === 'rejected') {
+      status = 'Pagamento recusado';
+    } else if (paymentData.status === 'cancelled') {
+      status = 'Pagamento cancelado';
+    }
+
+    await supabase
+      .from('orders')
+      .update({
+        status,
+        mercado_pago_payment_id: String(paymentId),
+        mercado_pago_status: paymentData.status
+      })
+      .eq('id', orderId);
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    console.error('Erro no webhook Mercado Pago:', err.message);
+    res.json({ ok: false });
   }
 });
 
