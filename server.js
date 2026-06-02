@@ -145,42 +145,86 @@ app.post('/api/upload', checkAdmin, upload.single('image'), (req, res) => {
 
 /* CLIENTES */
 
-app.post('/api/customers', (req, res) => {
-  const customers = readJson('customers.json');
-
+app.post('/api/customers', async (req, res) => {
   const customer = {
-    id: String(Date.now()),
     name: req.body.name || '',
     email: req.body.email || '',
-    phone: req.body.phone || '',
-    createdAt: new Date().toISOString()
+    phone: req.body.phone || ''
   };
 
   if (!customer.name || !customer.email || !customer.phone) {
-    return res.status(400).json({ error: 'Preencha todos os dados.' });
+    return res.status(400).json({
+      error: 'Preencha todos os dados.'
+    });
   }
 
-  customers.push(customer);
-  writeJson('customers.json', customers);
+  const { data, error } = await supabase
+    .from('customers')
+    .insert([customer])
+    .select()
+    .single();
 
-  res.json({ ok: true, customer });
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json({
+    ok: true,
+    customer: data
+  });
 });
 
-app.get('/api/customers', checkAdmin, (req, res) => {
-  res.json(readJson('customers.json'));
+app.get('/api/customers', checkAdmin, async (req, res) => {
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .order('id', { ascending: false });
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json(data);
 });
 
-app.delete('/api/customers/:id', checkAdmin, (req, res) => {
-  const customers = readJson('customers.json').filter(c => c.id !== req.params.id);
-  writeJson('customers.json', customers);
-  res.json({ ok: true });
+app.delete('/api/customers/:id', checkAdmin, async (req, res) => {
+  const { error } = await supabase
+    .from('customers')
+    .delete()
+    .eq('id', req.params.id);
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json({
+    ok: true
+  });
 });
 
 /* PEDIDOS */
 
-app.get('/api/orders', checkAdmin, (req, res) => {
-  res.json(readJson('orders.json'));
+app.get('/api/orders', checkAdmin, async (req, res) => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json(data);
 });
+
 
 /* CHECKOUT MERCADO PAGO */
 
@@ -192,18 +236,22 @@ app.post('/api/checkout', async (req, res) => {
       return res.status(400).json({ error: 'Carrinho vazio.' });
     }
 
-    const orders = readJson('orders.json');
+const { data: order, error: orderError } = await supabase
+  .from('orders')
+  .insert([{
+    customer: customer || {},
+    items,
+    status: 'Aguardando pagamento'
+  }])
+  .select()
+  .single();
 
-    const order = {
-      id: String(Date.now()),
-      customer: customer || {},
-      items,
-      status: 'Aguardando pagamento',
-      createdAt: new Date().toISOString()
-    };
-
-    orders.push(order);
-    writeJson('orders.json', orders);
+if (orderError) {
+  return res.status(500).json({
+    error: 'Erro ao salvar pedido.',
+    details: orderError.message
+  });
+}
 
     if (!process.env.MERCADO_PAGO_ACCESS_TOKEN || process.env.MERCADO_PAGO_ACCESS_TOKEN.includes('COLE_')) {
       return res.json({
