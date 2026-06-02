@@ -6,7 +6,6 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -248,16 +247,20 @@ app.post('/api/checkout', async (req, res) => {
       price: Number(i.price || 0)
     }));
 
+    const customerData = {
+      ...(customer || {}),
+      payment_method: method,
+      subtotal,
+      fee_percent: feePercent * 100,
+      fee_value: feeValue,
+      total
+    };
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert([{
-        customer: customer || {},
+        customer: customerData,
         items: orderItems,
-        payment_method: method,
-        subtotal,
-        fee_percent: feePercent * 100,
-        fee_value: feeValue,
-        total,
         status: 'Aguardando pagamento'
       }])
       .select()
@@ -280,12 +283,6 @@ app.post('/api/checkout', async (req, res) => {
         message: 'Pedido criado em modo teste. Configure Mercado Pago no Render.'
       });
     }
-
-    const client = new MercadoPagoConfig({
-      accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
-    });
-
-    const preference = new Preference(client);
 
     const preferenceItems = items.map(i => ({
       title: i.name,
@@ -330,9 +327,24 @@ app.post('/api/checkout', async (req, res) => {
       ];
     }
 
-    const result = await preference.create({
-      body: preferenceData
+    const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(preferenceData)
     });
+
+    const result = await mpResponse.json();
+
+    if (!mpResponse.ok) {
+      console.error('Erro Mercado Pago:', result);
+      return res.status(500).json({
+        error: 'Erro Mercado Pago.',
+        details: result.message || result
+      });
+    }
 
     res.json({
       init_point: result.init_point,
@@ -362,20 +374,23 @@ app.post('/api/webhook/mercadopago', async (req, res) => {
       body?.id ||
       body?.resource?.split('/').pop();
 
-    if (!paymentId) {
+    if (!paymentId || !process.env.MERCADO_PAGO_ACCESS_TOKEN) {
       return res.json({ ok: true });
     }
 
-    if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
-      return res.json({ ok: true });
-    }
-
-    const client = new MercadoPagoConfig({
-      accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
+    const mpResponse = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`
+      }
     });
 
-    const payment = new Payment(client);
-    const paymentData = await payment.get({ id: paymentId });
+    const paymentData = await mpResponse.json();
+
+    if (!mpResponse.ok) {
+      console.error('Erro ao consultar pagamento:', paymentData);
+      return res.json({ ok: false });
+    }
 
     const orderId = paymentData.external_reference;
 
@@ -397,11 +412,7 @@ app.post('/api/webhook/mercadopago', async (req, res) => {
 
     await supabase
       .from('orders')
-      .update({
-        status,
-        mercado_pago_payment_id: String(paymentId),
-        mercado_pago_status: paymentData.status
-      })
+      .update({ status })
       .eq('id', orderId);
 
     res.json({ ok: true });
