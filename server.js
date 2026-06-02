@@ -8,27 +8,47 @@ const { MercadoPagoConfig, Preference } = require('mercadopago');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 const DATA_DIR = path.join(__dirname, 'data');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const UPLOAD_DIR = path.join(PUBLIC_DIR, 'uploads');
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
 if (!fs.existsSync(path.join(DATA_DIR, 'products.json'))) fs.writeFileSync(path.join(DATA_DIR, 'products.json'), '[]');
 if (!fs.existsSync(path.join(DATA_DIR, 'orders.json'))) fs.writeFileSync(path.join(DATA_DIR, 'orders.json'), '[]');
+if (!fs.existsSync(path.join(DATA_DIR, 'config.json'))) {
+  fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify({
+    storeName: 'AM Closet',
+    subtitle: 'Moda feminina',
+    whatsapp: '',
+    instagram: '@amcloset'
+  }, null, 2));
+}
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(PUBLIC_DIR));
 
-const upload = multer({ dest: UPLOAD_DIR });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + ext);
+  }
+});
+
+const upload = multer({ storage });
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(path.join(DATA_DIR, file), 'utf8'));
 }
+
 function writeJson(file, data) {
   fs.writeFileSync(path.join(DATA_DIR, file), JSON.stringify(data, null, 2));
 }
+
 function checkAdmin(req, res, next) {
   const pass = req.headers['x-admin-password'];
   if (!process.env.ADMIN_PASSWORD || pass === process.env.ADMIN_PASSWORD) return next();
@@ -36,25 +56,62 @@ function checkAdmin(req, res, next) {
 }
 
 app.get('/api/config', (req, res) => {
-  res.json({ storeName: process.env.STORE_NAME || 'AM Closet' });
+  res.json(readJson('config.json'));
 });
 
-app.get('/api/products', (req, res) => res.json(readJson('products.json')));
+app.put('/api/config', checkAdmin, (req, res) => {
+  const config = {
+    storeName: req.body.storeName || 'AM Closet',
+    subtitle: req.body.subtitle || 'Moda feminina',
+    whatsapp: req.body.whatsapp || '',
+    instagram: req.body.instagram || ''
+  };
+  writeJson('config.json', config);
+  res.json(config);
+});
+
+app.get('/api/products', (req, res) => {
+  res.json(readJson('products.json'));
+});
 
 app.post('/api/products', checkAdmin, (req, res) => {
   const products = readJson('products.json');
+
   const product = {
-    id: req.body.id || String(Date.now()),
-    name: req.body.name,
+    id: String(Date.now()),
+    name: req.body.name || '',
     price: Number(req.body.price || 0),
     category: req.body.category || 'Roupas',
     image: req.body.image || '/produto-1.svg',
     description: req.body.description || '',
-    stock: Number(req.body.stock || 0)
+    stock: Number(req.body.stock || 0),
+    sizes: req.body.sizes || ''
   };
+
   products.push(product);
   writeJson('products.json', products);
   res.json(product);
+});
+
+app.put('/api/products/:id', checkAdmin, (req, res) => {
+  const products = readJson('products.json');
+  const index = products.findIndex(p => p.id === req.params.id);
+
+  if (index === -1) return res.status(404).json({ error: 'Produto não encontrado.' });
+
+  products[index] = {
+    ...products[index],
+    name: req.body.name || '',
+    price: Number(req.body.price || 0),
+    category: req.body.category || 'Roupas',
+    image: req.body.image || products[index].image,
+    description: req.body.description || '',
+    stock: Number(req.body.stock || 0),
+    sizes: req.body.sizes || ''
+  };
+
+  writeJson('products.json', products);
+  res.json(products[index]);
 });
 
 app.delete('/api/products/:id', checkAdmin, (req, res) => {
@@ -63,7 +120,13 @@ app.delete('/api/products/:id', checkAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/orders', checkAdmin, (req, res) => res.json(readJson('orders.json')));
+app.post('/api/upload', checkAdmin, upload.single('image'), (req, res) => {
+  res.json({ image: '/uploads/' + req.file.filename });
+});
+
+app.get('/api/orders', checkAdmin, (req, res) => {
+  res.json(readJson('orders.json'));
+});
 
 app.post('/api/checkout', async (req, res) => {
   try {
@@ -78,6 +141,7 @@ app.post('/api/checkout', async (req, res) => {
       status: 'Aguardando pagamento',
       createdAt: new Date().toISOString()
     };
+
     orders.push(order);
     writeJson('orders.json', orders);
 
@@ -85,12 +149,13 @@ app.post('/api/checkout', async (req, res) => {
       return res.json({
         demo: true,
         orderId: order.id,
-        message: 'Pedido criado em modo teste. Configure MERCADO_PAGO_ACCESS_TOKEN no Render para ativar Pix/cartão.'
+        message: 'Pedido criado em modo teste. Configure Mercado Pago no Render.'
       });
     }
 
     const client = new MercadoPagoConfig({ accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN });
     const preference = new Preference(client);
+
     const result = await preference.create({
       body: {
         items: items.map(i => ({
@@ -112,9 +177,9 @@ app.post('/api/checkout', async (req, res) => {
         auto_return: 'approved'
       }
     });
+
     res.json({ init_point: result.init_point, orderId: order.id });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Erro ao criar checkout.', details: err.message });
   }
 });
