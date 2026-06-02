@@ -1,0 +1,29 @@
+[
+  {
+    "id": "vestido-midi",
+    "name": "Vestido Midi Elegance",
+    "price": 129.9,
+    "category": "Vestidos",
+    "image": "/produto-1.svg",
+    "description": "Vestido elegante para ocasiões especiais.",
+    "stock": 5
+  },
+  {
+    "id": "blusa-canelada",
+    "name": "Blusa Canelada",
+    "price": 59.9,
+    "category": "Blusas",
+    "image": "/produto-2.svg",
+    "description": "Blusa confortável para o dia a dia.",
+    "stock": 10
+  },
+  {
+    "id": "calca-wide",
+    "name": "Calça Wide Leg",
+    "price": 119.9,
+    "category": "Calças",
+    "image": "/produto-3.svg",
+    "description": "Calça moderna com caimento perfeito.",
+    "stock": 6
+  }
+]
