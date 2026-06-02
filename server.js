@@ -20,10 +20,10 @@ if (!fs.existsSync(path.join(DATA_DIR, 'products.json'))) fs.writeFileSync(path.
 if (!fs.existsSync(path.join(DATA_DIR, 'orders.json'))) fs.writeFileSync(path.join(DATA_DIR, 'orders.json'), '[]');
 if (!fs.existsSync(path.join(DATA_DIR, 'config.json'))) {
   fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify({
-    storeName: 'AM Closet',
-    subtitle: 'Moda feminina',
+    storeName: '𝙰𝙼 𝙲𝚕𝚘𝚜𝚎𝚝',
+    subtitle: 'Looks que valorizam você! ♡',
     whatsapp: '',
-    instagram: '@amcloset'
+    instagram: '@useamcloseet'
   }, null, 2));
 }
 
@@ -61,8 +61,8 @@ app.get('/api/config', (req, res) => {
 
 app.put('/api/config', checkAdmin, (req, res) => {
   const config = {
-    storeName: req.body.storeName || 'AM Closet',
-    subtitle: req.body.subtitle || 'Moda feminina',
+    storeName: req.body.storeName || '𝙰𝙼 𝙲𝚕𝚘𝚜𝚎𝚝',
+    subtitle: req.body.subtitle || 'Looks que valorizam você! ♡',
     whatsapp: req.body.whatsapp || '',
     instagram: req.body.instagram || ''
   };
@@ -169,12 +169,11 @@ app.post('/api/checkout', async (req, res) => {
           email: customer?.email || ''
         },
         external_reference: order.id,
-        back_urls: {
+     back_urls: {
   success: 'https://am-closet-1.onrender.com/sucesso.html',
   failure: 'https://am-closet-1.onrender.com/falha.html',
   pending: 'https://am-closet-1.onrender.com/pendente.html'
-},
-auto_return: 'approved'
+}
       }
     });
 
