@@ -1,6 +1,7 @@
 let products = [];
 let cart = [];
 let config = {};
+let selectedCategory = 'Todos';
 
 const money = v => Number(v).toLocaleString('pt-BR', {
   style: 'currency',
@@ -13,6 +14,7 @@ async function load() {
     products = await (await fetch('/api/products')).json();
 
     renderConfig();
+    renderCategories();
     renderProducts();
     renderCart();
   } catch (error) {
@@ -42,20 +44,51 @@ function renderConfig() {
   }
 }
 
+function renderCategories() {
+  const area = document.getElementById('categoryTabs');
+  if (!area) return;
+
+  const categories = [
+    'Todos',
+    ...new Set(products.map(p => p.category || 'Sem categoria'))
+  ];
+
+  area.innerHTML = categories.map(cat => `
+    <button
+      class="${selectedCategory === cat ? 'categoria-ativa' : ''}"
+      onclick="selectCategory('${cat}')">
+      ${cat}
+    </button>
+  `).join('');
+}
+
+function selectCategory(category) {
+  selectedCategory = category;
+  renderCategories();
+  renderProducts();
+}
+
 function renderProducts() {
   const area = document.getElementById('products');
 
-  if (!products || !products.length) {
-    area.innerHTML = '<p>Nenhum produto cadastrado.</p>';
+  let filteredProducts = products;
+
+  if (selectedCategory !== 'Todos') {
+    filteredProducts = products.filter(p => (p.category || 'Sem categoria') === selectedCategory);
+  }
+
+  if (!filteredProducts || !filteredProducts.length) {
+    area.innerHTML = '<p>Nenhum produto nessa categoria.</p>';
     return;
   }
 
-  area.innerHTML = products.map(p => `
+  area.innerHTML = filteredProducts.map(p => `
     <article class="card produto-card">
       <img src="${p.image || '/produto-1.svg'}" alt="${p.name}" onerror="this.src='/produto-1.svg'">
       <h3>${p.name}</h3>
       <p>${p.description || ''}</p>
       <b>${money(p.price)}</b>
+      <small>Categoria: ${p.category || 'Sem categoria'}</small>
       <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
       <small>Estoque: ${p.stock}</small>
       <button onclick="add('${p.id}')">Adicionar ao carrinho</button>
@@ -82,35 +115,8 @@ function add(id) {
   } else {
     cart.push({ ...p, quantity: 1 });
   }
-function renderCart() {
-  const total = cart.reduce((s, i) => s + Number(i.price) * Number(i.quantity), 0);
 
-  const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
-
-  if (document.getElementById('cartCount')) {
-    document.getElementById('cartCount').textContent = quantidadeItens;
-  }
-
-  document.getElementById('cartItems').innerHTML =
-    cart.map(i => `
-      <div class="cartline">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <img
-            src="${i.image}"
-            style="width:50px;height:50px;object-fit:cover;border-radius:8px;"
-          >
-          <div>
-            <strong>${i.name}</strong><br>
-            <small>${i.quantity}x ${money(i.price)}</small>
-          </div>
-        </div>
-
-        <button onclick="removeItem('${i.id}')">x</button>
-      </div>
-    `).join('') || '<p>Carrinho vazio.</p>';
-
-  document.getElementById('total').textContent =
-    'Total: ' + money(total);
+  renderCart();
 }
 
 function removeItem(id) {
@@ -120,13 +126,26 @@ function removeItem(id) {
 
 function renderCart() {
   const total = cart.reduce((s, i) => s + Number(i.price) * Number(i.quantity), 0);
+  const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
 
-  document.getElementById('cartItems').innerHTML = cart.map(i => `
-    <div class="cartline">
-      <span>${i.quantity}x ${i.name}</span>
-      <button onclick="removeItem('${i.id}')">x</button>
-    </div>
-  `).join('') || '<p>Carrinho vazio.</p>';
+  if (document.getElementById('cartCount')) {
+    document.getElementById('cartCount').textContent = quantidadeItens;
+  }
+
+  document.getElementById('cartItems').innerHTML =
+    cart.map(i => `
+      <div class="cartline">
+        <div class="cart-produto-info">
+          <img src="${i.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
+          <div>
+            <strong>${i.name}</strong><br>
+            <small>${i.quantity}x ${money(i.price)}</small>
+          </div>
+        </div>
+
+        <button onclick="removeItem('${i.id}')">x</button>
+      </div>
+    `).join('') || '<p>Carrinho vazio.</p>';
 
   document.getElementById('total').textContent = 'Total: ' + money(total);
 }
