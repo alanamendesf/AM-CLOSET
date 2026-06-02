@@ -17,32 +17,24 @@ async function load() {
 }
 
 function renderConfig() {
-
-  if(document.getElementById('storeNameText')){
+  if (document.getElementById('storeNameText')) {
     storeNameText.textContent = config.storeName || 'AM Closet';
   }
 
-  if(document.getElementById('footerStoreName')){
+  if (document.getElementById('footerStoreName')) {
     footerStoreName.textContent = config.storeName || 'AM Closet';
   }
 
-  if(document.getElementById('footerInstagram')){
+  if (document.getElementById('footerInstagram')) {
     footerInstagram.textContent = config.instagram || '@amcloset';
   }
 
   const number = (config.whatsapp || '').replace(/\D/g, '');
+  const link = number ? `https://wa.me/55${number}` : '#';
 
-  const link = number
-    ? `https://wa.me/55${number}`
-    : '#';
-
-  if(document.getElementById('whatsappFloat')){
+  if (document.getElementById('whatsappFloat')) {
     whatsappFloat.href = link;
   }
-}
-
-  whatsappFloat.href = link;
-  whatsappLinkTop.href = link;
 }
 
 function renderProducts() {
@@ -88,7 +80,7 @@ function removeItem(id) {
 }
 
 function renderCart() {
-  const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const total = cart.reduce((s, i) => s + Number(i.price) * Number(i.quantity), 0);
 
   document.getElementById('cartItems').innerHTML = cart.map(i => `
     <div class="cartline">
