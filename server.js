@@ -170,11 +170,11 @@ app.post('/api/checkout', async (req, res) => {
         },
         external_reference: order.id,
         back_urls: {
-          success: `${req.protocol}://${req.get('host')}/sucesso.html`,
-          failure: `${req.protocol}://${req.get('host')}/falha.html`,
-          pending: `${req.protocol}://${req.get('host')}/pendente.html`
-        },
-        auto_return: 'approved'
+  success: 'https://am-closet-1.onrender.com/sucesso.html',
+  failure: 'https://am-closet-1.onrender.com/falha.html',
+  pending: 'https://am-closet-1.onrender.com/pendente.html'
+},
+auto_return: 'approved'
       }
     });
 
