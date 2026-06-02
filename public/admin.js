@@ -24,25 +24,31 @@ async function uploadImage() {
   });
 
   const d = await r.json();
-  return d.image;
+  return d.image || '/produto-1.svg';
 }
 
 async function loadAdmin() {
   const config = await (await fetch('/api/config')).json();
 
-  storeName.value = config.storeName || '';
-  subtitle.value = config.subtitle || '';
+  storeName.value = config.storeName || 'AM Closet';
+  subtitle.value = config.subtitle || 'Looks que valorizam você! ♡';
   whatsapp.value = config.whatsapp || '';
-  instagram.value = config.instagram || '';
+  instagram.value = config.instagram || '@useamcloseet';
 
+  await loadProducts();
+  await loadOrders();
+  await loadCustomers();
+}
+
+async function loadProducts() {
   const products = await (await fetch('/api/products')).json();
 
   adminProducts.innerHTML = products.map(p => `
-    <article class="card">
-      <img src="${p.image}">
+    <article class="card produto-card">
+      <img src="${p.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
       <h3>${p.name}</h3>
       <b>${money(p.price)}</b>
-      <small>Categoria: ${p.category || ''}</small>
+      <small>Categoria: ${p.category || 'Sem categoria'}</small>
       <small>Tamanhos: ${p.sizes || ''}</small>
       <small>Estoque: ${p.stock}</small>
 
@@ -58,23 +64,51 @@ async function loadAdmin() {
       <button onclick="delProduct('${p.id}')">Excluir</button>
     </article>
   `).join('');
+}
 
+async function loadOrders() {
   try {
-    const orders = await (await fetch('/api/orders', {
+    const data = await (await fetch('/api/orders', {
       headers: {
         'x-admin-password': pass()
       }
     })).json();
 
-    orders.innerHTML = Array.isArray(orders)
-      ? orders.map(o => `
+    orders.innerHTML = Array.isArray(data)
+      ? data.map(o => `
         <div class="order">
           <b>Pedido ${o.id}</b>
-          <p>${o.customer?.name || ''} - ${o.status}</p>
+          <p>${o.customer?.name || ''} - ${o.customer?.email || ''}</p>
+          <p>Status: ${o.status}</p>
         </div>
       `).join('')
       : 'Digite a senha para ver pedidos.';
-  } catch (e) {}
+  } catch (e) {
+    orders.innerHTML = 'Digite a senha para ver pedidos.';
+  }
+}
+
+async function loadCustomers() {
+  try {
+    const data = await (await fetch('/api/customers', {
+      headers: {
+        'x-admin-password': pass()
+      }
+    })).json();
+
+    customers.innerHTML = Array.isArray(data) && data.length
+      ? data.map(c => `
+        <div class="order">
+          <b>${c.name}</b>
+          <p>E-mail: ${c.email}</p>
+          <p>WhatsApp: ${c.phone}</p>
+          <button onclick="delCustomer('${c.id}')">Excluir cliente</button>
+        </div>
+      `).join('')
+      : 'Nenhuma cliente cadastrada ainda.';
+  } catch (e) {
+    customers.innerHTML = 'Digite a senha para ver clientes.';
+  }
 }
 
 async function saveConfig() {
@@ -122,7 +156,7 @@ async function addProduct() {
 
   const d = await r.json();
   adminMsg.textContent = d.error || 'Produto adicionado!';
-  loadAdmin();
+  await loadProducts();
 }
 
 async function editProduct(id) {
@@ -147,7 +181,7 @@ async function editProduct(id) {
 
   const d = await r.json();
   adminMsg.textContent = d.error || 'Produto atualizado!';
-  loadAdmin();
+  await loadProducts();
 }
 
 async function delProduct(id) {
@@ -159,7 +193,19 @@ async function delProduct(id) {
   });
 
   adminMsg.textContent = 'Produto excluído!';
-  loadAdmin();
+  await loadProducts();
+}
+
+async function delCustomer(id) {
+  await fetch('/api/customers/' + id, {
+    method: 'DELETE',
+    headers: {
+      'x-admin-password': pass()
+    }
+  });
+
+  adminMsg.textContent = 'Cliente excluída!';
+  await loadCustomers();
 }
 
 loadAdmin();
