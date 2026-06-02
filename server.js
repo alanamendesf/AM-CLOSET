@@ -261,36 +261,37 @@ if (orderError) {
       });
     }
 
-    const client = new MercadoPagoConfig({
-      accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
-    });
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
+});
 
-    const preference = new Preference(client);
+const preference = new Preference(client);
 
-    const result = await preference.create({
-      body: {
-        items: items.map(i => ({
-          title: i.name,
-          quantity: Number(i.quantity || 1),
-          unit_price: Number(i.price),
-          currency_id: 'BRL'
-        })),
-        payer: {
-          name: customer?.name || '',
-          email: customer?.email || ''
-        },
-        external_reference: order.id,
-       back_urls: {
-  success: 'https://am-closet-1.onrender.com/sucesso.html',
-  failure: 'https://am-closet-1.onrender.com/falha.html',
-  pending: 'https://am-closet-1.onrender.com/pendente.html'
-},
-auto_return: 'approved',
-payment_methods: {
-  installments: 12
-}
-      }
-    });
+const preferenceData = {
+  items: items.map(i => ({
+    title: i.name,
+    quantity: Number(i.quantity || 1),
+    unit_price: Number(i.price),
+    currency_id: 'BRL'
+  })),
+  payer: {
+    name: customer?.name || '',
+    email: customer?.email || ''
+  },
+  external_reference: String(order.id),
+  back_urls: {
+    success: 'https://am-closet-1.onrender.com/sucesso.html',
+    failure: 'https://am-closet-1.onrender.com/falha.html',
+    pending: 'https://am-closet-1.onrender.com/pendente.html'
+  },
+  payment_methods: {
+    installments: 12
+  }
+};
+
+const result = await preference.create({
+  body: preferenceData
+});
     res.json({
       init_point: result.init_point,
       orderId: order.id
