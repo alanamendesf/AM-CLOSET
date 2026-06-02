@@ -16,26 +16,38 @@
         <a href="/">Início</a>
         <span class="separador"></span>
         <a href="#products">Produtos</a>
+        <span class="separador"></span>
+        <a href="#categoryTabs">Categorias</a>
+        <span class="separador"></span>
+        <a href="#cadastro">Cadastro</a>
+        <span class="separador"></span>
+        <a class="carrinho-topo" href="#cart">Carrinho <span id="cartCount">0</span></a>
       </nav>
-
-      <a class="carrinho-topo" href="#cart">
-  Carrinho <span id="cartCount">0</span>
-</a>
     </div>
   </header>
 
   <main class="loja-main">
-    <section class="intro-loja">
+    <section class="intro-loja pequena">
       <h1 id="storeNameText">AM Closet</h1>
+      <p>Looks que valorizam você! ♡</p>
     </section>
 
-  <section class="vitrine">
-  <h2>Produtos</h2>
+    <section class="vitrine">
+      <h2>Produtos</h2>
 
-  <div id="categoryTabs" class="category-tabs"></div>
+      <div id="categoryTabs" class="category-tabs"></div>
 
-  <div id="products" class="grid"></div>
-</section>
+      <div id="products" class="grid"></div>
+    </section>
+
+    <section id="cadastro" class="cart">
+      <h2>Cadastro</h2>
+      <input id="clientName" placeholder="Seu nome" autocomplete="name">
+      <input id="clientEmail" placeholder="Seu e-mail" autocomplete="email">
+      <input id="clientPhone" placeholder="Seu WhatsApp">
+      <button onclick="saveClient()">Cadastrar</button>
+      <p id="clientMsg"></p>
+    </section>
 
     <aside id="cart" class="cart">
       <h2>Carrinho</h2>
@@ -51,16 +63,11 @@
     </aside>
   </main>
 
-  <a class="instagram-float"
-     href="https://instagram.com/useamcloseet"
-     target="_blank">
+  <a class="instagram-float" href="https://instagram.com/useamcloseet" target="_blank">
     Instagram
   </a>
 
-  <a class="whatsapp"
-     id="whatsappFloat"
-     href="#"
-     target="_blank">
+  <a class="whatsapp" id="whatsappFloat" href="#" target="_blank">
     WhatsApp
   </a>
 
@@ -70,6 +77,6 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=40"></script>
+  <script src="/app.js?v=50"></script>
 </body>
 </html>
