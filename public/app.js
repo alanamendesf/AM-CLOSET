@@ -17,15 +17,29 @@ async function load() {
 }
 
 function renderConfig() {
-  storeNameText.textContent = config.storeName || 'AM Closet';
-  subtitleText.textContent = config.subtitle || 'Moda feminina';
 
-  footerStoreName.textContent = config.storeName || 'AM Closet';
-  footerSubtitle.textContent = config.subtitle || 'Moda feminina';
-  footerInstagram.textContent = config.instagram || '@amcloset';
+  if(document.getElementById('storeNameText')){
+    storeNameText.textContent = config.storeName || 'AM Closet';
+  }
+
+  if(document.getElementById('footerStoreName')){
+    footerStoreName.textContent = config.storeName || 'AM Closet';
+  }
+
+  if(document.getElementById('footerInstagram')){
+    footerInstagram.textContent = config.instagram || '@amcloset';
+  }
 
   const number = (config.whatsapp || '').replace(/\D/g, '');
-  const link = number ? `https://wa.me/55${number}` : '#';
+
+  const link = number
+    ? `https://wa.me/55${number}`
+    : '#';
+
+  if(document.getElementById('whatsappFloat')){
+    whatsappFloat.href = link;
+  }
+}
 
   whatsappFloat.href = link;
   whatsappLinkTop.href = link;
