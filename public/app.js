@@ -186,6 +186,14 @@ async function checkout() {
     return;
   }
 
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+
+  if (!name || !email) {
+    msg.textContent = 'Preencha nome e e-mail antes de finalizar.';
+    return;
+  }
+
   msg.textContent = 'Criando pedido...';
 
   try {
@@ -196,24 +204,39 @@ async function checkout() {
       },
       body: JSON.stringify({
         items: cart,
+        paymentMethod: 'card',
         customer: {
-          name: document.getElementById('name').value,
-          email: document.getElementById('email').value
+          name: name,
+          email: email
         }
       })
     });
 
     const data = await r.json();
 
-    if (data.init_point) {
-      location.href = data.init_point;
-    } else {
-      msg.textContent = data.details || data.message || data.error || 'Erro ao finalizar.';
+    if (!r.ok) {
+      msg.textContent =
+        data.details ||
+        data.message ||
+        data.error ||
+        'Erro ao finalizar.';
+      console.error('Erro checkout:', data);
+      return;
     }
+
+    if (data.init_point) {
+      window.location.href = data.init_point;
+      return;
+    }
+
+    msg.textContent =
+      data.details ||
+      data.message ||
+      data.error ||
+      'Erro ao finalizar.';
   } catch (error) {
     msg.textContent = 'Erro ao conectar com o checkout.';
     console.error(error);
   }
 }
-
 load();
