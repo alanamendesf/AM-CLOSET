@@ -74,16 +74,52 @@ async function loadOrders() {
       }
     })).json();
 
-    orders.innerHTML = Array.isArray(data)
-      ? data.map(o => `
+    if (!Array.isArray(data)) {
+      orders.innerHTML = 'Digite a senha para ver pedidos.';
+      return;
+    }
+
+    if (!data.length) {
+      orders.innerHTML = 'Nenhum pedido encontrado.';
+      return;
+    }
+
+    orders.innerHTML = data.map(o => {
+      const customer = o.customer || {};
+      const items = Array.isArray(o.items) ? o.items : [];
+
+      const itemsHtml = items.length
+        ? items.map(i => `
+          <li>
+            <strong>${i.name || 'Produto'}</strong><br>
+            Quantidade: ${i.quantity || 1}<br>
+            Valor: ${money(i.price || 0)}
+          </li>
+        `).join('')
+        : '<li>Nenhum produto listado.</li>';
+
+      return `
         <div class="order">
           <b>Pedido ${o.id}</b>
-          <p>${o.customer?.name || ''} - ${o.customer?.email || ''}</p>
-          <p>Status: ${o.status}</p>
+
+          <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
+          <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
+          <p><strong>Forma de pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
+          <p><strong>Status:</strong> ${o.status || '-'}</p>
+
+          <p><strong>Subtotal:</strong> ${money(customer.subtotal || 0)}</p>
+          <p><strong>Taxa:</strong> ${money(customer.fee_value || 0)}</p>
+          <p><strong>Total:</strong> ${money(customer.total || 0)}</p>
+
+          <p><strong>Produtos:</strong></p>
+          <ul>
+            ${itemsHtml}
+          </ul>
         </div>
-      `).join('')
-      : 'Digite a senha para ver pedidos.';
+      `;
+    }).join('');
   } catch (e) {
+    console.error(e);
     orders.innerHTML = 'Digite a senha para ver pedidos.';
   }
 }
