@@ -78,7 +78,48 @@ function getPaymentFee() {
 app.get('/api/config', (req, res) => {
   res.json(readJson('config.json'));
 });
+app.post('/api/order-status', async (req, res) => {
+  try {
+    const { orderId, phone } = req.body;
 
+    if (!orderId || !phone) {
+      return res.status(400).json({ error: 'Informe o número do pedido e o WhatsApp.' });
+    }
+
+    const { data: order, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single();
+
+    if (error || !order) {
+      return res.status(404).json({ error: 'Pedido não encontrado.' });
+    }
+
+    const customerPhone = String(order.customer?.phone || '').replace(/\D/g, '');
+    const typedPhone = String(phone || '').replace(/\D/g, '');
+
+    const phoneMatches =
+      customerPhone === typedPhone ||
+      customerPhone.endsWith(typedPhone) ||
+      typedPhone.endsWith(customerPhone);
+
+    if (!phoneMatches) {
+      return res.status(403).json({ error: 'WhatsApp não confere com este pedido.' });
+    }
+
+    res.json({
+      ok: true,
+      order
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erro ao consultar pedido.',
+      details: err.message
+    });
+  }
+});
 app.put('/api/config', checkAdmin, (req, res) => {
   const config = {
     storeName: req.body.storeName || 'AM Closet',
