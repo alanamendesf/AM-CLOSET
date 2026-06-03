@@ -257,7 +257,7 @@ async function loadOrders() {
       return `
         <div class="order admin-order-card">
           <div class="order-top">
-            <b>Pedido ${o.id}</b>
+           <b>Pedido ${customer.order_code || o.id}</b>
             <span>${o.status || '-'}</span>
           </div>
 
