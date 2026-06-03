@@ -1,82 +1,25 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>AM Closet</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
+<strong id="total">Total: R$ 0,00</strong>
 
-<body>
-  <header class="loja-topo">
-    <div class="topo-linha">
-      <div class="marca">AM CLOSET</div>
+<div style="margin:15px 0;">
+  <strong>Forma de pagamento</strong>
 
-      <nav class="menu-loja">
-        <a href="/">Início</a>
-        <span class="separador"></span>
-        <a href="#products">Produtos</a>
-        <span class="separador"></span>
-        <a href="#categoryTabs">Categorias</a>
-        <span class="separador"></span>
-        <a href="#cadastro">Cadastro</a>
-        <span class="separador"></span>
-        <a class="carrinho-topo" href="#cart">Carrinho <span id="cartCount">0</span></a>
-      </nav>
-    </div>
-  </header>
+  <div style="margin-top:10px;">
+    <label>
+      <input type="radio" name="paymentMethod" value="pix">
+      PIX (+0,99%)
+    </label>
+  </div>
 
-  <main class="loja-main">
-    <section class="intro-loja pequena">
-      <h1 id="storeNameText">AM Closet</h1>
-      <p>Looks que valorizam você! ♡</p>
-    </section>
+  <div style="margin-top:8px;">
+    <label>
+      <input type="radio" name="paymentMethod" value="card" checked>
+      Cartão de Crédito/Débito (+4,98%)
+    </label>
+  </div>
+</div>
 
-    <section class="vitrine">
-      <h2>Produtos</h2>
+<input id="name" placeholder="Seu nome" autocomplete="name">
+<input id="email" placeholder="Seu e-mail" autocomplete="email">
 
-      <div id="categoryTabs" class="category-tabs"></div>
-
-      <div id="products" class="grid"></div>
-    </section>
-
-    <section id="cadastro" class="cart">
-      <h2>Cadastro</h2>
-      <input id="clientName" placeholder="Seu nome" autocomplete="name">
-      <input id="clientEmail" placeholder="Seu e-mail" autocomplete="email">
-      <input id="clientPhone" placeholder="Seu WhatsApp">
-      <button onclick="saveClient()">Cadastrar</button>
-      <p id="clientMsg"></p>
-    </section>
-
-    <aside id="cart" class="cart">
-      <h2>Carrinho</h2>
-      <div id="cartItems"></div>
-
-      <strong id="total">Total: R$ 0,00</strong>
-
-      <input id="name" placeholder="Seu nome" autocomplete="name">
-      <input id="email" placeholder="Seu e-mail" autocomplete="email">
-
-      <button onclick="checkout()">Finalizar compra</button>
-      <p id="msg"></p>
-    </aside>
-  </main>
-
-  <a class="instagram-float" href="https://instagram.com/useamcloseet" target="_blank">
-    Instagram
-  </a>
-
-  <a class="whatsapp" id="whatsappFloat" href="#" target="_blank">
-    WhatsApp
-  </a>
-
-  <footer>
-    <h3 id="footerStoreName">AM Closet</h3>
-    <p id="footerInstagram">@useamcloseet</p>
-    <p>© 2026 AM Closet - Todos os direitos reservados.</p>
-  </footer>
-
-  <script src="/app.js?v=50"></script>
-</body>
-</html>
+<button onclick="checkout()">Finalizar compra</button>
+<p id="msg"></p>
