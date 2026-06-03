@@ -72,7 +72,98 @@ function roundMoney(value) {
 function getPaymentFee() {
   return 0.0498;
 }
+function generateOrderCode() {
+  return 'AM' + Math.floor(10000 + Math.random() * 90000);
+}
+function getNotificationEmails() {
+  return (
+    process.env.ORDER_NOTIFICATION_EMAILS ||
+    'alanavictoriaf@gmail.com,alanavvictoria@icloud.com,andressapereira191116@gmail.com'
+  )
+    .split(',')
+    .map(email => email.trim())
+    .filter(Boolean);
+}
 
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+}
+
+async function sendNewOrderEmail(order) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.log('RESEND_API_KEY não configurada. E-mail não enviado.');
+      return;
+    }
+
+    const customer = order.customer || {};
+    const items = Array.isArray(order.items) ? order.items : [];
+    const orderCode = customer.order_code || order.id;
+
+    const itemsHtml = items.map(item => `
+      <li>
+        <strong>${item.name || 'Produto'}</strong><br>
+        Quantidade: ${item.quantity || 1}<br>
+        Valor: ${formatMoney(item.price || 0)}
+      </li>
+    `).join('');
+
+    const html = `
+      <div style="font-family:Arial,sans-serif;color:#2b2724;line-height:1.6;">
+        <h2>🛍️ Novo pedido recebido - AM Closet</h2>
+
+        <p><strong>Pedido:</strong> ${orderCode}</p>
+        <p><strong>Status:</strong> ${order.status || '-'}</p>
+
+        <hr>
+
+        <h3>Cliente</h3>
+        <p><strong>Nome:</strong> ${customer.name || '-'}</p>
+        <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
+
+        <h3>Pagamento</h3>
+        <p><strong>Forma:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
+        <p><strong>Subtotal:</strong> ${formatMoney(customer.subtotal || 0)}</p>
+        <p><strong>Taxa:</strong> ${formatMoney(customer.fee_value || 0)}</p>
+        <p><strong>Total:</strong> ${formatMoney(customer.total || 0)}</p>
+
+        <h3>Produtos</h3>
+        <ul>
+          ${itemsHtml || '<li>Nenhum produto listado.</li>'}
+        </ul>
+
+        <p style="margin-top:24px;">
+          Acesse o painel da AM Closet para confirmar ou atualizar o pedido.
+        </p>
+      </div>
+    `;
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM_EMAIL || 'AM Closet <onboarding@resend.dev>',
+        to: getNotificationEmails(),
+        subject: `Novo pedido recebido - ${orderCode}`,
+        html
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error('Erro ao enviar e-mail:', result);
+    }
+  } catch (error) {
+    console.error('Erro no envio de e-mail:', error.message);
+  }
+}
 /* CONFIGURAÇÕES */
 
 app.get('/api/config', (req, res) => {
@@ -86,12 +177,17 @@ app.post('/api/order-status', async (req, res) => {
       return res.status(400).json({ error: 'Informe o número do pedido e o WhatsApp.' });
     }
 
-    const { data: order, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .single();
+let query = supabase
+  .from('orders')
+  .select('*');
 
+if (String(orderId).toUpperCase().startsWith('AM')) {
+  query = query.eq('customer->>order_code', String(orderId).toUpperCase());
+} else {
+  query = query.eq('id', orderId);
+}
+
+const { data: order, error } = await query.single();
     if (error || !order) {
       return res.status(404).json({ error: 'Pedido não encontrado.' });
     }
@@ -459,9 +555,11 @@ app.post('/api/orders/whatsapp', async (req, res) => {
     if (!items || !items.length) {
       return res.status(400).json({ error: 'Carrinho vazio.' });
     }
-
+const orderCode = generateOrderCode();
+    
     const customerData = {
       ...(customer || {}),
+      order_code: orderCode,
       payment_method: payment_method || '',
       payment_label: payment_label || '',
       subtotal: Number(subtotal || 0),
@@ -497,6 +595,8 @@ app.post('/api/orders/whatsapp', async (req, res) => {
       });
     }
 
+    await sendNewOrderEmail(order);
+    
     res.json({
       ok: true,
       orderId: order.id,
@@ -520,7 +620,7 @@ app.post('/api/checkout', async (req, res) => {
     if (!items || !items.length) {
       return res.status(400).json({ error: 'Carrinho vazio.' });
     }
-
+const orderCode = generateOrderCode();
     const method = 'credit';
     const feePercent = getPaymentFee();
 
@@ -543,6 +643,7 @@ app.post('/api/checkout', async (req, res) => {
 
     const customerData = {
       ...(customer || {}),
+       order_code: orderCode,
       payment_method: method,
       payment_label: 'Cartão de Crédito',
       subtotal,
@@ -569,6 +670,10 @@ app.post('/api/checkout', async (req, res) => {
       });
     }
 
+    
+await sendNewOrderEmail(order);
+
+    
     if (!process.env.MERCADO_PAGO_ACCESS_TOKEN || process.env.MERCADO_PAGO_ACCESS_TOKEN.includes('COLE_')) {
       return res.json({
         demo: true,
@@ -600,7 +705,7 @@ app.post('/api/checkout', async (req, res) => {
         name: customer?.name || '',
         email: customer?.email || ''
       },
-      external_reference: String(order.id),
+      external_reference: String(orderCode),
       notification_url: `${SITE_URL}/api/webhook/mercadopago`,
       back_urls: {
         success: `${SITE_URL}/sucesso.html`,
@@ -704,11 +809,20 @@ app.post('/api/webhook/mercadopago', async (req, res) => {
       status = 'Pagamento cancelado';
     }
 
-    await supabase
-      .from('orders')
-      .update({ status })
-      .eq('id', orderId);
+const { data: orders } = await supabase
+  .from('orders')
+  .select('*');
 
+const order = orders?.find(
+  o => o.customer?.order_code === orderId
+);
+
+if (order) {
+  await supabase
+    .from('orders')
+    .update({ status })
+    .eq('id', order.id);
+}
     res.json({ ok: true });
 
   } catch (err) {
