@@ -703,3 +703,27 @@ footer p {
   }
 }
 ```
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.dashboard-card {
+  background: #fff;
+  border: 1px solid #eadfd5;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.dashboard-card small {
+  display: block;
+  color: #8b8179;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.dashboard-card strong {
+  font-size: 26px;
+  color: #2b2724;
+}
