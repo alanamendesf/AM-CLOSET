@@ -739,3 +739,33 @@ footer p {
   background: #8f4f45;
   margin-top: 12px;
 }
+.order-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.order-status-actions button {
+  font-size: 12px;
+  padding: 10px 12px;
+}
+
+.tracking-box {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.tracking-box input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ded4cb;
+  border-radius: 8px;
+}
+
+@media(max-width: 768px) {
+  .tracking-box {
+    flex-direction: column;
+  }
+}
