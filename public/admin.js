@@ -562,6 +562,19 @@ async function cancelOrder(orderId, customerPhone, customerName) {
     return;
   }
 
+  let phone = String(customerPhone || '').replace(/\D/g, '');
+
+  if (!phone) {
+    phone = prompt('WhatsApp da cliente não encontrado. Digite o número com DDD:');
+    phone = String(phone || '').replace(/\D/g, '');
+  }
+
+  let whatsappWindow = null;
+
+  if (phone) {
+    whatsappWindow = window.open('', '_blank');
+  }
+
   const r = await fetch('/api/orders/' + orderId + '/cancel', {
     method: 'PUT',
     headers: {
@@ -574,15 +587,14 @@ async function cancelOrder(orderId, customerPhone, customerName) {
   const data = await r.json();
 
   if (!r.ok) {
+    if (whatsappWindow) whatsappWindow.close();
     alert(data.details || data.error || 'Erro ao cancelar pedido.');
     return;
   }
 
   adminMsg.textContent = 'Pedido cancelado com sucesso.';
 
-  const phone = String(customerPhone || '').replace(/\D/g, '');
-
-  if (phone) {
+  if (phone && whatsappWindow) {
     const finalPhone = phone.startsWith('55') ? phone : '55' + phone;
 
     const message = `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
@@ -594,17 +606,9 @@ ${reason}
 Pedimos desculpas pelo transtorno.
 Qualquer dúvida, estamos à disposição.`;
 
-    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank');
+   whatsappWindow.location = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
   }
 
   await loadOrders();
   renderDashboard();
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-  const savedPass = localStorage.getItem('am_admin_pass');
-
-  if (savedPass) {
-    document.getElementById('pass').value = savedPass;
-  }
-});
