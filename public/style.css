@@ -727,3 +727,15 @@ footer p {
   font-size: 26px;
   color: #2b2724;
 }
+.since-text {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #a09389;
+}
+
+.btn-danger {
+  background: #8f4f45;
+  margin-top: 12px;
+}
