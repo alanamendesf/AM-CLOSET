@@ -337,6 +337,69 @@ app.put('/api/orders/:id/cancel', checkAdmin, async (req, res) => {
   }
 });
 
+/* ATUALIZAR STATUS DO PEDIDO */
+
+app.put('/api/orders/:id/status', checkAdmin, async (req, res) => {
+  try {
+    const { status, tracking_code } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: 'Informe o status.' });
+    }
+
+    const { data: currentOrder, error: findError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+
+    if (findError) {
+      return res.status(500).json({
+        error: 'Erro ao buscar pedido.',
+        details: findError.message
+      });
+    }
+
+    const updatedCustomer = {
+      ...(currentOrder.customer || {}),
+      last_status_update: new Date().toISOString()
+    };
+
+    if (tracking_code) {
+      updatedCustomer.tracking_code = tracking_code;
+      updatedCustomer.tracking_sent_at = new Date().toISOString();
+    }
+
+    const { data, error } = await supabase
+      .from('orders')
+      .update({
+        status,
+        customer: updatedCustomer
+      })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({
+        error: 'Erro ao atualizar pedido.',
+        details: error.message
+      });
+    }
+
+    res.json({
+      ok: true,
+      order: data
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erro ao atualizar pedido.',
+      details: err.message
+    });
+  }
+});
+
 /* PEDIDOS VIA WHATSAPP */
 
 app.post('/api/orders/whatsapp', async (req, res) => {
