@@ -281,6 +281,62 @@ app.get('/api/orders', checkAdmin, async (req, res) => {
   res.json(data);
 });
 
+/* CANCELAR PEDIDO */
+
+app.put('/api/orders/:id/cancel', checkAdmin, async (req, res) => {
+  try {
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({ error: 'Informe o motivo do cancelamento.' });
+    }
+
+    const { data: currentOrder, error: findError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+
+    if (findError) {
+      return res.status(500).json({
+        error: 'Erro ao buscar pedido.',
+        details: findError.message
+      });
+    }
+
+    const updatedCustomer = {
+      ...(currentOrder.customer || {}),
+      cancel_reason: reason,
+      canceled_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('orders')
+      .update({
+        status: 'Cancelado',
+        customer: updatedCustomer
+      })
+      .eq('id', req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({
+        error: 'Erro ao cancelar pedido.',
+        details: error.message
+      });
+    }
+
+    res.json({ ok: true, order: data });
+
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erro ao cancelar pedido.',
+      details: err.message
+    });
+  }
+});
+
 /* PEDIDOS VIA WHATSAPP */
 
 app.post('/api/orders/whatsapp', async (req, res) => {
