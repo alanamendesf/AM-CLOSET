@@ -1,3 +1,4 @@
+```javascript
 let products = [];
 let cart = [];
 let config = {};
@@ -242,6 +243,43 @@ async function saveClient() {
   }
 }
 
+async function saveWhatsappOrderToPanel(name, phone, paymentMethod) {
+  const { subtotal, feeValue, total } = getCartTotals();
+
+  try {
+    await fetch('/api/orders/whatsapp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        customer: {
+          name,
+          phone,
+          email: ''
+        },
+        items: cart.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: Number(item.quantity || 1),
+          price: Number(item.price || 0),
+          image: item.image || '',
+          size: item.size || '',
+          category: item.category || ''
+        })),
+        payment_method: paymentMethod,
+        payment_label: getPaymentLabel(),
+        subtotal,
+        fee_value: feeValue,
+        total,
+        status: 'Aguardando confirmação'
+      })
+    });
+  } catch (error) {
+    console.error('Erro ao salvar pedido no painel:', error);
+  }
+}
+
 function sendOrderToWhatsapp(name, phone, paymentMethod) {
   const { subtotal, feeValue, total } = getCartTotals();
 
@@ -293,6 +331,8 @@ async function checkout() {
   }
 
   if (paymentMethod === 'pix' || paymentMethod === 'cash' || paymentMethod === 'debit') {
+    msg.textContent = 'Salvando pedido e abrindo WhatsApp...';
+    await saveWhatsappOrderToPanel(name, phone, paymentMethod);
     sendOrderToWhatsapp(name, phone, paymentMethod);
     return;
   }
@@ -345,3 +385,4 @@ async function checkout() {
 }
 
 load();
+```
