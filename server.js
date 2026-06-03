@@ -17,12 +17,15 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
+);
+
 const DATA_DIR = path.join(__dirname, 'data');
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const UPLOAD_DIR = path.join(PUBLIC_DIR, 'uploads');
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
-fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 function ensureFile(file, content) {
   const fullPath = path.join(DATA_DIR, file);
@@ -44,15 +47,9 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(PUBLIC_DIR));
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext);
-  }
+const upload = multer({
+  storage: multer.memoryStorage()
 });
-
-const upload = multer({ storage });
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(path.join(DATA_DIR, file), 'utf8'));
@@ -184,8 +181,45 @@ app.delete('/api/products/:id', checkAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/upload', checkAdmin, upload.single('image'), (req, res) => {
-  res.json({ image: '/uploads/' + req.file.filename });
+/* UPLOAD PERMANENTE NO SUPABASE STORAGE */
+
+app.post('/api/upload', checkAdmin, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nenhuma imagem enviada.' });
+    }
+
+    const ext = path.extname(req.file.originalname) || '.jpg';
+    const fileName = `produto-${Date.now()}${ext}`;
+
+    const { error } = await supabaseAdmin.storage
+      .from('products')
+      .upload(fileName, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: true
+      });
+
+    if (error) {
+      return res.status(500).json({
+        error: 'Erro ao enviar imagem.',
+        details: error.message
+      });
+    }
+
+    const { data } = supabaseAdmin.storage
+      .from('products')
+      .getPublicUrl(fileName);
+
+    res.json({
+      image: data.publicUrl
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erro no upload da imagem.',
+      details: err.message
+    });
+  }
 });
 
 /* CLIENTES */
