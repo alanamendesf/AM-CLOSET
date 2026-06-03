@@ -1,9 +1,13 @@
-const money = v => Number(v).toLocaleString('pt-BR', {
+const money = v => Number(v || 0).toLocaleString('pt-BR', {
   style: 'currency',
   currency: 'BRL'
 });
 
 const pass = () => document.getElementById('pass').value;
+
+let adminProductsData = [];
+let adminOrdersData = [];
+let adminCustomersData = [];
 
 function loginAdmin() {
   if (!pass()) {
@@ -36,10 +40,7 @@ function showAdminTab(tabId) {
   document.getElementById(tabId).classList.add('active');
 
   const activeButton = document.querySelector(`.admin-tabs button[data-tab="${tabId}"]`);
-
-  if (activeButton) {
-    activeButton.classList.add('active');
-  }
+  if (activeButton) activeButton.classList.add('active');
 }
 
 async function uploadImage() {
@@ -54,9 +55,7 @@ async function uploadImage() {
 
   const r = await fetch('/api/upload', {
     method: 'POST',
-    headers: {
-      'x-admin-password': pass()
-    },
+    headers: { 'x-admin-password': pass() },
     body: formData
   });
 
@@ -83,11 +82,48 @@ async function loadAdmin() {
     await loadOrders();
     await loadCustomers();
 
+    renderDashboard();
+
     adminMsg.textContent = 'Painel carregado com sucesso.';
   } catch (error) {
     console.error(error);
     adminMsg.textContent = 'Erro ao carregar painel.';
   }
+}
+
+function renderDashboard() {
+  const dashboard = document.getElementById('dashboardCards');
+  if (!dashboard) return;
+
+  const totalProducts = adminProductsData.length;
+  const totalOrders = adminOrdersData.length;
+  const totalCustomers = adminCustomersData.length;
+
+  const faturamento = adminOrdersData.reduce((sum, order) => {
+    return sum + Number(order.customer?.total || 0);
+  }, 0);
+
+  dashboard.innerHTML = `
+    <div class="dashboard-card">
+      <small>Produtos</small>
+      <strong>${totalProducts}</strong>
+    </div>
+
+    <div class="dashboard-card">
+      <small>Pedidos</small>
+      <strong>${totalOrders}</strong>
+    </div>
+
+    <div class="dashboard-card">
+      <small>Clientes</small>
+      <strong>${totalCustomers}</strong>
+    </div>
+
+    <div class="dashboard-card">
+      <small>Faturamento</small>
+      <strong>${money(faturamento)}</strong>
+    </div>
+  `;
 }
 
 async function loadProducts() {
@@ -97,6 +133,8 @@ async function loadProducts() {
     adminProducts.innerHTML = data.details || data.error || 'Erro ao carregar produtos.';
     return;
   }
+
+  adminProductsData = data;
 
   if (!data.length) {
     adminProducts.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
@@ -136,15 +174,15 @@ async function loadProducts() {
 async function loadOrders() {
   try {
     const data = await (await fetch('/api/orders', {
-      headers: {
-        'x-admin-password': pass()
-      }
+      headers: { 'x-admin-password': pass() }
     })).json();
 
     if (!Array.isArray(data)) {
       orders.innerHTML = 'Digite a senha para ver pedidos.';
       return;
     }
+
+    adminOrdersData = data;
 
     if (!data.length) {
       orders.innerHTML = 'Nenhum pedido encontrado.';
@@ -199,10 +237,10 @@ async function loadOrders() {
 async function loadCustomers() {
   try {
     const data = await (await fetch('/api/customers', {
-      headers: {
-        'x-admin-password': pass()
-      }
+      headers: { 'x-admin-password': pass() }
     })).json();
+
+    adminCustomersData = Array.isArray(data) ? data : [];
 
     customers.innerHTML = Array.isArray(data) && data.length
       ? data.map(c => `
@@ -276,6 +314,7 @@ async function addProduct() {
   }
 
   await loadProducts();
+  renderDashboard();
 }
 
 async function editProduct(id) {
@@ -301,30 +340,29 @@ async function editProduct(id) {
   const d = await r.json();
   adminMsg.textContent = d.error || 'Produto atualizado!';
   await loadProducts();
+  renderDashboard();
 }
 
 async function delProduct(id) {
   await fetch('/api/products/' + id, {
     method: 'DELETE',
-    headers: {
-      'x-admin-password': pass()
-    }
+    headers: { 'x-admin-password': pass() }
   });
 
   adminMsg.textContent = 'Produto excluído!';
   await loadProducts();
+  renderDashboard();
 }
 
 async function delCustomer(id) {
   await fetch('/api/customers/' + id, {
     method: 'DELETE',
-    headers: {
-      'x-admin-password': pass()
-    }
+    headers: { 'x-admin-password': pass() }
   });
 
   adminMsg.textContent = 'Cliente excluída!';
   await loadCustomers();
+  renderDashboard();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
