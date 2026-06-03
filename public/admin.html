@@ -7,65 +7,87 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 
-<body>
-  <header class="loja-topo">
-    <div class="topo-linha">
-      <div class="marca">PAINEL AM CLOSET</div>
-      <nav class="menu-loja">
-        <a href="/">Ver loja</a>
-      </nav>
-    </div>
-  </header>
+<body class="admin-body">
+  <main class="admin-layout">
 
-  <main>
-    <section class="panel">
-      <h2>Acesso ao painel</h2>
+    <section id="loginPanel" class="admin-login">
+      <h1>AM Closet</h1>
+      <p>Acesso ao painel administrativo</p>
+
       <input id="pass" placeholder="Senha do painel" type="password">
-      <button onclick="loadAdmin()">Entrar / Atualizar</button>
+      <button onclick="loginAdmin()">Entrar</button>
+
+      <a href="/">Voltar para a loja</a>
       <p id="adminMsg"></p>
     </section>
 
-    <section class="panel">
-      <h2>Dados da loja</h2>
-      <input id="storeName" placeholder="Nome da loja">
-      <input id="subtitle" placeholder="Frase da loja">
-      <input id="whatsapp" placeholder="WhatsApp com DDD">
-      <input id="instagram" placeholder="Instagram">
-      <button onclick="saveConfig()">Salvar dados</button>
+    <section id="adminPanel" class="admin-panel hidden">
+      <header class="admin-header">
+        <div>
+          <h1>Painel AM Closet</h1>
+          <p>Gerencie sua loja em um só lugar.</p>
+        </div>
+
+        <nav class="admin-tabs">
+          <button onclick="showAdminTab('productsTab')">Produtos</button>
+          <button onclick="showAdminTab('ordersTab')">Pedidos</button>
+          <button onclick="showAdminTab('customersTab')">Clientes</button>
+          <button onclick="showAdminTab('settingsTab')">Configurações</button>
+          <button onclick="logoutAdmin()">Sair</button>
+        </nav>
+      </header>
+
+      <section id="productsTab" class="admin-tab active">
+        <div class="panel">
+          <h2>Novo produto</h2>
+          <input id="pname" placeholder="Nome do produto">
+          <input id="pprice" placeholder="Preço" type="number" step="0.01">
+          <input id="pcat" placeholder="Categoria. Ex: Vestidos, Blusas, Conjuntos">
+          <input id="psizes" placeholder="Tamanhos. Ex: P, M, G">
+          <input id="pstock" placeholder="Estoque" type="number">
+          <textarea id="pdesc" placeholder="Descrição"></textarea>
+
+          <label>Foto do produto</label>
+          <input id="pfile" type="file" accept="image/*">
+          <input id="pimg" placeholder="Ou cole o link da imagem">
+
+          <button onclick="addProduct()">Adicionar produto</button>
+        </div>
+
+        <div class="panel">
+          <h2>Produtos cadastrados</h2>
+          <div id="adminProducts" class="grid"></div>
+        </div>
+      </section>
+
+      <section id="ordersTab" class="admin-tab">
+        <div class="panel">
+          <h2>Pedidos</h2>
+          <div id="orders"></div>
+        </div>
+      </section>
+
+      <section id="customersTab" class="admin-tab">
+        <div class="panel">
+          <h2>Clientes cadastradas</h2>
+          <div id="customers"></div>
+        </div>
+      </section>
+
+      <section id="settingsTab" class="admin-tab">
+        <div class="panel">
+          <h2>Dados da loja</h2>
+          <input id="storeName" placeholder="Nome da loja">
+          <input id="subtitle" placeholder="Frase da loja">
+          <input id="whatsapp" placeholder="WhatsApp com DDD">
+          <input id="instagram" placeholder="Instagram">
+          <button onclick="saveConfig()">Salvar dados</button>
+        </div>
+      </section>
     </section>
 
-    <section class="panel">
-      <h2>Novo produto</h2>
-      <input id="pname" placeholder="Nome do produto">
-      <input id="pprice" placeholder="Preço" type="number" step="0.01">
-      <input id="pcat" placeholder="Categoria. Ex: Vestidos, Blusas, Conjuntos">
-      <input id="psizes" placeholder="Tamanhos. Ex: P, M, G">
-      <input id="pstock" placeholder="Estoque" type="number">
-      <textarea id="pdesc" placeholder="Descrição"></textarea>
-
-      <label>Foto do produto</label>
-      <input id="pfile" type="file" accept="image/*">
-      <input id="pimg" placeholder="Ou cole o link da imagem">
-
-      <button onclick="addProduct()">Adicionar produto</button>
-    </section>
-
-    <section>
-      <h2>Produtos cadastrados</h2>
-      <div id="adminProducts" class="grid"></div>
-    </section>
-
-    <section class="panel">
-      <h2>Clientes cadastradas</h2>
-      <div id="customers"></div>
-    </section>
-
-    <section class="panel">
-      <h2>Pedidos</h2>
-      <div id="orders"></div>
-    </section>
   </main>
 
-  <script src="/admin.js?v=20"></script>
+  <script src="/admin.js?v=21"></script>
 </body>
 </html>
