@@ -100,6 +100,7 @@ function renderDashboard() {
   const totalCustomers = adminCustomersData.length;
 
   const faturamento = adminOrdersData.reduce((sum, order) => {
+    if (order.status === 'Cancelado') return sum;
     return sum + Number(order.customer?.total || 0);
   }, 0);
 
@@ -225,6 +226,18 @@ async function loadOrders() {
 
           <p><strong>Produtos:</strong></p>
           <ul class="order-items">${itemsHtml}</ul>
+
+          ${
+            o.status !== 'Cancelado'
+              ? `
+                <button class="btn-danger" onclick="cancelOrder('${o.id}', '${customer.phone || ''}', '${customer.name || ''}')">
+                  Cancelar pedido
+                </button>
+              `
+              : `
+                <p><strong>Motivo do cancelamento:</strong> ${customer.cancel_reason || '-'}</p>
+              `
+          }
         </div>
       `;
     }).join('');
@@ -362,6 +375,52 @@ async function delCustomer(id) {
 
   adminMsg.textContent = 'Cliente excluída!';
   await loadCustomers();
+  renderDashboard();
+}
+
+async function cancelOrder(orderId, customerPhone, customerName) {
+  const reason = prompt('Digite o motivo do cancelamento:');
+
+  if (!reason) {
+    return;
+  }
+
+  const r = await fetch('/api/orders/' + orderId + '/cancel', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-password': pass()
+    },
+    body: JSON.stringify({ reason })
+  });
+
+  const data = await r.json();
+
+  if (!r.ok) {
+    alert(data.details || data.error || 'Erro ao cancelar pedido.');
+    return;
+  }
+
+  adminMsg.textContent = 'Pedido cancelado com sucesso.';
+
+  const phone = String(customerPhone || '').replace(/\D/g, '');
+
+  if (phone) {
+    const finalPhone = phone.startsWith('55') ? phone : '55' + phone;
+
+    const message = `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
+
+Seu pedido foi cancelado pelo seguinte motivo:
+
+${reason}
+
+Pedimos desculpas pelo transtorno.
+Qualquer dúvida, estamos à disposição.`;
+
+    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank');
+  }
+
+  await loadOrders();
   renderDashboard();
 }
 
