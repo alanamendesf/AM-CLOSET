@@ -5,6 +5,33 @@ const money = v => Number(v).toLocaleString('pt-BR', {
 
 const pass = () => document.getElementById('pass').value;
 
+function loginAdmin() {
+  if (!pass()) {
+    adminMsg.textContent = 'Digite a senha do painel.';
+    return;
+  }
+
+  localStorage.setItem('am_admin_pass', pass());
+
+  loginPanel.classList.add('hidden');
+  adminPanel.classList.remove('hidden');
+
+  loadAdmin();
+}
+
+function logoutAdmin() {
+  localStorage.removeItem('am_admin_pass');
+  location.reload();
+}
+
+function showAdminTab(tabId) {
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+
+  document.getElementById(tabId).classList.add('active');
+}
+
 async function uploadImage() {
   const file = document.getElementById('pfile').files[0];
 
@@ -28,40 +55,64 @@ async function uploadImage() {
 }
 
 async function loadAdmin() {
-  const config = await (await fetch('/api/config')).json();
+  const savedPass = localStorage.getItem('am_admin_pass');
 
-  storeName.value = config.storeName || 'AM Closet';
-  subtitle.value = config.subtitle || 'Looks que valorizam você! ♡';
-  whatsapp.value = config.whatsapp || '';
-  instagram.value = config.instagram || '@useamcloseet';
+  if (savedPass && document.getElementById('pass')) {
+    document.getElementById('pass').value = savedPass;
+  }
 
-  await loadProducts();
-  await loadOrders();
-  await loadCustomers();
+  try {
+    const config = await (await fetch('/api/config')).json();
+
+    storeName.value = config.storeName || 'AM Closet';
+    subtitle.value = config.subtitle || 'Looks que valorizam você! ♡';
+    whatsapp.value = config.whatsapp || '';
+    instagram.value = config.instagram || '@useamcloseet';
+
+    await loadProducts();
+    await loadOrders();
+    await loadCustomers();
+  } catch (error) {
+    console.error(error);
+    adminMsg.textContent = 'Erro ao carregar painel.';
+  }
 }
 
 async function loadProducts() {
-  const products = await (await fetch('/api/products')).json();
+  const data = await (await fetch('/api/products')).json();
 
-  adminProducts.innerHTML = products.map(p => `
+  if (!Array.isArray(data)) {
+    adminProducts.innerHTML = data.details || data.error || 'Erro ao carregar produtos.';
+    return;
+  }
+
+  if (!data.length) {
+    adminProducts.innerHTML = '<p>Nenhum produto cadastrado ainda.</p>';
+    return;
+  }
+
+  adminProducts.innerHTML = data.map(p => `
     <article class="card produto-card">
       <img src="${p.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
-      <h3>${p.name}</h3>
-      <b>${money(p.price)}</b>
-      <small>Categoria: ${p.category || 'Sem categoria'}</small>
-      <small>Tamanhos: ${p.sizes || ''}</small>
-      <small>Estoque: ${p.stock}</small>
 
-      <input id="name-${p.id}" value="${p.name || ''}">
-      <input id="price-${p.id}" value="${p.price || 0}" type="number" step="0.01">
-      <input id="cat-${p.id}" value="${p.category || ''}">
-      <input id="sizes-${p.id}" value="${p.sizes || ''}">
-      <input id="stock-${p.id}" value="${p.stock || 0}" type="number">
-      <input id="img-${p.id}" value="${p.image || ''}">
-      <textarea id="desc-${p.id}">${p.description || ''}</textarea>
+      <div class="card-body">
+        <h3>${p.name}</h3>
+        <b>${money(p.price)}</b>
+        <small>Categoria: ${p.category || 'Sem categoria'}</small>
+        <small>Tamanhos: ${p.sizes || ''}</small>
+        <small>Estoque: ${p.stock}</small>
 
-      <button onclick="editProduct('${p.id}')">Salvar alterações</button>
-      <button onclick="delProduct('${p.id}')">Excluir</button>
+        <input id="name-${p.id}" value="${p.name || ''}">
+        <input id="price-${p.id}" value="${p.price || 0}" type="number" step="0.01">
+        <input id="cat-${p.id}" value="${p.category || ''}">
+        <input id="sizes-${p.id}" value="${p.sizes || ''}">
+        <input id="stock-${p.id}" value="${p.stock || 0}" type="number">
+        <input id="img-${p.id}" value="${p.image || ''}">
+        <textarea id="desc-${p.id}">${p.description || ''}</textarea>
+
+        <button onclick="editProduct('${p.id}')">Salvar alterações</button>
+        <button onclick="delProduct('${p.id}')">Excluir</button>
+      </div>
     </article>
   `).join('');
 }
@@ -112,9 +163,7 @@ async function loadOrders() {
           <p><strong>Total:</strong> ${money(customer.total || 0)}</p>
 
           <p><strong>Produtos:</strong></p>
-          <ul>
-            ${itemsHtml}
-          </ul>
+          <ul>${itemsHtml}</ul>
         </div>
       `;
     }).join('');
@@ -136,7 +185,6 @@ async function loadCustomers() {
       ? data.map(c => `
         <div class="order">
           <b>${c.name}</b>
-          <p>E-mail: ${c.email}</p>
           <p>WhatsApp: ${c.phone}</p>
           <button onclick="delCustomer('${c.id}')">Excluir cliente</button>
         </div>
@@ -192,6 +240,18 @@ async function addProduct() {
 
   const d = await r.json();
   adminMsg.textContent = d.error || 'Produto adicionado!';
+
+  if (!d.error) {
+    pname.value = '';
+    pprice.value = '';
+    pcat.value = '';
+    psizes.value = '';
+    pstock.value = '';
+    pdesc.value = '';
+    pfile.value = '';
+    pimg.value = '';
+  }
+
   await loadProducts();
 }
 
@@ -244,4 +304,10 @@ async function delCustomer(id) {
   await loadCustomers();
 }
 
-loadAdmin();
+window.addEventListener('DOMContentLoaded', () => {
+  const savedPass = localStorage.getItem('am_admin_pass');
+
+  if (savedPass) {
+    pass().value = savedPass;
+  }
+});
