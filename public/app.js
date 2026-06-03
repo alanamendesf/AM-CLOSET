@@ -3,6 +3,8 @@ let cart = [];
 let config = {};
 let selectedCategory = 'Todos';
 
+const STORE_WHATSAPP = '85991346349';
+
 const money = v => Number(v).toLocaleString('pt-BR', {
   style: 'currency',
   currency: 'BRL'
@@ -19,19 +21,18 @@ function getSelectedPaymentMethod() {
 function getPaymentFeePercent() {
   const paymentMethod = getSelectedPaymentMethod();
 
-  if (paymentMethod === 'pix') {
-    return 0.0099;
+  if (paymentMethod === 'card') {
+    return 0.0498;
   }
 
-  return 0.0498;
+  return 0;
 }
 
 function getPaymentLabel() {
   const paymentMethod = getSelectedPaymentMethod();
 
-  if (paymentMethod === 'pix') {
-    return 'PIX';
-  }
+  if (paymentMethod === 'pix') return 'PIX';
+  if (paymentMethod === 'cash') return 'Dinheiro em espécie';
 
   return 'Cartão';
 }
@@ -68,8 +69,7 @@ function renderConfig() {
     footerInstagram.textContent = '@useamcloseet';
   }
 
-  const number = (config.whatsapp || '').replace(/\D/g, '');
-  const link = number ? `https://wa.me/55${number}` : '#';
+  const link = `https://wa.me/55${STORE_WHATSAPP}`;
 
   if (document.getElementById('whatsappFloat')) {
     whatsappFloat.href = link;
@@ -151,12 +151,23 @@ function removeItem(id) {
   renderCart();
 }
 
-function renderCart() {
+function getCartTotals() {
   const subtotal = cart.reduce((s, i) => s + Number(i.price) * Number(i.quantity), 0);
   const feePercent = getPaymentFeePercent();
   const feeValue = roundMoney(subtotal * feePercent);
   const total = roundMoney(subtotal + feeValue);
+
+  return {
+    subtotal,
+    feeValue,
+    total
+  };
+}
+
+function renderCart() {
+  const { subtotal, feeValue, total } = getCartTotals();
   const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
+  const paymentMethod = getSelectedPaymentMethod();
 
   if (document.getElementById('cartCount')) {
     document.getElementById('cartCount').textContent = quantidadeItens;
@@ -182,11 +193,19 @@ function renderCart() {
     return;
   }
 
-  document.getElementById('total').innerHTML = `
-    Subtotal: ${money(subtotal)}<br>
-    Taxa ${getPaymentLabel()}: ${money(feeValue)}<br>
-    Total: ${money(total)}
-  `;
+  if (paymentMethod === 'card') {
+    document.getElementById('total').innerHTML = `
+      Subtotal: ${money(subtotal)}<br>
+      Taxa Cartão Mercado Pago 4,98%: ${money(feeValue)}<br>
+      Total: ${money(total)}
+    `;
+  } else {
+    document.getElementById('total').innerHTML = `
+      Subtotal: ${money(subtotal)}<br>
+      Forma de pagamento: ${getPaymentLabel()}<br>
+      Total: ${money(total)}
+    `;
+  }
 }
 
 async function saveClient() {
@@ -194,12 +213,12 @@ async function saveClient() {
 
   const body = {
     name: document.getElementById('clientName').value,
-    email: document.getElementById('clientEmail').value,
+    email: '',
     phone: document.getElementById('clientPhone').value
   };
 
-  if (!body.name || !body.email || !body.phone) {
-    msg.textContent = 'Preencha nome, e-mail e WhatsApp.';
+  if (!body.name || !body.phone) {
+    msg.textContent = 'Preencha nome e WhatsApp.';
     return;
   }
 
@@ -217,9 +236,46 @@ async function saveClient() {
 
   if (!data.error) {
     document.getElementById('clientName').value = '';
-    document.getElementById('clientEmail').value = '';
     document.getElementById('clientPhone').value = '';
   }
+}
+
+function sendOrderToWhatsapp(name, phone, paymentMethod) {
+  const msg = document.getElementById('msg');
+  const { subtotal, feeValue, total } = getCartTotals();
+
+  const itensTexto = cart.map((item, index) => {
+    return `${index + 1}. ${item.name}
+Quantidade: ${item.quantity}
+Valor unitário: ${money(item.price)}
+Total do item: ${money(Number(item.price) * Number(item.quantity))}`;
+  }).join('\n\n');
+
+  const formaPagamento =
+    paymentMethod === 'pix'
+      ? 'PIX'
+      : 'Dinheiro em espécie';
+
+  const mensagem = `Olá! Quero finalizar meu pedido na AM Closet.
+
+DADOS DO CLIENTE
+Nome: ${name}
+WhatsApp: ${phone}
+
+PEDIDO
+${itensTexto}
+
+RESUMO
+Subtotal: ${money(subtotal)}
+Total final: ${money(total)}
+
+Forma de pagamento: ${formaPagamento}
+
+Aguardo a confirmação do pedido.`;
+
+  const url = `https://wa.me/55${STORE_WHATSAPP}?text=${encodeURIComponent(mensagem)}`;
+
+  window.location.href = url;
 }
 
 async function checkout() {
@@ -231,11 +287,16 @@ async function checkout() {
   }
 
   const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
   const paymentMethod = getSelectedPaymentMethod();
 
-  if (!name || !email) {
-    msg.textContent = 'Preencha nome e e-mail antes de finalizar.';
+  if (!name || !phone) {
+    msg.textContent = 'Preencha nome e WhatsApp antes de finalizar.';
+    return;
+  }
+
+  if (paymentMethod === 'pix' || paymentMethod === 'cash') {
+    sendOrderToWhatsapp(name, phone, paymentMethod);
     return;
   }
 
@@ -249,10 +310,11 @@ async function checkout() {
       },
       body: JSON.stringify({
         items: cart,
-        paymentMethod: paymentMethod,
+        paymentMethod: 'card',
         customer: {
           name: name,
-          email: email
+          email: `${phone}@cliente.whatsapp`,
+          phone: phone
         }
       })
     });
