@@ -15,13 +15,13 @@ function roundMoney(value) {
 }
 
 function getSelectedPaymentMethod() {
-  return document.querySelector('input[name="paymentMethod"]:checked')?.value || 'card';
+  return document.querySelector('input[name="paymentMethod"]:checked')?.value || 'credit';
 }
 
 function getPaymentFeePercent() {
   const paymentMethod = getSelectedPaymentMethod();
 
-  if (paymentMethod === 'card') {
+  if (paymentMethod === 'credit' || paymentMethod === 'debit') {
     return 0.0498;
   }
 
@@ -33,8 +33,10 @@ function getPaymentLabel() {
 
   if (paymentMethod === 'pix') return 'PIX';
   if (paymentMethod === 'cash') return 'Dinheiro em espécie';
+  if (paymentMethod === 'debit') return 'Cartão de Débito';
+  if (paymentMethod === 'credit') return 'Cartão de Crédito';
 
-  return 'Cartão';
+  return 'Cartão de Crédito';
 }
 
 async function load() {
@@ -193,10 +195,10 @@ function renderCart() {
     return;
   }
 
-  if (paymentMethod === 'card') {
+  if (paymentMethod === 'credit' || paymentMethod === 'debit') {
     document.getElementById('total').innerHTML = `
       Subtotal: ${money(subtotal)}<br>
-      Taxa Cartão Mercado Pago 4,98%: ${money(feeValue)}<br>
+      <small>Taxa Mercado Pago 4,98%: ${money(feeValue)}</small><br>
       Total: ${money(total)}
     `;
   } else {
@@ -241,7 +243,6 @@ async function saveClient() {
 }
 
 function sendOrderToWhatsapp(name, phone, paymentMethod) {
-  const msg = document.getElementById('msg');
   const { subtotal, feeValue, total } = getCartTotals();
 
   const itensTexto = cart.map((item, index) => {
@@ -250,11 +251,6 @@ Quantidade: ${item.quantity}
 Valor unitário: ${money(item.price)}
 Total do item: ${money(Number(item.price) * Number(item.quantity))}`;
   }).join('\n\n');
-
-  const formaPagamento =
-    paymentMethod === 'pix'
-      ? 'PIX'
-      : 'Dinheiro em espécie';
 
   const mensagem = `Olá! Quero finalizar meu pedido na AM Closet.
 
@@ -267,9 +263,10 @@ ${itensTexto}
 
 RESUMO
 Subtotal: ${money(subtotal)}
-Total final: ${money(total)}
+${paymentMethod === 'debit' ? `Taxa Mercado Pago 4,98%: ${money(feeValue)}
+` : ''}Total final: ${money(total)}
 
-Forma de pagamento: ${formaPagamento}
+Forma de pagamento: ${getPaymentLabel()}
 
 Aguardo a confirmação do pedido.`;
 
@@ -295,7 +292,7 @@ async function checkout() {
     return;
   }
 
-  if (paymentMethod === 'pix' || paymentMethod === 'cash') {
+  if (paymentMethod === 'pix' || paymentMethod === 'cash' || paymentMethod === 'debit') {
     sendOrderToWhatsapp(name, phone, paymentMethod);
     return;
   }
