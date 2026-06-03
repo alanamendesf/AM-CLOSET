@@ -29,10 +29,10 @@
         </div>
 
         <nav class="admin-tabs">
-          <button onclick="showAdminTab('productsTab')">Produtos</button>
-          <button onclick="showAdminTab('ordersTab')">Pedidos</button>
-          <button onclick="showAdminTab('customersTab')">Clientes</button>
-          <button onclick="showAdminTab('settingsTab')">Configurações</button>
+          <button data-tab="productsTab" class="active" onclick="showAdminTab('productsTab')">Produtos</button>
+          <button data-tab="ordersTab" onclick="showAdminTab('ordersTab')">Pedidos</button>
+          <button data-tab="customersTab" onclick="showAdminTab('customersTab')">Clientes</button>
+          <button data-tab="settingsTab" onclick="showAdminTab('settingsTab')">Configurações</button>
           <button class="admin-exit" onclick="logoutAdmin()">Sair</button>
         </nav>
       </header>
@@ -91,6 +91,6 @@
 
   </main>
 
-  <script src="/admin.js?v=23"></script>
+  <script src="/admin.js?v=24"></script>
 </body>
 </html>
