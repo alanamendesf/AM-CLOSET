@@ -1,321 +1,151 @@
-*{margin:0;padding:0;box-sizing:border-box}
-
-body{
-  font-family:Arial, Helvetica, sans-serif;
-  background:#fff;
-  color:#222;
-}
-
-.loja-topo{
-  background:#fff;
-  border-bottom:1px solid #eee;
-  position:sticky;
-  top:0;
-  z-index:100;
-}
-
-.topo-linha{
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  padding:22px 8%;
-}
-
-.marca{
-  font-size:28px;
-  font-weight:700;
-  letter-spacing:2px;
-}
+/* ===== NOVO MENU ===== */
 
 .menu-loja{
   display:flex;
+  justify-content:flex-end;
   align-items:center;
-  gap:18px;
-}
-
-.menu-loja a,
-.carrinho-topo{
-  color:#111;
-  text-decoration:none;
-  font-weight:600;
-}
-
-.separador{
-  width:1px;
-  height:18px;
-  background:#ccc;
-}
-
-.carrinho-topo{
-  justify-self:end;
-}
-
-.intro-loja{
-  text-align:center;
-  padding:45px 20px 20px;
-}
-
-.intro-loja h1{
-  font-size:38px;
-}
-
-.vitrine{
-  padding:20px 8% 60px;
-}
-
-.vitrine h2{
-  text-align:center;
-  margin-bottom:35px;
-  font-size:28px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:30px;
-}
-
-.card{
-  border:1px solid #eee;
-  background:#fff;
-}
-
-.card img{
-  width:100%;
-  height:390px;
-  object-fit:cover;
-  display:block;
-}
-
-.card h3{
-  padding:15px 15px 5px;
-}
-
-.card p{
-  padding:0 15px;
-  color:#666;
-}
-
-.card b{
-  display:block;
-  padding:15px;
-  font-size:20px;
-}
-
-.card small{
-  display:block;
-  padding:0 15px 10px;
-  color:#777;
-}
-
-button{
-  border:none;
-  background:#111;
-  color:white;
-  padding:14px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.card button{
-  width:calc(100% - 30px);
-  margin:15px;
-}
-
-.cart{
-  max-width:700px;
-  margin:40px auto;
-  padding:30px;
-  border:1px solid #eee;
-}
-
-.cart h2{
-  margin-bottom:20px;
-}
-
-.cartline{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:10px;
-}
-
-.cart input{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border:1px solid #ddd;
-}
-
-#total{
-  display:block;
-  margin:20px 0;
-  font-size:22px;
-}
-
-.whatsapp{
-  position:fixed;
-  right:20px;
-  bottom:20px;
-  background:#25D366;
-  color:white;
-  text-decoration:none;
-  padding:15px 20px;
-  border-radius:50px;
-  font-weight:bold;
-}
-
-footer{
-  border-top:1px solid #eee;
-  text-align:center;
-  padding:50px 20px;
-}
-
-footer p{
-  color:#666;
-  margin-top:8px;
-}
-
-.panel{
-  padding:25px;
-  border:1px solid #eee;
-  margin:25px;
-}
-
-.panel input,
-.panel textarea{
-  width:100%;
-  padding:12px;
-  margin-bottom:10px;
-  border:1px solid #ddd;
-}
-
-@media(max-width:768px){
-  .topo-linha{
-    grid-template-columns:1fr;
-    gap:15px;
-    text-align:center;
-  }
-
-  .carrinho-topo{
-    justify-self:center;
-  }
-
-  .menu-loja{
-    justify-content:center;
-  }
-
-  .card img{
-    height:320px;
-  }
-}
-.instagram-float{
-    position:fixed;
-    right:20px;
-    bottom:85px;
-    background:#E1306C;
-    color:white;
-    text-decoration:none;
-    padding:15px 20px;
-    border-radius:50px;
-    font-weight:bold;
-    z-index:999;
-}
-
-.instagram-float:hover{
-    opacity:.9;
-}
-.category-tabs{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:35px;
-}
-
-.category-tabs button{
-  background:white;
-  color:#111;
-  border:1px solid #ddd;
-  padding:10px 18px;
-  border-radius:999px;
-}
-
-.category-tabs button.categoria-ativa{
-  background:#111;
-  color:white;
-}
-
-.cart-produto-info{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.cart-produto-info img{
-  width:55px;
-  height:55px;
-  object-fit:cover;
-  border-radius:8px;
-}
-
-#cartCount{
-  background:#111;
-  color:white;
-  border-radius:999px;
-  padding:3px 8px;
-  font-size:12px;
-}
-.intro-loja.pequena{
-  padding:25px 20px 10px;
-}
-
-.intro-loja.pequena h1{
-  font-size:24px;
-  margin-bottom:5px;
-}
-
-.intro-loja.pequena p{
-  font-size:14px;
-  color:#777;
-}
-
-.menu-loja{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:14px;
+  gap:24px;
 }
 
 .menu-loja a{
+  text-decoration:none;
+  color:#555;
   font-size:14px;
+  font-weight:500;
+  transition:.3s;
 }
 
-.category-tabs{
+.menu-loja a:hover{
+  color:#000;
+}
+
+/* ===== CARRINHO FLUTUANTE ===== */
+
+.cart-float{
+  position:fixed;
+  right:25px;
+  top:95px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#111;
+  color:#fff;
+  text-decoration:none;
   display:flex;
   justify-content:center;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:35px;
+  align-items:center;
+  font-size:26px;
+  z-index:9999;
+  box-shadow:0 8px 25px rgba(0,0,0,.15);
 }
 
-.category-tabs button{
+.cart-float span{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  background:#e53935;
+  color:#fff;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:11px;
+  font-weight:bold;
+}
+
+/* ===== MODAL PRODUTO ADICIONADO ===== */
+
+.cart-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:99999;
+}
+
+.cart-modal-content{
+  width:90%;
+  max-width:420px;
   background:white;
-  color:#111;
-  border:1px solid #ddd;
-  padding:10px 18px;
-  border-radius:999px;
+  border-radius:16px;
+  padding:25px;
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+}
+
+.modal-buttons{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+.modal-buttons button{
+  flex:1;
+}
+
+/* ===== PRODUTOS MAIS PREMIUM ===== */
+
+.produto-card{
+  border:none;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 5px 20px rgba(0,0,0,.06);
+  transition:.3s;
+}
+
+.produto-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
+}
+
+.produto-card img{
+  transition:.4s;
+}
+
+.produto-card:hover img{
+  transform:scale(1.03);
+}
+
+/* ===== CATEGORIAS ===== */
+
+.category-tabs button{
+  border:none;
+  background:#f5f5f5;
+  border-radius:30px;
 }
 
 .category-tabs button.categoria-ativa{
   background:#111;
-  color:white;
+  color:#fff;
 }
 
-#cartCount{
-  background:#111;
-  color:white;
-  border-radius:999px;
-  padding:3px 8px;
-  font-size:12px;
+/* ===== CADASTRO ===== */
+
+#cadastro{
+  border-radius:16px;
+}
+
+/* ===== CARRINHO ===== */
+
+#cart{
+  border-radius:16px;
+}
+
+/* ===== MOBILE ===== */
+
+@media(max-width:768px){
+
+  .cart-float{
+    width:55px;
+    height:55px;
+    font-size:22px;
+    top:auto;
+    bottom:90px;
+  }
+
 }
