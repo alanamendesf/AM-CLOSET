@@ -29,7 +29,17 @@ function showAdminTab(tabId) {
     tab.classList.remove('active');
   });
 
+  document.querySelectorAll('.admin-tabs button').forEach(button => {
+    button.classList.remove('active');
+  });
+
   document.getElementById(tabId).classList.add('active');
+
+  const activeButton = document.querySelector(`.admin-tabs button[data-tab="${tabId}"]`);
+
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
 }
 
 async function uploadImage() {
@@ -72,6 +82,8 @@ async function loadAdmin() {
     await loadProducts();
     await loadOrders();
     await loadCustomers();
+
+    adminMsg.textContent = 'Painel carregado com sucesso.';
   } catch (error) {
     console.error(error);
     adminMsg.textContent = 'Erro ao carregar painel.';
@@ -92,26 +104,30 @@ async function loadProducts() {
   }
 
   adminProducts.innerHTML = data.map(p => `
-    <article class="card produto-card">
+    <article class="card produto-card admin-product-card">
       <img src="${p.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
 
       <div class="card-body">
-        <h3>${p.name}</h3>
-        <b>${money(p.price)}</b>
+        <h3>${p.name || 'Produto sem nome'}</h3>
+        <b>${money(p.price || 0)}</b>
         <small>Categoria: ${p.category || 'Sem categoria'}</small>
-        <small>Tamanhos: ${p.sizes || ''}</small>
-        <small>Estoque: ${p.stock}</small>
+        <small>Tamanhos: ${p.sizes || 'Não informado'}</small>
+        <small>Estoque: ${p.stock || 0}</small>
 
-        <input id="name-${p.id}" value="${p.name || ''}">
-        <input id="price-${p.id}" value="${p.price || 0}" type="number" step="0.01">
-        <input id="cat-${p.id}" value="${p.category || ''}">
-        <input id="sizes-${p.id}" value="${p.sizes || ''}">
-        <input id="stock-${p.id}" value="${p.stock || 0}" type="number">
-        <input id="img-${p.id}" value="${p.image || ''}">
-        <textarea id="desc-${p.id}">${p.description || ''}</textarea>
+        <div class="admin-edit-form">
+          <input id="name-${p.id}" value="${p.name || ''}" placeholder="Nome">
+          <input id="price-${p.id}" value="${p.price || 0}" type="number" step="0.01" placeholder="Preço">
+          <input id="cat-${p.id}" value="${p.category || ''}" placeholder="Categoria">
+          <input id="sizes-${p.id}" value="${p.sizes || ''}" placeholder="Tamanhos">
+          <input id="stock-${p.id}" value="${p.stock || 0}" type="number" placeholder="Estoque">
+          <input id="img-${p.id}" value="${p.image || ''}" placeholder="Imagem">
+          <textarea id="desc-${p.id}" placeholder="Descrição">${p.description || ''}</textarea>
+        </div>
 
-        <button onclick="editProduct('${p.id}')">Salvar alterações</button>
-        <button onclick="delProduct('${p.id}')">Excluir</button>
+        <div class="admin-actions">
+          <button onclick="editProduct('${p.id}')">Salvar</button>
+          <button class="btn-danger" onclick="delProduct('${p.id}')">Excluir</button>
+        </div>
       </div>
     </article>
   `).join('');
@@ -142,28 +158,35 @@ async function loadOrders() {
       const itemsHtml = items.length
         ? items.map(i => `
           <li>
-            <strong>${i.name || 'Produto'}</strong><br>
-            Quantidade: ${i.quantity || 1}<br>
-            Valor: ${money(i.price || 0)}
+            <strong>${i.name || 'Produto'}</strong>
+            <span>Qtd: ${i.quantity || 1}</span>
+            <span>${money(i.price || 0)}</span>
           </li>
         `).join('')
         : '<li>Nenhum produto listado.</li>';
 
       return `
-        <div class="order">
-          <b>Pedido ${o.id}</b>
+        <div class="order admin-order-card">
+          <div class="order-top">
+            <b>Pedido ${o.id}</b>
+            <span>${o.status || '-'}</span>
+          </div>
 
-          <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
-          <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
-          <p><strong>Forma de pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
-          <p><strong>Status:</strong> ${o.status || '-'}</p>
+          <div class="order-grid">
+            <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
+            <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
+            <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
+            <p><strong>Origem:</strong> ${customer.source || '-'}</p>
+          </div>
 
-          <p><strong>Subtotal:</strong> ${money(customer.subtotal || 0)}</p>
-          <p><strong>Taxa:</strong> ${money(customer.fee_value || 0)}</p>
-          <p><strong>Total:</strong> ${money(customer.total || 0)}</p>
+          <div class="order-values">
+            <p><strong>Subtotal:</strong> ${money(customer.subtotal || 0)}</p>
+            <p><strong>Taxa:</strong> ${money(customer.fee_value || 0)}</p>
+            <p><strong>Total:</strong> ${money(customer.total || 0)}</p>
+          </div>
 
           <p><strong>Produtos:</strong></p>
-          <ul>${itemsHtml}</ul>
+          <ul class="order-items">${itemsHtml}</ul>
         </div>
       `;
     }).join('');
@@ -183,10 +206,10 @@ async function loadCustomers() {
 
     customers.innerHTML = Array.isArray(data) && data.length
       ? data.map(c => `
-        <div class="order">
-          <b>${c.name}</b>
-          <p>WhatsApp: ${c.phone}</p>
-          <button onclick="delCustomer('${c.id}')">Excluir cliente</button>
+        <div class="order admin-customer-card">
+          <b>${c.name || 'Cliente'}</b>
+          <p>WhatsApp: ${c.phone || '-'}</p>
+          <button class="btn-danger" onclick="delCustomer('${c.id}')">Excluir cliente</button>
         </div>
       `).join('')
       : 'Nenhuma cliente cadastrada ainda.';
@@ -308,6 +331,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const savedPass = localStorage.getItem('am_admin_pass');
 
   if (savedPass) {
-    pass().value = savedPass;
+    document.getElementById('pass').value = savedPass;
   }
 });
