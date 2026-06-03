@@ -31,7 +31,6 @@ function ensureFile(file, content) {
   }
 }
 
-ensureFile('products.json', []);
 ensureFile('orders.json', []);
 ensureFile('customers.json', []);
 ensureFile('config.json', {
@@ -73,7 +72,7 @@ function roundMoney(value) {
   return Math.round(Number(value) * 100) / 100;
 }
 
-function getPaymentFee(paymentMethod) {
+function getPaymentFee() {
   return 0.0498;
 }
 
@@ -95,15 +94,25 @@ app.put('/api/config', checkAdmin, (req, res) => {
   res.json(config);
 });
 
-/* PRODUTOS */
+/* PRODUTOS NO SUPABASE */
 
-app.get('/api/products', (req, res) => {
-  res.json(readJson('products.json'));
+app.get('/api/products', async (req, res) => {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return res.status(500).json({
+      error: 'Erro ao carregar produtos.',
+      details: error.message
+    });
+  }
+
+  res.json(data || []);
 });
 
-app.post('/api/products', checkAdmin, (req, res) => {
-  const products = readJson('products.json');
-
+app.post('/api/products', checkAdmin, async (req, res) => {
   const product = {
     id: String(Date.now()),
     name: req.body.name || '',
@@ -115,37 +124,63 @@ app.post('/api/products', checkAdmin, (req, res) => {
     sizes: req.body.sizes || ''
   };
 
-  products.push(product);
-  writeJson('products.json', products);
-  res.json(product);
-});
+  const { data, error } = await supabase
+    .from('products')
+    .insert([product])
+    .select()
+    .single();
 
-app.put('/api/products/:id', checkAdmin, (req, res) => {
-  const products = readJson('products.json');
-  const index = products.findIndex(p => p.id === req.params.id);
-
-  if (index === -1) {
-    return res.status(404).json({ error: 'Produto não encontrado.' });
+  if (error) {
+    return res.status(500).json({
+      error: 'Erro ao salvar produto.',
+      details: error.message
+    });
   }
 
-  products[index] = {
-    ...products[index],
+  res.json(data);
+});
+
+app.put('/api/products/:id', checkAdmin, async (req, res) => {
+  const product = {
     name: req.body.name || '',
     price: Number(req.body.price || 0),
     category: req.body.category || 'Sem categoria',
-    image: req.body.image || products[index].image,
+    image: req.body.image || '/produto-1.svg',
     description: req.body.description || '',
     stock: Number(req.body.stock || 0),
     sizes: req.body.sizes || ''
   };
 
-  writeJson('products.json', products);
-  res.json(products[index]);
+  const { data, error } = await supabase
+    .from('products')
+    .update(product)
+    .eq('id', req.params.id)
+    .select()
+    .single();
+
+  if (error) {
+    return res.status(500).json({
+      error: 'Erro ao editar produto.',
+      details: error.message
+    });
+  }
+
+  res.json(data);
 });
 
-app.delete('/api/products/:id', checkAdmin, (req, res) => {
-  const products = readJson('products.json').filter(p => p.id !== req.params.id);
-  writeJson('products.json', products);
+app.delete('/api/products/:id', checkAdmin, async (req, res) => {
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', req.params.id);
+
+  if (error) {
+    return res.status(500).json({
+      error: 'Erro ao excluir produto.',
+      details: error.message
+    });
+  }
+
   res.json({ ok: true });
 });
 
@@ -172,9 +207,7 @@ app.post('/api/customers', async (req, res) => {
     .select()
     .single();
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+  if (error) return res.status(500).json({ error: error.message });
 
   res.json({ ok: true, customer: data });
 });
@@ -295,7 +328,7 @@ app.post('/api/checkout', async (req, res) => {
     }
 
     const method = 'credit';
-    const feePercent = getPaymentFee(method);
+    const feePercent = getPaymentFee();
 
     const subtotal = items.reduce((total, item) => {
       return total + Number(item.price || 0) * Number(item.quantity || 1);
@@ -305,9 +338,13 @@ app.post('/api/checkout', async (req, res) => {
     const total = roundMoney(subtotal + feeValue);
 
     const orderItems = items.map(i => ({
+      id: i.id || '',
       name: i.name,
       quantity: Number(i.quantity || 1),
-      price: Number(i.price || 0)
+      price: Number(i.price || 0),
+      image: i.image || '',
+      category: i.category || '',
+      size: i.size || ''
     }));
 
     const customerData = {
