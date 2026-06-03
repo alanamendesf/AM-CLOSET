@@ -96,8 +96,33 @@ function renderDashboard() {
   if (!dashboard) return;
 
   const totalProducts = adminProductsData.length;
-  const totalOrders = adminOrdersData.length;
   const totalCustomers = adminCustomersData.length;
+
+  const pedidosPendentes = adminOrdersData.filter(o =>
+    o.status === 'Aguardando pagamento' ||
+    o.status === 'Aguardando confirmação' ||
+    o.status === 'Pagamento pendente'
+  ).length;
+
+  const pedidosConfirmados = adminOrdersData.filter(o =>
+    o.status === 'Confirmado'
+  ).length;
+
+  const pedidosSeparando = adminOrdersData.filter(o =>
+    o.status === 'Separando pedido'
+  ).length;
+
+  const pedidosEmRota = adminOrdersData.filter(o =>
+    o.status === 'Em rota'
+  ).length;
+
+  const pedidosEntregues = adminOrdersData.filter(o =>
+    o.status === 'Pedido entregue'
+  ).length;
+
+  const pedidosCancelados = adminOrdersData.filter(o =>
+    o.status === 'Cancelado'
+  ).length;
 
   const faturamento = adminOrdersData.reduce((sum, order) => {
     if (order.status === 'Cancelado') return sum;
@@ -111,13 +136,38 @@ function renderDashboard() {
     </div>
 
     <div class="dashboard-card">
-      <small>Pedidos</small>
-      <strong>${totalOrders}</strong>
+      <small>Clientes</small>
+      <strong>${totalCustomers}</strong>
     </div>
 
     <div class="dashboard-card">
-      <small>Clientes</small>
-      <strong>${totalCustomers}</strong>
+      <small>Pendentes</small>
+      <strong>${pedidosPendentes}</strong>
+    </div>
+
+    <div class="dashboard-card">
+      <small>Confirmados</small>
+      <strong>${pedidosConfirmados}</strong>
+    </div>
+
+    <div class="dashboard-card">
+      <small>Separando</small>
+      <strong>${pedidosSeparando}</strong>
+    </div>
+
+    <div class="dashboard-card">
+      <small>Em rota</small>
+      <strong>${pedidosEmRota}</strong>
+    </div>
+
+    <div class="dashboard-card">
+      <small>Entregues</small>
+      <strong>${pedidosEntregues}</strong>
+    </div>
+
+    <div class="dashboard-card">
+      <small>Cancelados</small>
+      <strong>${pedidosCancelados}</strong>
     </div>
 
     <div class="dashboard-card">
@@ -230,9 +280,34 @@ async function loadOrders() {
           ${
             o.status !== 'Cancelado'
               ? `
-                <button class="btn-danger" onclick="cancelOrder('${o.id}', '${customer.phone || ''}', '${customer.name || ''}')">
-                  Cancelar pedido
-                </button>
+                <div class="order-status-actions">
+                  <button onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Confirmado')">
+                    Confirmado
+                  </button>
+
+                  <button onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Separando pedido')">
+                    Separando pedido
+                  </button>
+
+                  <button onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Em rota')">
+                    Em rota
+                  </button>
+
+                  <button onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Pedido entregue')">
+                    Pedido entregue
+                  </button>
+
+                  <button class="btn-danger" onclick="cancelOrder('${o.id}', '${customer.phone || ''}', '${customer.name || ''}')">
+                    Cancelar
+                  </button>
+                </div>
+
+                <div class="tracking-box">
+                  <input id="tracking-${o.id}" value="${customer.tracking_code || ''}" placeholder="Código de rastreio, se tiver">
+                  <button onclick="sendTracking('${o.id}', '${customer.phone || ''}', '${customer.name || ''}')">
+                    Enviar rastreio
+                  </button>
+                </div>
               `
               : `
                 <p><strong>Motivo do cancelamento:</strong> ${customer.cancel_reason || '-'}</p>
@@ -375,6 +450,108 @@ async function delCustomer(id) {
 
   adminMsg.textContent = 'Cliente excluída!';
   await loadCustomers();
+  renderDashboard();
+}
+
+async function updateOrderStatus(orderId, customerPhone, customerName, status) {
+  const r = await fetch('/api/orders/' + orderId + '/status', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-password': pass()
+    },
+    body: JSON.stringify({ status })
+  });
+
+  const data = await r.json();
+
+  if (!r.ok) {
+    alert(data.details || data.error || 'Erro ao atualizar pedido.');
+    return;
+  }
+
+  adminMsg.textContent = 'Pedido atualizado para: ' + status;
+
+  const phone = String(customerPhone || '').replace(/\D/g, '');
+
+  if (phone) {
+    const finalPhone = phone.startsWith('55') ? phone : '55' + phone;
+
+    const messages = {
+      'Confirmado': `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
+
+Seu pedido foi confirmado e já está sendo preparado. ♡`,
+
+      'Separando pedido': `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
+
+Estamos separando o seu pedido com muito carinho. ♡`,
+
+      'Em rota': `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
+
+Seu pedido está em rota para entrega. ♡`,
+
+      'Pedido entregue': `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
+
+Seu pedido foi entregue. Esperamos que ame sua peça! ♡`
+    };
+
+    const message = messages[status] || `Olá! Seu pedido na AM Closet foi atualizado para: ${status}.`;
+
+    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank');
+  }
+
+  await loadOrders();
+  renderDashboard();
+}
+
+async function sendTracking(orderId, customerPhone, customerName) {
+  const input = document.getElementById('tracking-' + orderId);
+  const trackingCode = input ? input.value.trim() : '';
+
+  if (!trackingCode) {
+    alert('Digite o código de rastreio.');
+    return;
+  }
+
+  const r = await fetch('/api/orders/' + orderId + '/status', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-password': pass()
+    },
+    body: JSON.stringify({
+      status: 'Em rota',
+      tracking_code: trackingCode
+    })
+  });
+
+  const data = await r.json();
+
+  if (!r.ok) {
+    alert(data.details || data.error || 'Erro ao enviar rastreio.');
+    return;
+  }
+
+  adminMsg.textContent = 'Código de rastreio salvo com sucesso.';
+
+  const phone = String(customerPhone || '').replace(/\D/g, '');
+
+  if (phone) {
+    const finalPhone = phone.startsWith('55') ? phone : '55' + phone;
+
+    const message = `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
+
+Seu pedido está em rota.
+
+Código de rastreio:
+${trackingCode}
+
+Obrigada pela compra! ♡`;
+
+    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank');
+  }
+
+  await loadOrders();
   renderDashboard();
 }
 
