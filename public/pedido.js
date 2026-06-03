@@ -4,15 +4,55 @@ const money = v => Number(v || 0).toLocaleString('pt-BR', {
 });
 
 const statusSteps = [
-  'Aguardando confirmação',
-  'Confirmado',
-  'Separando pedido',
-  'Em rota',
-  'Pedido entregue'
+  {
+    key: 'Aguardando confirmação',
+    title: 'Pedido recebido',
+    icon: '🛍️',
+    description: 'Recebemos sua solicitação e ela está aguardando confirmação.'
+  },
+  {
+    key: 'Confirmado',
+    title: 'Pedido confirmado',
+    icon: '✅',
+    description: 'Seu pedido foi confirmado pela AM Closet.'
+  },
+  {
+    key: 'Separando pedido',
+    title: 'Separando pedido',
+    icon: '🤍',
+    description: 'Estamos separando suas peças com cuidado.'
+  },
+  {
+    key: 'Em rota',
+    title: 'Saiu para entrega',
+    icon: '🚚',
+    description: 'Seu pedido está a caminho.'
+  },
+  {
+    key: 'Pedido entregue',
+    title: 'Pedido entregue',
+    icon: '✨',
+    description: 'Seu pedido foi entregue. Esperamos que ame sua compra!'
+  }
 ];
 
 function normalizePhone(phone) {
   return String(phone || '').replace(/\D/g, '');
+}
+
+function getStatusIndex(status) {
+  const index = statusSteps.findIndex(step => step.key === status);
+
+  if (index === -1) {
+    return 0;
+  }
+
+  return index;
+}
+
+function getStatusLabel(status) {
+  const step = statusSteps.find(step => step.key === status);
+  return step ? step.title : status;
 }
 
 async function searchOrder() {
@@ -56,50 +96,102 @@ async function searchOrder() {
     const customer = order.customer || {};
     const items = Array.isArray(order.items) ? order.items : [];
     const currentStatus = order.status || 'Aguardando confirmação';
+    const currentIndex = getStatusIndex(currentStatus);
 
-    const currentIndex = statusSteps.indexOf(currentStatus);
+    const progressPercent = currentStatus === 'Cancelado'
+      ? 0
+      : (currentIndex / (statusSteps.length - 1)) * 100;
 
     const timeline = statusSteps.map((step, index) => {
-      const active = currentIndex >= index;
+      const active = currentStatus !== 'Cancelado' && currentIndex >= index;
+      const current = currentStatus !== 'Cancelado' && currentIndex === index;
+
       return `
-        <div class="pedido-step ${active ? 'ativo' : ''}">
-          <span>${active ? '✓' : '○'}</span>
-          <p>${step}</p>
+        <div class="pedido-step-premium ${active ? 'ativo' : ''} ${current ? 'atual' : ''}">
+          <div class="pedido-step-icon">${active ? '✓' : step.icon}</div>
+          <div>
+            <strong>${step.title}</strong>
+            <p>${step.description}</p>
+          </div>
         </div>
       `;
     }).join('');
 
-    const itemsHtml = items.map(item => `
-      <li>
-        <strong>${item.name || 'Produto'}</strong><br>
-        Quantidade: ${item.quantity || 1}<br>
-        Valor: ${money(item.price || 0)}
-      </li>
-    `).join('');
+    const itemsHtml = items.map(item => {
+      const itemTotal = Number(item.price || 0) * Number(item.quantity || 1);
+
+      return `
+        <li>
+          <div>
+            <strong>${item.name || 'Produto'}</strong>
+            <small>Quantidade: ${item.quantity || 1}</small>
+          </div>
+          <span>${money(itemTotal)}</span>
+        </li>
+      `;
+    }).join('');
 
     result.innerHTML = `
-      <div class="pedido-card">
-        <h2>Pedido #${order.id}</h2>
+      <div class="pedido-card pedido-card-premium">
+        <div class="pedido-card-header">
+          <div>
+            <small>Pedido</small>
+            <h2>#${order.id}</h2>
+          </div>
 
-        <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
-        <p><strong>Status atual:</strong> ${currentStatus}</p>
-        <p><strong>Forma de pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
-        <p><strong>Total:</strong> ${money(customer.total || 0)}</p>
-
-        <div class="pedido-timeline">
-          ${timeline}
+          <span class="pedido-status-badge ${currentStatus === 'Cancelado' ? 'cancelado' : ''}">
+            ${currentStatus === 'Cancelado' ? 'Cancelado' : getStatusLabel(currentStatus)}
+          </span>
         </div>
 
-        <h3>Produtos</h3>
-        <ul class="pedido-items">
-          ${itemsHtml || '<li>Nenhum produto listado.</li>'}
-        </ul>
+        <div class="pedido-info-grid">
+          <p><strong>Cliente</strong><br>${customer.name || '-'}</p>
+          <p><strong>Pagamento</strong><br>${customer.payment_label || customer.payment_method || '-'}</p>
+          <p><strong>Total</strong><br>${money(customer.total || 0)}</p>
+        </div>
 
         ${
-          currentStatus === 'Cancelado'
-            ? `<p class="pedido-cancelado"><strong>Pedido cancelado:</strong> ${customer.cancel_reason || '-'}</p>`
+          currentStatus !== 'Cancelado'
+            ? `
+              <div class="pedido-progress">
+                <div class="pedido-progress-line">
+                  <span style="width:${progressPercent}%"></span>
+                </div>
+              </div>
+
+              <div class="pedido-timeline-premium">
+                ${timeline}
+              </div>
+            `
+            : `
+              <div class="pedido-cancelado-box">
+                <strong>Pedido cancelado</strong>
+                <p>${customer.cancel_reason || 'Pedido cancelado pela loja.'}</p>
+              </div>
+            `
+        }
+
+        ${
+          customer.tracking_code
+            ? `
+              <div class="pedido-rastreio">
+                <strong>Código de rastreio</strong>
+                <p>${customer.tracking_code}</p>
+              </div>
+            `
             : ''
         }
+
+        <div class="pedido-produtos-box">
+          <h3>Produtos do pedido</h3>
+          <ul class="pedido-items-premium">
+            ${itemsHtml || '<li>Nenhum produto listado.</li>'}
+          </ul>
+        </div>
+
+        <p class="pedido-ajuda">
+          Em caso de dúvidas, entre em contato com a AM Closet pelo WhatsApp.
+        </p>
       </div>
     `;
 
