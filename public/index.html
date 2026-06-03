@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -13,21 +12,18 @@
     <div class="topo-linha">
       <div class="marca">AM CLOSET</div>
 
-```
-  <nav class="menu-loja">
-    <a href="/">Início</a>
-    <span class="separador"></span>
-    <a href="#products">Produtos</a>
-    <span class="separador"></span>
-    <a href="#categoryTabs">Categorias</a>
-    <span class="separador"></span>
-    <a href="#cadastro">Cadastro</a>
-    <span class="separador"></span>
-    <a class="carrinho-topo" href="#cart">Carrinho <span id="cartCount">0</span></a>
-  </nav>
-</div>
-```
-
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <span class="separador"></span>
+        <a href="#products">Produtos</a>
+        <span class="separador"></span>
+        <a href="#categoryTabs">Categorias</a>
+        <span class="separador"></span>
+        <a href="#cadastro">Cadastro</a>
+        <span class="separador"></span>
+        <a class="carrinho-topo" href="#cart">Carrinho <span id="cartCount">0</span></a>
+      </nav>
+    </div>
   </header>
 
   <main class="loja-main">
@@ -36,61 +32,59 @@
       <p>Looks que valorizam você! ♡</p>
     </section>
 
-```
-<section class="vitrine">
-  <h2>Produtos</h2>
+    <section class="vitrine">
+      <h2>Produtos</h2>
+      <div id="categoryTabs" class="category-tabs"></div>
+      <div id="products" class="grid"></div>
+    </section>
 
-  <div id="categoryTabs" class="category-tabs"></div>
+    <section id="cadastro" class="cart">
+      <h2>Cadastro</h2>
+      <input id="clientName" placeholder="Seu nome" autocomplete="name">
+      <input id="clientPhone" placeholder="Seu WhatsApp">
+      <button onclick="saveClient()">Cadastrar</button>
+      <p id="clientMsg"></p>
+    </section>
 
-  <div id="products" class="grid"></div>
-</section>
+    <aside id="cart" class="cart">
+      <h2>Carrinho</h2>
 
-<section id="cadastro" class="cart">
-  <h2>Cadastro</h2>
+      <div id="cartItems"></div>
 
-  <input id="clientName" placeholder="Seu nome" autocomplete="name">
-  <input id="clientEmail" placeholder="Seu e-mail" autocomplete="email">
-  <input id="clientPhone" placeholder="Seu WhatsApp">
+      <strong id="total">Total: R$ 0,00</strong>
 
-  <button onclick="saveClient()">Cadastrar</button>
+      <div style="margin:15px 0;">
+        <strong>Forma de pagamento</strong>
 
-  <p id="clientMsg"></p>
-</section>
+        <div style="margin-top:10px;">
+          <label>
+            <input type="radio" name="paymentMethod" value="pix">
+            PIX
+          </label>
+        </div>
 
-<aside id="cart" class="cart">
-  <h2>Carrinho</h2>
+        <div style="margin-top:8px;">
+          <label>
+            <input type="radio" name="paymentMethod" value="cash">
+            Dinheiro em espécie
+          </label>
+        </div>
 
-  <div id="cartItems"></div>
+        <div style="margin-top:8px;">
+          <label>
+            <input type="radio" name="paymentMethod" value="card" checked>
+            Cartão de Crédito/Débito (acréscimo de 4,98% referente à taxa do Mercado Pago)
+          </label>
+        </div>
+      </div>
 
-  <strong id="total">Total: R$ 0,00</strong>
+      <input id="name" placeholder="Seu nome" autocomplete="name">
+      <input id="phone" placeholder="Seu WhatsApp">
 
-  <div style="margin:15px 0;">
-    <strong>Forma de pagamento</strong>
+      <button onclick="checkout()">Finalizar compra</button>
 
-    <div style="margin-top:10px;">
-      <label>
-        <input type="radio" name="paymentMethod" value="pix">
-        PIX (acréscimo de 0,99% referente à taxa do Mercado Pago)
-      </label>
-    </div>
-
-    <div style="margin-top:8px;">
-      <label>
-        <input type="radio" name="paymentMethod" value="card" checked>
-        Cartão de Crédito/Débito (acréscimo de 4,98% referente à taxa do Mercado Pago)
-      </label>
-    </div>
-  </div>
-
-  <input id="name" placeholder="Seu nome" autocomplete="name">
-  <input id="email" placeholder="Seu e-mail" autocomplete="email">
-
-  <button onclick="checkout()">Finalizar compra</button>
-
-  <p id="msg"></p>
-</aside>
-```
-
+      <p id="msg"></p>
+    </aside>
   </main>
 
   <a class="instagram-float" href="https://instagram.com/useamcloseet" target="_blank">
@@ -107,7 +101,6 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=51"></script>
-
+  <script src="/app.js?v=52"></script>
 </body>
 </html>
