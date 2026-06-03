@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Acompanhar Pedido - AM Closet</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <header class="loja-topo">
+    <div class="topo-linha">
+      <a class="marca" href="/">AM CLOSET</a>
+
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <a href="/#products">Produtos</a>
+        <a href="/#cadastro">Cadastre-se</a>
+        <a href="/pedido.html">Acompanhar pedido</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="pedido-page">
+    <section class="pedido-box">
+      <h1>Acompanhar Pedido</h1>
+      <p>Digite o número do pedido e o WhatsApp usado na compra.</p>
+
+      <input id="orderId" placeholder="Número do pedido">
+      <input id="phone" placeholder="Seu WhatsApp com DDD">
+
+      <button onclick="searchOrder()">Consultar pedido</button>
+
+      <p id="pedidoMsg"></p>
+
+      <div id="pedidoResultado"></div>
+    </section>
+  </main>
+
+  <footer>
+    <h3>AM Closet</h3>
+    <p>@useamcloseet</p>
+    <p>© 2026 AM Closet - Todos os direitos reservados.</p>
+  </footer>
+
+  <script src="/pedido.js?v=1"></script>
+</body>
+</html>
