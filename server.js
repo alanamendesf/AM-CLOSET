@@ -74,7 +74,6 @@ function roundMoney(value) {
 }
 
 function getPaymentFee(paymentMethod) {
-  if (paymentMethod === 'pix') return 0.0099;
   return 0.0498;
 }
 
@@ -163,8 +162,8 @@ app.post('/api/customers', async (req, res) => {
     phone: req.body.phone || ''
   };
 
-  if (!customer.name || !customer.email || !customer.phone) {
-    return res.status(400).json({ error: 'Preencha todos os dados.' });
+  if (!customer.name || !customer.phone) {
+    return res.status(400).json({ error: 'Preencha nome e WhatsApp.' });
   }
 
   const { data, error } = await supabase
@@ -186,9 +185,7 @@ app.get('/api/customers', checkAdmin, async (req, res) => {
     .select('*')
     .order('id', { ascending: false });
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+  if (error) return res.status(500).json({ error: error.message });
 
   res.json(data);
 });
@@ -199,9 +196,7 @@ app.delete('/api/customers/:id', checkAdmin, async (req, res) => {
     .delete()
     .eq('id', req.params.id);
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+  if (error) return res.status(500).json({ error: error.message });
 
   res.json({ ok: true });
 });
@@ -214,24 +209,92 @@ app.get('/api/orders', checkAdmin, async (req, res) => {
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+  if (error) return res.status(500).json({ error: error.message });
 
   res.json(data);
 });
 
-/* CHECKOUT MERCADO PAGO */
+/* PEDIDOS VIA WHATSAPP */
 
-app.post('/api/checkout', async (req, res) => {
+app.post('/api/orders/whatsapp', async (req, res) => {
   try {
-    const { items, customer, paymentMethod } = req.body;
+    const {
+      customer,
+      items,
+      payment_method,
+      payment_label,
+      subtotal,
+      fee_value,
+      total,
+      status
+    } = req.body;
 
     if (!items || !items.length) {
       return res.status(400).json({ error: 'Carrinho vazio.' });
     }
 
-    const method = paymentMethod === 'pix' ? 'pix' : 'card';
+    const customerData = {
+      ...(customer || {}),
+      payment_method: payment_method || '',
+      payment_label: payment_label || '',
+      subtotal: Number(subtotal || 0),
+      fee_value: Number(fee_value || 0),
+      total: Number(total || 0),
+      source: 'whatsapp'
+    };
+
+    const orderItems = items.map(i => ({
+      id: i.id || '',
+      name: i.name || '',
+      quantity: Number(i.quantity || 1),
+      price: Number(i.price || 0),
+      image: i.image || '',
+      size: i.size || '',
+      category: i.category || ''
+    }));
+
+    const { data: order, error } = await supabase
+      .from('orders')
+      .insert([{
+        customer: customerData,
+        items: orderItems,
+        status: status || 'Aguardando confirmação'
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({
+        error: 'Erro ao salvar pedido via WhatsApp.',
+        details: error.message
+      });
+    }
+
+    res.json({
+      ok: true,
+      orderId: order.id,
+      order
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erro ao criar pedido via WhatsApp.',
+      details: err.message
+    });
+  }
+});
+
+/* CHECKOUT MERCADO PAGO - CARTÃO DE CRÉDITO */
+
+app.post('/api/checkout', async (req, res) => {
+  try {
+    const { items, customer } = req.body;
+
+    if (!items || !items.length) {
+      return res.status(400).json({ error: 'Carrinho vazio.' });
+    }
+
+    const method = 'credit';
     const feePercent = getPaymentFee(method);
 
     const subtotal = items.reduce((total, item) => {
@@ -250,10 +313,12 @@ app.post('/api/checkout', async (req, res) => {
     const customerData = {
       ...(customer || {}),
       payment_method: method,
+      payment_label: 'Cartão de Crédito',
       subtotal,
       fee_percent: feePercent * 100,
       fee_value: feeValue,
-      total
+      total,
+      source: 'mercado_pago'
     };
 
     const { data: order, error: orderError } = await supabase
@@ -292,9 +357,7 @@ app.post('/api/checkout', async (req, res) => {
     }));
 
     preferenceItems.push({
-      title: method === 'pix'
-        ? 'Taxa de pagamento PIX - 0,99%'
-        : 'Taxa de pagamento Cartão - 4,98%',
+      title: 'Taxa Mercado Pago - Cartão de Crédito 4,98%',
       quantity: 1,
       unit_price: feeValue,
       currency_id: 'BRL'
@@ -315,17 +378,17 @@ app.post('/api/checkout', async (req, res) => {
       },
       auto_return: 'approved',
       payment_methods: {
-        installments: 12
+        installments: 12,
+        excluded_payment_methods: [
+          { id: 'pix' }
+        ],
+        excluded_payment_types: [
+          { id: 'ticket' },
+          { id: 'atm' },
+          { id: 'debit_card' }
+        ]
       }
     };
-
-    if (method === 'pix') {
-      preferenceData.payment_methods.excluded_payment_types = [
-        { id: 'credit_card' },
-        { id: 'debit_card' },
-        { id: 'ticket' }
-      ];
-    }
 
     const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
