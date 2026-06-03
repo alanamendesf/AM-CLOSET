@@ -38,16 +38,18 @@
       <div id="products" class="grid"></div>
     </section>
 
-    <section id="cadastro" class="cart bloco-claro">
+    <section id="cadastro" class="cart">
       <h2>Cadastre-se</h2>
       <p class="texto-suave">Receba novidades e acompanhe os lançamentos da AM Closet.</p>
+
       <input id="clientName" placeholder="Seu nome" autocomplete="name">
       <input id="clientPhone" placeholder="Seu WhatsApp">
+
       <button onclick="saveClient()">Cadastrar</button>
       <p id="clientMsg"></p>
     </section>
 
-    <aside id="cart" class="cart bloco-claro">
+    <aside id="cart" class="cart">
       <h2>Finalizar pedido</h2>
 
       <div id="cartItems"></div>
@@ -90,12 +92,12 @@
   </main>
 
   <div id="cartModal" class="cart-modal">
-    <div class="cart-modal-card">
-      <button class="modal-close" onclick="closeCartModal()">×</button>
+    <div class="cart-modal-content">
       <h3>Produto adicionado ao carrinho</h3>
       <p>Deseja continuar comprando ou finalizar seu pedido?</p>
-      <div class="modal-actions">
-        <button class="btn-light" onclick="continueShopping()">Continuar comprando</button>
+
+      <div class="modal-buttons">
+        <button onclick="continueShopping()">Continuar comprando</button>
         <button onclick="goToCart()">Finalizar compra</button>
       </div>
     </div>
@@ -115,6 +117,6 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=55"></script>
+  <script src="/app.js?v=57"></script>
 </body>
 </html>
