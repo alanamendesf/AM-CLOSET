@@ -8,6 +8,34 @@ const money = v => Number(v).toLocaleString('pt-BR', {
   currency: 'BRL'
 });
 
+function roundMoney(value) {
+  return Math.round(Number(value) * 100) / 100;
+}
+
+function getSelectedPaymentMethod() {
+  return document.querySelector('input[name="paymentMethod"]:checked')?.value || 'card';
+}
+
+function getPaymentFeePercent() {
+  const paymentMethod = getSelectedPaymentMethod();
+
+  if (paymentMethod === 'pix') {
+    return 0.0099;
+  }
+
+  return 0.0498;
+}
+
+function getPaymentLabel() {
+  const paymentMethod = getSelectedPaymentMethod();
+
+  if (paymentMethod === 'pix') {
+    return 'PIX';
+  }
+
+  return 'Cartão';
+}
+
 async function load() {
   try {
     config = await (await fetch('/api/config')).json();
@@ -17,6 +45,10 @@ async function load() {
     renderCategories();
     renderProducts();
     renderCart();
+
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
+      input.addEventListener('change', renderCart);
+    });
   } catch (error) {
     console.error(error);
     document.getElementById('products').innerHTML = '<p>Erro ao carregar produtos.</p>';
@@ -120,7 +152,10 @@ function removeItem(id) {
 }
 
 function renderCart() {
-  const total = cart.reduce((s, i) => s + Number(i.price) * Number(i.quantity), 0);
+  const subtotal = cart.reduce((s, i) => s + Number(i.price) * Number(i.quantity), 0);
+  const feePercent = getPaymentFeePercent();
+  const feeValue = roundMoney(subtotal * feePercent);
+  const total = roundMoney(subtotal + feeValue);
   const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
 
   if (document.getElementById('cartCount')) {
@@ -142,7 +177,16 @@ function renderCart() {
       </div>
     `).join('') || '<p>Carrinho vazio.</p>';
 
-  document.getElementById('total').textContent = 'Total: ' + money(total);
+  if (!cart.length) {
+    document.getElementById('total').textContent = 'Total: R$ 0,00';
+    return;
+  }
+
+  document.getElementById('total').innerHTML = `
+    Subtotal: ${money(subtotal)}<br>
+    Taxa ${getPaymentLabel()}: ${money(feeValue)}<br>
+    Total: ${money(total)}
+  `;
 }
 
 async function saveClient() {
@@ -188,6 +232,7 @@ async function checkout() {
 
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
+  const paymentMethod = getSelectedPaymentMethod();
 
   if (!name || !email) {
     msg.textContent = 'Preencha nome e e-mail antes de finalizar.';
@@ -204,7 +249,7 @@ async function checkout() {
       },
       body: JSON.stringify({
         items: cart,
-        paymentMethod: 'card',
+        paymentMethod: paymentMethod,
         customer: {
           name: name,
           email: email
@@ -239,4 +284,5 @@ async function checkout() {
     console.error(error);
   }
 }
+
 load();
