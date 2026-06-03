@@ -29,7 +29,8 @@
         </div>
 
         <nav class="admin-tabs">
-          <button data-tab="productsTab" class="active" onclick="showAdminTab('productsTab')">Produtos</button>
+          <button data-tab="dashboardTab" class="active" onclick="showAdminTab('dashboardTab')">Dashboard</button>
+          <button data-tab="productsTab" onclick="showAdminTab('productsTab')">Produtos</button>
           <button data-tab="ordersTab" onclick="showAdminTab('ordersTab')">Pedidos</button>
           <button data-tab="customersTab" onclick="showAdminTab('customersTab')">Clientes</button>
           <button data-tab="settingsTab" onclick="showAdminTab('settingsTab')">Configurações</button>
@@ -37,7 +38,14 @@
         </nav>
       </header>
 
-      <section id="productsTab" class="admin-tab active">
+      <section id="dashboardTab" class="admin-tab active">
+        <div class="panel">
+          <h2>Resumo da loja</h2>
+          <div id="dashboardCards" class="dashboard-cards"></div>
+        </div>
+      </section>
+
+      <section id="productsTab" class="admin-tab">
         <div class="panel">
           <h2>Novo produto</h2>
 
@@ -91,6 +99,6 @@
 
   </main>
 
-  <script src="/admin.js?v=24"></script>
+  <script src="/admin.js?v=25"></script>
 </body>
 </html>
