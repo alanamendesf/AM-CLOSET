@@ -597,14 +597,23 @@ async function cancelOrder(orderId, customerPhone, customerName) {
   if (phone && whatsappWindow) {
     const finalPhone = phone.startsWith('55') ? phone : '55' + phone;
 
-    const message = `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
+const message = `😔 Olá, ${customerName || 'cliente'}!
 
-Seu pedido foi cancelado pelo seguinte motivo:
+Infelizmente seu pedido na AM Closet precisou ser cancelado.
 
+📦 Pedido: ${orderId}
+
+📝 Motivo:
 ${reason}
 
-Pedimos desculpas pelo transtorno.
-Qualquer dúvida, estamos à disposição.`;
+💖 Pedimos desculpas pelo transtorno.
+
+Caso tenha qualquer dúvida ou queira realizar um novo pedido, nossa equipe está à disposição.
+
+👉 Fale conosco:
+https://wa.me/5585991346349
+
+🌷 Equipe AM Closet`;
 
    whatsappWindow.location = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
   }
