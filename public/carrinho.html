@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -12,63 +13,88 @@
     <div class="topo-linha">
       <a class="marca" href="/">AM CLOSET</a>
 
-      <nav class="menu-loja">
-        <a href="/">Início</a>
-        <a href="/carrinho.html">Carrinho</a>
-        <a href="/cadastro.html">Cadastro</a>
-        <a href="/pedido.html">Acompanhar pedido</a>
-      </nav>
-    </div>
+```
+  <nav class="menu-loja">
+    <a href="/">Início</a>
+    <a href="/carrinho.html">Carrinho</a>
+    <a href="/cadastro.html">Cadastro</a>
+    <a href="/pedido.html">Acompanhar Pedido</a>
+  </nav>
+</div>
+```
+
   </header>
 
-  <main class="loja-main">
-    <aside id="cart" class="cart">
-      <h2>Finalizar pedido</h2>
+  <main class="loja-main checkout-page">
+    <section class="checkout-header">
+      <span>AM CLOSET</span>
+      <h1>Seu carrinho</h1>
+      <p>Confira seus itens e finalize seu pedido com segurança.</p>
+    </section>
 
-      <div id="cartItems"></div>
+```
+<section id="cart" class="checkout-card">
+  <div class="checkout-section">
+    <h2>Itens do pedido</h2>
+    <div id="cartItems"></div>
+  </div>
 
-      <strong id="total">Total: R$ 0,00</strong>
+  <div class="checkout-section">
+    <h2>Resumo</h2>
+    <strong id="total" class="checkout-total">Total: R$ 0,00</strong>
+  </div>
 
-      <div class="payment-box">
-        <strong>Forma de pagamento</strong>
+  <div class="checkout-section">
+    <h2>Forma de pagamento</h2>
 
-        <label class="payment-option">
-          <input type="radio" name="paymentMethod" value="pix">
-          <span>PIX</span>
-        </label>
+    <div class="payment-box minimal-payment">
+      <label class="payment-option">
+        <input type="radio" name="paymentMethod" value="pix">
+        <span>PIX</span>
+      </label>
 
-        <label class="payment-option">
-          <input type="radio" name="paymentMethod" value="cash">
-          <span>Dinheiro em espécie</span>
-        </label>
+      <label class="payment-option">
+        <input type="radio" name="paymentMethod" value="cash">
+        <span>Dinheiro em espécie</span>
+      </label>
 
-        <label class="payment-option">
-          <input type="radio" name="paymentMethod" value="debit">
-          <span>Cartão de Débito</span>
-          <small>Taxa Mercado Pago: 4,98%</small>
-        </label>
+      <label class="payment-option">
+        <input type="radio" name="paymentMethod" value="debit">
+        <span>Cartão de Débito</span>
+        <small>Taxa Mercado Pago: 4,98%</small>
+      </label>
 
-        <label class="payment-option">
-          <input type="radio" name="paymentMethod" value="credit" checked>
-          <span>Cartão de Crédito</span>
-          <small>Taxa Mercado Pago: 4,98%</small>
-        </label>
-      </div>
+      <label class="payment-option">
+        <input type="radio" name="paymentMethod" value="credit" checked>
+        <span>Cartão de Crédito</span>
+        <small>Taxa Mercado Pago: 4,98%</small>
+      </label>
+    </div>
+  </div>
 
-      <input id="name" placeholder="Seu nome" autocomplete="name">
-      <input id="phone" placeholder="Seu WhatsApp">
+  <div class="checkout-section">
+    <h2>Seus dados</h2>
 
-      <input
-        id="email"
-        type="email"
-        placeholder="Seu e-mail para receber atualizações do pedido (opcional)"
-        autocomplete="email"
-      >
+    <input id="name" placeholder="Nome completo" autocomplete="name">
+    <input id="phone" placeholder="WhatsApp com DDD">
+    <input
+      id="email"
+      type="email"
+      placeholder="E-mail para atualizações do pedido (opcional)"
+      autocomplete="email"
+    >
+  </div>
 
-      <button onclick="checkout()">Finalizar compra</button>
+  <button class="checkout-button" onclick="checkout()">Finalizar compra</button>
 
-      <p id="msg"></p>
-    </aside>
+  <p class="checkout-note">
+    Ao finalizar, você será direcionada para concluir o pagamento ou falar com a AM Closet.
+  </p>
+
+  <p id="msg"></p>
+</section>
+```
+
   </main>
 
   <footer>
@@ -77,6 +103,7 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=63"></script>
+  <script src="/app.js?v=64"></script>
+
 </body>
 </html>
