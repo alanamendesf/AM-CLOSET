@@ -718,13 +718,43 @@ if (
   !currentOrder.customer?.payment_approved_email_sent
 ) {
   await sendPaymentApprovedEmail(data);
+}
+
+if (
+  status === 'Confirmado' &&
+  !currentOrder.customer?.stock_updated
+) {
+  const items = Array.isArray(currentOrder.items) ? currentOrder.items : [];
+
+  for (const item of items) {
+    if (!item.id) continue;
+
+    const { data: product } = await supabase
+      .from('products')
+      .select('stock')
+      .eq('id', item.id)
+      .single();
+
+    if (!product) continue;
+
+    const newStock = Math.max(
+      Number(product.stock || 0) - Number(item.quantity || 1),
+      0
+    );
+
+    await supabase
+      .from('products')
+      .update({ stock: newStock })
+      .eq('id', item.id);
+  }
 
   await supabase
     .from('orders')
     .update({
       customer: {
         ...(data.customer || {}),
-        payment_approved_email_sent: true
+        payment_approved_email_sent: true,
+        stock_updated: true
       }
     })
     .eq('id', req.params.id);
