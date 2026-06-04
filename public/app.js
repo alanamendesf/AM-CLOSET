@@ -1,5 +1,5 @@
 let products = [];
-let cart = [];
+let cart = JSON.parse(localStorage.getItem('amcloset_cart') || '[]');
 let config = {};
 let selectedCategory = 'Todos';
 
@@ -189,6 +189,11 @@ function getCartTotals() {
 }
 
 function renderCart() {
+
+  
+  localStorage.setItem('amcloset_cart', JSON.stringify(cart));
+
+  
   const { subtotal, feeValue, total } = getCartTotals();
   const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
   const paymentMethod = getSelectedPaymentMethod();
@@ -197,6 +202,10 @@ function renderCart() {
     document.getElementById('cartCount').textContent = quantidadeItens;
   }
 
+  if (!document.getElementById('cartItems') || !document.getElementById('total')) {
+  return;
+}
+  
   document.getElementById('cartItems').innerHTML =
     cart.map(i => `
       <div class="cartline">
