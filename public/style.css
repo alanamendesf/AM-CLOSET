@@ -1234,6 +1234,11 @@ border-bottom: 1px solid #f1ece9;
   letter-spacing: 1px;
 }
 
+.produto-card-esgotado img {
+  filter: grayscale(20%);
+  opacity: .75;
+}
+
 .btn-esgotado {
   background: #d8c8bf !important;
   color: #fff !important;
