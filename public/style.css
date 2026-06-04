@@ -1226,3 +1226,20 @@ border-bottom: 1px solid #f1ece9;
   font-size:13px;
   color:#9a8f88;
 }
+
+.produto-esgotado {
+  color: #8f4f45 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-esgotado {
+  background: #d8c8bf !important;
+  color: #fff !important;
+  cursor: not-allowed !important;
+}
+
+.btn-esgotado:hover {
+  opacity: 1;
+}
