@@ -91,7 +91,152 @@ function formatMoney(value) {
     currency: 'BRL'
   });
 }
+function getOrderCode(order) {
+  return order?.customer?.order_code || order?.id || 'Pedido';
+}
 
+function getCustomerName(order) {
+  return order?.customer?.name || 'cliente';
+}
+
+function getCustomerEmail(order) {
+  return order?.customer?.email || '';
+}
+
+async function sendCustomerEmail({ to, subject, html }) {
+  try {
+    if (!process.env.RESEND_API_KEY || !to) return;
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM_EMAIL || 'AM Closet <onboarding@resend.dev>',
+        to,
+        subject,
+        html
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error('Erro ao enviar e-mail para cliente:', result);
+    }
+  } catch (error) {
+    console.error('Erro no e-mail da cliente:', error.message);
+  }
+}
+
+async function sendPaymentRejectedCreditEmail(order) {
+  const customer = order.customer || {};
+  const orderCode = getOrderCode(order);
+  const customerEmail = getCustomerEmail(order);
+
+  if (!customerEmail) return;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;color:#2b2724;line-height:1.6;">
+      <h2>💳 Ops! Não foi possível aprovar seu pagamento</h2>
+
+      <p>Olá, <strong>${customer.name || 'cliente'}</strong>! 💖</p>
+
+      <p>Recebemos sua tentativa de pagamento, mas ela não foi aprovada pela administradora do cartão.</p>
+
+      <p><strong>📦 Número do Pedido:</strong> ${orderCode}</p>
+
+      <p>Isso pode acontecer por alguns motivos, como:</p>
+
+      <ul>
+        <li>Limite insuficiente</li>
+        <li>Dados do cartão incorretos</li>
+        <li>Bloqueio de segurança da operadora</li>
+      </ul>
+
+      <p>✨ Você pode tentar novamente com outro cartão ou escolher o pagamento via Pix.</p>
+
+      <p>Se precisar de ajuda, fale conosco pelo WhatsApp. Estamos à disposição! 💬</p>
+
+      <p style="margin-top:24px;">💖 Equipe AM Closet</p>
+    </div>
+  `;
+
+  await sendCustomerEmail({
+    to: customerEmail,
+    subject: `Pagamento não aprovado - Pedido ${orderCode}`,
+    html
+  });
+}
+
+async function sendPaymentApprovedEmail(order) {
+  const customer = order.customer || {};
+  const orderCode = getOrderCode(order);
+  const customerEmail = getCustomerEmail(order);
+
+  if (!customerEmail) return;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;color:#2b2724;line-height:1.6;">
+      <h2>🎉 Pagamento aprovado com sucesso!</h2>
+
+      <p>Olá, <strong>${customer.name || 'cliente'}</strong>! 💖</p>
+
+      <p>Seu pagamento foi confirmado e seu pedido já entrou em preparação. 🛍️✨</p>
+
+      <p><strong>📦 Número do Pedido:</strong> ${orderCode}</p>
+      <p><strong>💰 Total:</strong> ${formatMoney(customer.total || 0)}</p>
+
+      <p>Agora é só aguardar! Em breve enviaremos novas atualizações sobre sua compra. 🚚💨</p>
+
+      <p style="margin-top:24px;">Obrigada por comprar na AM Closet! 🌷</p>
+
+      <p>💖 Equipe AM Closet</p>
+    </div>
+  `;
+
+  await sendCustomerEmail({
+    to: customerEmail,
+    subject: `Pagamento aprovado - Pedido ${orderCode}`,
+    html
+  });
+}
+
+async function sendCancelOrderEmail(order, reason) {
+  const customer = order.customer || {};
+  const orderCode = getOrderCode(order);
+  const customerEmail = getCustomerEmail(order);
+
+  if (!customerEmail) return;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;color:#2b2724;line-height:1.6;">
+      <h2>😔 Pedido cancelado</h2>
+
+      <p>Olá, <strong>${customer.name || 'cliente'}</strong>.</p>
+
+      <p>Infelizmente seu pedido precisou ser cancelado.</p>
+
+      <p><strong>📦 Número do Pedido:</strong> ${orderCode}</p>
+
+      <p><strong>📝 Motivo do cancelamento:</strong><br>${reason}</p>
+
+      <p>Caso tenha qualquer dúvida ou queira realizar um novo pedido, estaremos à disposição para ajudar. 💖</p>
+
+      <p style="margin-top:24px;">Agradecemos sua compreensão e esperamos atendê-la novamente em breve. 🌷</p>
+
+      <p>💖 Equipe AM Closet</p>
+    </div>
+  `;
+
+  await sendCustomerEmail({
+    to: customerEmail,
+    subject: `Pedido cancelado - ${orderCode}`,
+    html
+  });
+}
 async function sendNewOrderEmail(order) {
   try {
     if (!process.env.RESEND_API_KEY) {
@@ -463,7 +608,9 @@ app.put('/api/orders/:id/cancel', checkAdmin, async (req, res) => {
         details: error.message
       });
     }
+await sendCancelOrderEmail(data, reason);
 
+    
     res.json({ ok: true, order: data });
 
   } catch (err) {
@@ -762,8 +909,6 @@ await sendNewOrderEmail(order);
   }
 });
 
-/* WEBHOOK MERCADO PAGO */
-
 app.post('/api/webhook/mercadopago', async (req, res) => {
   try {
     const body = req.body;
@@ -791,9 +936,9 @@ app.post('/api/webhook/mercadopago', async (req, res) => {
       return res.json({ ok: false });
     }
 
-    const orderId = paymentData.external_reference;
+    const orderCode = paymentData.external_reference;
 
-    if (!orderId) {
+    if (!orderCode) {
       return res.json({ ok: true });
     }
 
@@ -809,20 +954,66 @@ app.post('/api/webhook/mercadopago', async (req, res) => {
       status = 'Pagamento cancelado';
     }
 
-const { data: orders } = await supabase
-  .from('orders')
-  .select('*');
+    const { data: orders } = await supabase
+      .from('orders')
+      .select('*');
 
-const order = orders?.find(
-  o => o.customer?.order_code === orderId
-);
+    const order = orders?.find(
+      o => o.customer?.order_code === orderCode
+    );
 
-if (order) {
-  await supabase
-    .from('orders')
-    .update({ status })
-    .eq('id', order.id);
-}
+    if (order) {
+      const customer = order.customer || {};
+      const paymentMethod = customer.payment_method || '';
+      const updatedCustomer = {
+        ...customer,
+        mercado_pago_status: paymentData.status,
+        mercado_pago_payment_id: paymentId,
+        last_payment_update: new Date().toISOString()
+      };
+
+      const isCredit =
+        paymentMethod === 'credit' ||
+        paymentMethod === 'credit_card' ||
+        customer.payment_label === 'Cartão de Crédito';
+
+      if (paymentData.status === 'approved' && !customer.payment_approved_email_sent) {
+        updatedCustomer.payment_approved_email_sent = true;
+
+        const updatedOrder = {
+          ...order,
+          status,
+          customer: updatedCustomer
+        };
+
+        await sendPaymentApprovedEmail(updatedOrder);
+      }
+
+      if (
+        paymentData.status === 'rejected' &&
+        isCredit &&
+        !customer.payment_rejected_email_sent
+      ) {
+        updatedCustomer.payment_rejected_email_sent = true;
+
+        const updatedOrder = {
+          ...order,
+          status,
+          customer: updatedCustomer
+        };
+
+        await sendPaymentRejectedCreditEmail(updatedOrder);
+      }
+
+      await supabase
+        .from('orders')
+        .update({
+          status,
+          customer: updatedCustomer
+        })
+        .eq('id', order.id);
+    }
+
     res.json({ ok: true });
 
   } catch (err) {
