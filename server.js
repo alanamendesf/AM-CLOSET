@@ -173,7 +173,7 @@ async function sendPaymentRejectedCreditEmail(order) {
     `
       <p>Olá, <strong>${customer.name || 'cliente'}</strong>! 💖</p>
 
-      <p>Recebemos sua tentativa de pagamento, mas ela não foi aprovada pela administradora do cartão.</p>
+      <p>Não conseguimos confirmar o pagamento no cartão informado.</p>
 
       <div style="background:#f7eee9;border-radius:12px;padding:16px;margin:20px 0;">
         <p><strong>📦 Número do Pedido:</strong> ${orderCode}</p>
