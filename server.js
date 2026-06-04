@@ -205,62 +205,57 @@ async function sendPaymentApprovedEmail(order) {
 }
 
 async function sendCancelOrderEmail(order, reason) {
-const customer = order.customer || {};
-const orderCode = getOrderCode(order);
-const customerEmail = getCustomerEmail(order);
-const whatsappNumber = '5585991346349';
+  const customer = order.customer || {};
+  const orderCode = getOrderCode(order);
+  const customerEmail = getCustomerEmail(order);
+  const whatsappNumber = '5585991346349';
 
-if (!customerEmail) return;
+  if (!customerEmail) return;
 
-const whatsappText = encodeURIComponent(
-`Olá! Tenho uma dúvida sobre o cancelamento do meu pedido ${orderCode} da AM Closet.`
-);
+  const whatsappText = encodeURIComponent(
+    `Olá! Tenho uma dúvida sobre o cancelamento do meu pedido ${orderCode} da AM Closet.`
+  );
 
-const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappText}`;
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappText}`;
 
-const html = `
-<div style="background:#f7eee9;padding:32px 16px;font-family:Arial,sans-serif;color:#2b2724;">
-  <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:18px;padding:28px;">
-    ...
-  </div>
-</div>
-`;
+  const html = `
+    <div style="background:#f7eee9;padding:32px 16px;font-family:Arial,sans-serif;color:#2b2724;">
+      <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:18px;padding:28px;">
+        <h1 style="margin:0;color:#8b5e4b;text-align:center;">AM Closet</h1>
+        <p style="text-align:center;color:#9b7b6c;">Looks que valorizam você! ♡</p>
 
-    <h2 style="color:#8b5e4b;">😔 Pedido cancelado</h2>
+        <h2 style="color:#8b5e4b;">😔 Pedido cancelado</h2>
 
-    <p>Olá, <strong>${customer.name || 'cliente'}</strong>.</p>
+        <p>Olá, <strong>${customer.name || 'cliente'}</strong>.</p>
 
-    <p>Infelizmente seu pedido precisou ser cancelado.</p>
+        <p>Infelizmente seu pedido precisou ser cancelado.</p>
 
-    <div style="background:#f7eee9;border-radius:12px;padding:16px;margin:20px 0;">
-      <p style="margin:0;"><strong>📦 Número do Pedido:</strong> ${orderCode}</p>
-      <p style="margin:10px 0 0;"><strong>📝 Motivo:</strong><br>${reason}</p>
+        <div style="background:#f7eee9;border-radius:12px;padding:16px;margin:20px 0;">
+          <p><strong>📦 Número do Pedido:</strong> ${orderCode}</p>
+          <p><strong>📝 Motivo:</strong><br>${reason}</p>
+        </div>
+
+        <p>Se tiver qualquer dúvida, fale diretamente com a gente pelo WhatsApp. 💖</p>
+
+        <p style="text-align:center;margin:28px 0;">
+          <a href="${whatsappLink}" target="_blank" style="background:#25D366;color:#ffffff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;display:inline-block;">
+            Falar com a AM Closet no WhatsApp
+          </a>
+        </p>
+
+        <p>Agradecemos sua compreensão e esperamos atendê-la novamente em breve. 🌷</p>
+
+        <p>💖 Equipe AM Closet</p>
+      </div>
     </div>
+  `;
 
-    <p>Se tiver qualquer dúvida, fale diretamente com a gente pelo WhatsApp. 💖</p>
-
-    <p style="text-align:center;margin:28px 0;">
-      <a href="${whatsappLink}" target="_blank" style="background:#25D366;color:#ffffff;text-decoration:none;padding:14px 22px;border-radius:999px;font-weight:bold;display:inline-block;">
-        Falar com a AM Closet no WhatsApp
-      </a>
-    </p>
-
-    <p>Agradecemos sua compreensão e esperamos atendê-la novamente em breve. 🌷</p>
-
-    <p style="margin-top:24px;">💖 Equipe AM Closet</p>
-  </div>
-</div>
-```
-
-`;
-
-await sendCustomerEmail({
-to: customerEmail,
-subject: `Pedido cancelado - ${orderCode}`,
-html
-});
+  await sendCustomerEmail({
+    to: customerEmail,
+    subject: `Pedido cancelado - ${orderCode}`,
+    html
+  });
 }
-
 
 async function sendNewOrderEmail(order) {
   try {
