@@ -12,26 +12,22 @@ const statusSteps = [
   },
   {
     key: 'Confirmado',
-    title: 'Pedido confirmado',
-    icon: '✅',
+   title: '💖 Pedido confirmado',
     description: 'Seu pedido foi confirmado pela AM Closet.'
   },
   {
     key: 'Separando pedido',
-    title: 'Separando pedido',
-    icon: '🤍',
+   title: '🛍️ Preparando seu pedido',
     description: 'Estamos separando suas peças com cuidado.'
   },
   {
     key: 'Em rota',
-    title: 'Saiu para entrega',
-    icon: '🚚',
+    title: '🚚 Em transporte',
     description: 'Seu pedido está a caminho.'
   },
   {
     key: 'Pedido entregue',
-    title: 'Pedido entregue',
-    icon: '✨',
+   title: '✨ Pedido entregue',
     description: 'Seu pedido foi entregue. Esperamos que ame sua compra!'
   }
 ];
