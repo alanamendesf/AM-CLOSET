@@ -203,7 +203,7 @@ return;
 
 
 item.quantity++;
-```
+
 
 } else {
 cart.push({ ...p, quantity: 1 });
@@ -309,6 +309,7 @@ if (document.getElementById('clientEmail')) {
   document.getElementById('clientEmail').value = '';
 }
 
+
 }
 }
 
@@ -357,6 +358,7 @@ const itemTotal = Number(item.price) * Number(item.quantity);
 
 
 return `${index + 1}. ${item.name}
+
 
 Quantidade: ${item.quantity}
 Valor unitário: ${money(item.price)}
@@ -412,10 +414,19 @@ return;
 
 if (paymentMethod === 'pix' || paymentMethod === 'cash' || paymentMethod === 'debit') {
 msg.textContent = 'Salvando pedido e abrindo WhatsApp...';
+
+
+const cartBackup = [...cart];
+
 await saveWhatsappOrderToPanel(name, phone, paymentMethod, email);
-clearCart();
 sendOrderToWhatsapp(name, phone, paymentMethod);
+
+cart = cartBackup;
+saveCart();
+
 return;
+
+
 }
 
 msg.textContent = 'Criando pedido...';
@@ -437,7 +448,7 @@ phone: phone
 })
 });
 
-
+  
 const data = await r.json();
 
 if (!r.ok) {
@@ -452,7 +463,6 @@ if (!r.ok) {
 }
 
 if (data.init_point) {
-  clearCart();
   window.location.href = data.init_point;
   return;
 }
@@ -462,7 +472,7 @@ msg.textContent =
   data.message ||
   data.error ||
   'Erro ao finalizar.';
-
+  
 
 } catch (error) {
 msg.textContent = 'Erro ao conectar com o checkout.';
@@ -489,3 +499,4 @@ window.location.href = '/carrinho.html';
 }
 
 load();
+
