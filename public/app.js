@@ -264,7 +264,7 @@ async function saveClient() {
   }
 }
 
-async function saveWhatsappOrderToPanel(name, phone, paymentMethod) {
+async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email) {
   const { subtotal, feeValue, total } = getCartTotals();
 
   try {
@@ -275,9 +275,9 @@ async function saveWhatsappOrderToPanel(name, phone, paymentMethod) {
       },
       body: JSON.stringify({
         customer: {
-          name,
-          phone,
-          email: ''
+          name: name,
+          phone: phone,
+          email: email || ''
         },
         items: cart.map(item => ({
           id: item.id,
@@ -290,9 +290,9 @@ async function saveWhatsappOrderToPanel(name, phone, paymentMethod) {
         })),
         payment_method: paymentMethod,
         payment_label: getPaymentLabel(),
-        subtotal,
+        subtotal: subtotal,
         fee_value: feeValue,
-        total,
+        total: total,
         status: 'Aguardando confirmação'
       })
     });
@@ -352,6 +352,7 @@ async function checkout() {
 
   const name = document.getElementById('name').value.trim();
   const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email')?.value.trim() || '';
   const paymentMethod = getSelectedPaymentMethod();
 
   if (!name || !phone) {
@@ -361,7 +362,7 @@ async function checkout() {
 
   if (paymentMethod === 'pix' || paymentMethod === 'cash' || paymentMethod === 'debit') {
     msg.textContent = 'Salvando pedido e abrindo WhatsApp...';
-    await saveWhatsappOrderToPanel(name, phone, paymentMethod);
+    await saveWhatsappOrderToPanel(name, phone, paymentMethod, email);
     sendOrderToWhatsapp(name, phone, paymentMethod);
     return;
   }
@@ -379,7 +380,7 @@ async function checkout() {
         paymentMethod: 'card',
         customer: {
           name: name,
-          email: `${phone}@cliente.whatsapp`,
+          email: email,
           phone: phone
         }
       })
