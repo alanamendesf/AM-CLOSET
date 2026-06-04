@@ -244,12 +244,12 @@ function renderCart() {
 async function saveClient() {
   const msg = document.getElementById('clientMsg');
 
-  const body = {
-    name: document.getElementById('clientName').value,
-    email: '',
-    phone: document.getElementById('clientPhone').value
-  };
-
+const body = {
+  name: document.getElementById('clientName').value,
+  email: document.getElementById('clientEmail')?.value.trim() || '',
+  phone: document.getElementById('clientPhone').value
+};
+  
   if (!body.name || !body.phone) {
     msg.textContent = 'Preencha nome e WhatsApp.';
     return;
