@@ -54,7 +54,7 @@ try {
 const configResponse = await fetch('/api/config');
 config = await configResponse.json();
 
-```
+
 const productsResponse = await fetch('/api/products');
 const productsData = await productsResponse.json();
 
@@ -84,16 +84,16 @@ renderCart();
 document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
   input.addEventListener('change', renderCart);
 });
-```
+
 
 } catch (error) {
 console.error(error);
 
-```
+
 if (document.getElementById('products')) {
   document.getElementById('products').innerHTML = '<p>Erro ao carregar produtos.</p>';
 }
-```
+
 
 }
 }
@@ -154,7 +154,7 @@ return;
 area.innerHTML = filteredProducts.map(p => {
 const isSoldOut = Number(p.stock || 0) <= 0;
 
-```
+
 return `
   <article class="card produto-card ${isSoldOut ? 'produto-card-esgotado' : ''}">
     <img src="${p.image || '/produto-1.svg'}" alt="${p.name || 'Produto'}" onerror="this.src='/produto-1.svg'">
@@ -180,7 +180,7 @@ return `
     </div>
   </article>
 `;
-```
+
 
 }).join('');
 }
@@ -201,7 +201,7 @@ alert('Quantidade maior que o estoque disponível.');
 return;
 }
 
-```
+
 item.quantity++;
 ```
 
@@ -251,11 +251,11 @@ return;
 document.getElementById('cartItems').innerHTML =
 cart.map(i => ` <div class="cartline"> <div class="cart-produto-info"> <img src="${i.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'"> <div> <strong>${i.name}</strong><br> <small>${i.quantity}x ${money(i.price)}</small> </div> </div>
 
-```
+
     <button onclick="removeItem('${i.id}')">x</button>
   </div>
 `).join('') || '<p>Carrinho vazio.</p>';
-```
+
 
 if (!cart.length) {
 document.getElementById('total').textContent = 'Total: R$ 0,00';
@@ -304,11 +304,10 @@ if (!data.error) {
 document.getElementById('clientName').value = '';
 document.getElementById('clientPhone').value = '';
 
-```
+
 if (document.getElementById('clientEmail')) {
   document.getElementById('clientEmail').value = '';
 }
-```
 
 }
 }
@@ -356,9 +355,8 @@ const { subtotal, feeValue, total } = getCartTotals();
 const itensTexto = cart.map((item, index) => {
 const itemTotal = Number(item.price) * Number(item.quantity);
 
-```
+
 return `${index + 1}. ${item.name}
-```
 
 Quantidade: ${item.quantity}
 Valor unitário: ${money(item.price)}
@@ -439,7 +437,7 @@ phone: phone
 })
 });
 
-```
+
 const data = await r.json();
 
 if (!r.ok) {
@@ -464,7 +462,7 @@ msg.textContent =
   data.message ||
   data.error ||
   'Erro ao finalizar.';
-```
+
 
 } catch (error) {
 msg.textContent = 'Erro ao conectar com o checkout.';
