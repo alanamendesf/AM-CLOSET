@@ -237,22 +237,22 @@ async function sendCancelOrderEmail(order, reason) {
   if (!customerEmail) return;
 
   const html = emailLayout(
-    '😔 Pedido cancelado',
+    '❌ Pedido cancelado'
     `
       <p>Olá, <strong>${customer.name || 'cliente'}</strong>.</p>
 
-      <p>Infelizmente seu pedido precisou ser cancelado.</p>
+      <p>Sentimos muito, mas seu pedido precisou ser cancelado.</p>
 
       <div style="background:#f7eee9;border-radius:12px;padding:16px;margin:20px 0;">
-        <p><strong>📦 Número do Pedido:</strong> ${orderCode}</p>
-        <p><strong>📝 Motivo:</strong><br>${reason}</p>
+      <p><strong>📌 Número do Pedido:</strong> ${orderCode}</p>
+<p><strong>📄 Motivo:</strong><br>${reason}</p>
       </div>
 
-      <p>Se tiver qualquer dúvida, fale diretamente com a gente pelo WhatsApp. 💖</p>
+      <p>Se tiver qualquer dúvida, fale diretamente com a gente pelo WhatsApp. ❤️</p>
 
       ${whatsappButton(`Olá! Tenho uma dúvida sobre o cancelamento do meu pedido ${orderCode} da AM Closet.`)}
 
-      <p>Agradecemos sua compreensão e esperamos atendê-la novamente em breve. 🌷</p>
+     <p>Agradecemos sua compreensão e esperamos atendê-la novamente em breve. ✨</p>
     `
   );
 
