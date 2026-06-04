@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -12,34 +13,62 @@
     <div class="topo-linha">
       <a class="marca" href="/">AM CLOSET</a>
 
-      <nav class="menu-loja">
-        <a href="/">Início</a>
-        <a href="/carrinho.html">Carrinho</a>
-        <a href="/cadastro.html">Cadastro</a>
-        <a href="/pedido.html">Acompanhar pedido</a>
-      </nav>
-    </div>
+```
+  <nav class="menu-loja">
+    <a href="/">Início</a>
+    <a href="/carrinho.html">Carrinho</a>
+    <a href="/cadastro.html">Cadastro</a>
+    <a href="/pedido.html">Acompanhar Pedido</a>
+  </nav>
+</div>
+```
+
   </header>
 
-  <main class="loja-main">
-    <section class="cart">
-      <h2>Cadastre-se</h2>
-      <p class="texto-suave">Receba novidades e acompanhe os lançamentos da AM Closet.</p>
-
-<input id="clientName" placeholder="Seu nome" autocomplete="name">
-
-<input id="clientPhone" placeholder="Seu WhatsApp">
-
-<input
-  id="clientEmail"
-  type="email"
-  placeholder="Seu e-mail (opcional)"
-  autocomplete="email"
->
-      <button onclick="saveClient()">Cadastrar</button>
-
-      <p id="clientMsg"></p>
+  <main class="checkout-page">
+    <section class="checkout-header">
+      <span>AM CLOSET</span>
+      <h1>Cadastre-se</h1>
+      <p>Receba novidades, promoções e lançamentos exclusivos.</p>
     </section>
+
+```
+<section class="checkout-card">
+  <div class="benefits-list">
+    <div>💖 Novas coleções</div>
+    <div>✨ Promoções especiais</div>
+    <div>🛍️ Lançamentos antecipados</div>
+  </div>
+
+  <input
+    id="clientName"
+    placeholder="Seu nome"
+    autocomplete="name"
+  >
+
+  <input
+    id="clientPhone"
+    placeholder="Seu WhatsApp"
+  >
+
+  <input
+    id="clientEmail"
+    type="email"
+    placeholder="Seu e-mail (opcional)"
+    autocomplete="email"
+  >
+
+  <button
+    class="checkout-button"
+    onclick="saveClient()"
+  >
+    Quero me cadastrar
+  </button>
+
+  <p id="clientMsg"></p>
+</section>
+```
+
   </main>
 
   <footer>
@@ -48,6 +77,8 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=63"></script>
+  <script src="/app.js?v=65"></script>
+
 </body>
 </html>
+
