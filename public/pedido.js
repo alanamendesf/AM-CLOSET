@@ -131,8 +131,8 @@ async function searchOrder() {
       <div class="pedido-card pedido-card-premium">
         <div class="pedido-card-header">
           <div>
-            <small>Pedido</small>
-            <h2>#${order.id}</h2>
+            <small>Acompanhamento em tempo real</small>
+            <h2>Pedido #${order.id}</h2>
           </div>
 
           <span class="pedido-status-badge ${currentStatus === 'Cancelado' ? 'cancelado' : ''}">
