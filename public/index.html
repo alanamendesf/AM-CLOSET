@@ -43,20 +43,12 @@
     <section id="cadastro" class="cart">
       <h2>Cadastre-se</h2>
       <p class="texto-suave">Receba novidades e acompanhe os lançamentos da AM Closet.</p>
-<input id="name" placeholder="Seu nome" autocomplete="name">
 
-<input id="phone" placeholder="Seu WhatsApp">
+      <input id="clientName" placeholder="Seu nome" autocomplete="name">
+      <input id="clientPhone" placeholder="Seu WhatsApp">
 
-<input
-  id="email"
-  type="email"
-  placeholder="Seu e-mail para receber atualizações do pedido (opcional)"
-  autocomplete="email"
->
-
-<button onclick="checkout()">Finalizar compra</button>
-
-<p id="msg"></p>
+      <button onclick="saveClient()">Cadastrar</button>
+      <p id="clientMsg"></p>
     </section>
 
     <aside id="cart" class="cart">
@@ -94,6 +86,13 @@
 
       <input id="name" placeholder="Seu nome" autocomplete="name">
       <input id="phone" placeholder="Seu WhatsApp">
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Seu e-mail para receber atualizações do pedido (opcional)"
+        autocomplete="email"
+      >
 
       <button onclick="checkout()">Finalizar compra</button>
 
