@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -12,29 +13,55 @@
     <div class="topo-linha">
       <a class="marca" href="/">AM CLOSET</a>
 
-      <nav class="menu-loja">
-        <a href="/">Início</a>
-        <a href="/#products">Produtos</a>
-        <a href="/#cadastro">Cadastre-se</a>
-        <a href="/pedido.html">Acompanhar pedido</a>
-      </nav>
-    </div>
+```
+  <nav class="menu-loja">
+    <a href="/">Início</a>
+    <a href="/carrinho.html">Carrinho</a>
+    <a href="/cadastro.html">Cadastro</a>
+    <a href="/pedido.html">Acompanhar Pedido</a>
+  </nav>
+</div>
+```
+
   </header>
 
   <main class="pedido-page">
-    <section class="pedido-box">
-      <h1>Acompanhar Pedido</h1>
-      <p>Digite o número do pedido e o WhatsApp usado na compra.</p>
+    <section class="pedido-box pedido-card-premium">
 
-      <input id="orderId" placeholder="Número do pedido">
-      <input id="phone" placeholder="Seu WhatsApp com DDD">
+```
+  <div style="text-align:center;margin-bottom:25px;">
+    <span style="font-size:12px;letter-spacing:3px;color:#b28a96;">
+      AM CLOSET
+    </span>
 
-      <button onclick="searchOrder()">Consultar pedido</button>
+    <h1 style="margin-top:10px;">
+      Acompanhar Pedido
+    </h1>
 
-      <p id="pedidoMsg"></p>
+    <p>
+      Consulte o status do seu pedido utilizando o número do pedido e o WhatsApp informado na compra.
+    </p>
+  </div>
 
-      <div id="pedidoResultado"></div>
-    </section>
+  <input id="orderId" placeholder="Número do pedido">
+
+  <input id="phone" placeholder="WhatsApp com DDD">
+
+  <button onclick="searchOrder()">
+    Consultar Pedido
+  </button>
+
+  <p id="pedidoMsg"></p>
+
+  <div id="pedidoResultado"></div>
+
+  <div class="pedido-ajuda">
+    Caso tenha dúvidas sobre seu pedido, entre em contato com nossa equipe através do WhatsApp.
+  </div>
+
+</section>
+```
+
   </main>
 
   <footer>
@@ -43,6 +70,7 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/pedido.js?v=1"></script>
+  <script src="/pedido.js?v=2"></script>
+
 </body>
 </html>
