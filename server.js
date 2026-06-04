@@ -712,6 +712,23 @@ app.put('/api/orders/:id/status', checkAdmin, async (req, res) => {
       });
     }
 
+    
+if (
+  status === 'Confirmado' &&
+  !currentOrder.customer?.payment_approved_email_sent
+) {
+  await sendPaymentApprovedEmail(data);
+
+  await supabase
+    .from('orders')
+    .update({
+      customer: {
+        ...(data.customer || {}),
+        payment_approved_email_sent: true
+      }
+    })
+    .eq('id', req.params.id);
+}
     res.json({
       ok: true,
       order: data
