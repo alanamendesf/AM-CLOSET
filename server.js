@@ -218,13 +218,13 @@ const whatsappText = encodeURIComponent(
 
 const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappText}`;
 
-const html = ` <div style="background:#f7eee9;padding:32px 16px;font-family:Arial,sans-serif;color:#2b2724;"> <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:18px;padding:28px;box-shadow:0 8px 24px rgba(0,0,0,0.08);">
-
-```
-    <div style="text-align:center;margin-bottom:20px;">
-      <h1 style="margin:0;color:#8b5e4b;">AM Closet</h1>
-      <p style="margin:6px 0 0;color:#9b7b6c;">Looks que valorizam você! ♡</p>
-    </div>
+const html = `
+<div style="background:#f7eee9;padding:32px 16px;font-family:Arial,sans-serif;color:#2b2724;">
+  <div style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:18px;padding:28px;">
+    ...
+  </div>
+</div>
+`;
 
     <h2 style="color:#8b5e4b;">😔 Pedido cancelado</h2>
 
