@@ -13,21 +13,25 @@ const statusSteps = [
   {
     key: 'Confirmado',
    title: '💖 Pedido confirmado',
+    icon: '💖',
     description: 'Seu pedido foi confirmado pela AM Closet.'
   },
   {
     key: 'Separando pedido',
    title: '🛍️ Preparando seu pedido',
+    icon: '🛍️',
     description: 'Estamos separando suas peças com cuidado.'
   },
   {
     key: 'Em rota',
     title: '🚚 Em transporte',
+     icon: '🚚',
     description: 'Seu pedido está a caminho.'
   },
   {
     key: 'Pedido entregue',
    title: '✨ Pedido entregue',
+     icon: '✨',
     description: 'Seu pedido foi entregue. Esperamos que ame sua compra!'
   }
 ];
@@ -132,7 +136,7 @@ async function searchOrder() {
         <div class="pedido-card-header">
           <div>
             <small>Acompanhamento em tempo real</small>
-            <h2>Pedido #${order.id}</h2>
+            <h2>${customer.order_code || ('Pedido #' + order.id)}</h2>
           </div>
 
           <span class="pedido-status-badge ${currentStatus === 'Cancelado' ? 'cancelado' : ''}">
@@ -185,10 +189,17 @@ async function searchOrder() {
           </ul>
         </div>
 
-        <p class="pedido-ajuda">
-          Em caso de dúvidas, entre em contato com a AM Closet pelo WhatsApp.
-        </p>
-      </div>
+<div class="pedido-ajuda">
+  <p>Precisa de ajuda com seu pedido?</p>
+
+  <a
+    href="https://wa.me/5585991346349"
+    target="_blank"
+    class="pedido-whatsapp-btn"
+  >
+    Falar com a AM Closet
+  </a>
+</div>
     `;
 
   } catch (error) {
