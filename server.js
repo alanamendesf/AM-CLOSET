@@ -1086,6 +1086,14 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
 });
 
+app.get('/cadastro.html', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'cadastro.html'));
+});
+
+app.get('/carrinho.html', (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'carrinho.html'));
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
