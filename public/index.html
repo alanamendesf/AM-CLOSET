@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -12,17 +13,19 @@
     <div class="topo-linha">
       <a class="marca" href="/">AM CLOSET</a>
 
-      <nav class="menu-loja">
-        <a href="/">Início</a>
-        <a href="#products">Produtos</a>
-        <a href="#categoryTabs">Categorias</a>
-        <a href="#cadastro">Cadastre-se</a>
-        <a href="/pedido.html">Acompanhar pedido</a>
-      </nav>
-    </div>
+```
+  <nav class="menu-loja">
+    <a href="/">Início</a>
+    <a href="/carrinho.html">Carrinho</a>
+    <a href="/cadastro.html">Cadastro</a>
+    <a href="/pedido.html">Acompanhar Pedido</a>
+  </nav>
+</div>
+```
+
   </header>
 
-  <a class="cart-float" href="#cart" aria-label="Carrinho">
+  <a class="cart-float" href="/carrinho.html" aria-label="Carrinho">
     🛒
     <span id="cartCount">0</span>
   </a>
@@ -33,82 +36,37 @@
       <span class="since-text">SINCE 2026</span>
     </section>
 
-    <section class="vitrine">
-      <h2>Produtos</h2>
-      <div id="categoryTabs" class="category-tabs"></div>
-      <div id="products" class="grid"></div>
-    </section>
+```
+<section class="vitrine">
+  <h2>Produtos</h2>
 
-    <section id="cadastro" class="cart">
-      <h2>Cadastre-se</h2>
-      <p class="texto-suave">Receba novidades e acompanhe os lançamentos da AM Closet.</p>
+  <div id="categoryTabs" class="category-tabs"></div>
 
-      <input id="clientName" placeholder="Seu nome" autocomplete="name">
-      <input id="clientPhone" placeholder="Seu WhatsApp">
+  <div id="products" class="grid"></div>
+</section>
+```
 
-      <button onclick="saveClient()">Cadastrar</button>
-      <p id="clientMsg"></p>
-    </section>
-
-    <aside id="cart" class="cart">
-      <h2>Finalizar pedido</h2>
-
-      <div id="cartItems"></div>
-
-      <strong id="total">Total: R$ 0,00</strong>
-
-      <div class="payment-box">
-        <strong>Forma de pagamento</strong>
-
-        <label class="payment-option">
-          <input type="radio" name="paymentMethod" value="pix">
-          <span>PIX</span>
-        </label>
-
-        <label class="payment-option">
-          <input type="radio" name="paymentMethod" value="cash">
-          <span>Dinheiro em espécie</span>
-        </label>
-
-        <label class="payment-option">
-          <input type="radio" name="paymentMethod" value="debit">
-          <span>Cartão de Débito</span>
-          <small>Taxa Mercado Pago: 4,98%</small>
-        </label>
-
-        <label class="payment-option">
-          <input type="radio" name="paymentMethod" value="credit" checked>
-          <span>Cartão de Crédito</span>
-          <small>Taxa Mercado Pago: 4,98%</small>
-        </label>
-      </div>
-
-      <input id="name" placeholder="Seu nome" autocomplete="name">
-      <input id="phone" placeholder="Seu WhatsApp">
-
-      <input
-        id="email"
-        type="email"
-        placeholder="Seu e-mail para receber atualizações do pedido (opcional)"
-        autocomplete="email"
-      >
-
-      <button onclick="checkout()">Finalizar compra</button>
-
-      <p id="msg"></p>
-    </aside>
   </main>
 
   <div id="cartModal" class="cart-modal">
     <div class="cart-modal-content">
       <h3>Produto adicionado ao carrinho</h3>
-      <p>Deseja continuar comprando ou finalizar seu pedido?</p>
 
-      <div class="modal-buttons">
-        <button onclick="continueShopping()">Continuar comprando</button>
-        <button onclick="goToCart()">Finalizar compra</button>
-      </div>
-    </div>
+```
+  <p>Deseja continuar comprando ou ir para o carrinho?</p>
+
+  <div class="modal-buttons">
+    <button onclick="continueShopping()">
+      Continuar comprando
+    </button>
+
+    <button onclick="window.location.href='/carrinho.html'">
+      Ir para o carrinho
+    </button>
+  </div>
+</div>
+```
+
   </div>
 
   <a class="instagram-float" href="https://instagram.com/useamcloseet" target="_blank">
@@ -121,25 +79,30 @@
 
   <footer>
     <h3 id="footerStoreName">AM Closet</h3>
-    <p id="footerInstagram">@useamcloseet</p>
 
-    <section id="politica-trocas" class="footer-policy">
-      <h4>Política de Trocas e Devoluções</h4>
+```
+<p id="footerInstagram">@useamcloseet</p>
 
-      <p>A empresa realiza trocas e devoluções em conformidade com as condições abaixo:</p>
+<section id="politica-trocas" class="footer-policy">
+  <h4>Política de Trocas e Devoluções</h4>
 
-      <p>• As solicitações de troca deverão ser realizadas no prazo máximo de 7 (sete) dias corridos a contar da data da compra, mediante apresentação da peça em perfeito estado de conservação, sem indícios de uso e com a etiqueta original devidamente afixada.</p>
+  <p>A empresa realiza trocas e devoluções em conformidade com as condições abaixo:</p>
 
-      <p>• Não serão aceitas trocas ou devoluções de peças na cor branca.</p>
+  <p>• As solicitações de troca deverão ser realizadas no prazo máximo de 7 (sete) dias corridos a contar da data da compra, mediante apresentação da peça em perfeito estado de conservação, sem indícios de uso e com a etiqueta original devidamente afixada.</p>
 
-      <p>• Não serão aceitas trocas ou devoluções de produtos adquiridos em promoção, liquidação ou campanhas especiais.</p>
+  <p>• Não serão aceitas trocas ou devoluções de peças na cor branca.</p>
 
-      <p>• A empresa não se responsabiliza por danos decorrentes de mau uso, lavagem inadequada, conservação incorreta ou qualquer utilização em desacordo com as orientações de cuidados da peça.</p>
-    </section>
+  <p>• Não serão aceitas trocas ou devoluções de produtos adquiridos em promoção, liquidação ou campanhas especiais.</p>
 
-    <p>© 2026 AM Closet - Todos os direitos reservados.</p>
+  <p>• A empresa não se responsabiliza por danos decorrentes de mau uso, lavagem inadequada, conservação incorreta ou qualquer utilização em desacordo com as orientações de cuidados da peça.</p>
+</section>
+
+<p>© 2026 AM Closet - Todos os direitos reservados.</p>
+```
+
   </footer>
 
-  <script src="/app.js?v=62"></script>
+  <script src="/app.js?v=63"></script>
+
 </body>
 </html>
