@@ -336,7 +336,7 @@ async function sendNewOrderEmail(order) {
       body: JSON.stringify({
         from: process.env.RESEND_FROM_EMAIL || 'AM Closet <onboarding@resend.dev>',
         to: getNotificationEmails(),
-        subject: `Novo pedido recebido - ${orderCode}`,
+       subject: `🛍️ Novo pedido ${orderCode} - AM Closet`,
         html
       })
     });
