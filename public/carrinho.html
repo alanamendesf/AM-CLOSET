@@ -1,1 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Carrinho - AM Closet</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
 
+<body>
+  <header class="loja-topo">
+    <div class="topo-linha">
+      <a class="marca" href="/">AM CLOSET</a>
+
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <a href="/carrinho.html">Carrinho</a>
+        <a href="/cadastro.html">Cadastro</a>
+        <a href="/pedido.html">Acompanhar pedido</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="loja-main">
+    <aside id="cart" class="cart">
+      <h2>Finalizar pedido</h2>
+
+      <div id="cartItems"></div>
+
+      <strong id="total">Total: R$ 0,00</strong>
+
+      <div class="payment-box">
+        <strong>Forma de pagamento</strong>
+
+        <label class="payment-option">
+          <input type="radio" name="paymentMethod" value="pix">
+          <span>PIX</span>
+        </label>
+
+        <label class="payment-option">
+          <input type="radio" name="paymentMethod" value="cash">
+          <span>Dinheiro em espécie</span>
+        </label>
+
+        <label class="payment-option">
+          <input type="radio" name="paymentMethod" value="debit">
+          <span>Cartão de Débito</span>
+          <small>Taxa Mercado Pago: 4,98%</small>
+        </label>
+
+        <label class="payment-option">
+          <input type="radio" name="paymentMethod" value="credit" checked>
+          <span>Cartão de Crédito</span>
+          <small>Taxa Mercado Pago: 4,98%</small>
+        </label>
+      </div>
+
+      <input id="name" placeholder="Seu nome" autocomplete="name">
+      <input id="phone" placeholder="Seu WhatsApp">
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Seu e-mail para receber atualizações do pedido (opcional)"
+        autocomplete="email"
+      >
+
+      <button onclick="checkout()">Finalizar compra</button>
+
+      <p id="msg"></p>
+    </aside>
+  </main>
+
+  <footer>
+    <h3>AM Closet</h3>
+    <p>@useamcloseet</p>
+    <p>© 2026 AM Closet - Todos os direitos reservados.</p>
+  </footer>
+
+  <script src="/app.js?v=63"></script>
+</body>
+</html>
