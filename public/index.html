@@ -43,12 +43,20 @@
     <section id="cadastro" class="cart">
       <h2>Cadastre-se</h2>
       <p class="texto-suave">Receba novidades e acompanhe os lançamentos da AM Closet.</p>
+<input id="name" placeholder="Seu nome" autocomplete="name">
 
-      <input id="clientName" placeholder="Seu nome" autocomplete="name">
-      <input id="clientPhone" placeholder="Seu WhatsApp">
+<input id="phone" placeholder="Seu WhatsApp">
 
-      <button onclick="saveClient()">Cadastrar</button>
-      <p id="clientMsg"></p>
+<input
+  id="email"
+  type="email"
+  placeholder="Seu e-mail para receber atualizações do pedido (opcional)"
+  autocomplete="email"
+>
+
+<button onclick="checkout()">Finalizar compra</button>
+
+<p id="msg"></p>
     </section>
 
     <aside id="cart" class="cart">
@@ -134,6 +142,6 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=61"></script>
+  <script src="/app.js?v=62"></script>
 </body>
 </html>
