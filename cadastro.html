@@ -1,1 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cadastro - AM Closet</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
 
+<body>
+  <header class="loja-topo">
+    <div class="topo-linha">
+      <a class="marca" href="/">AM CLOSET</a>
+
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <a href="/carrinho.html">Carrinho</a>
+        <a href="/cadastro.html">Cadastro</a>
+        <a href="/pedido.html">Acompanhar pedido</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="loja-main">
+    <section class="cart">
+      <h2>Cadastre-se</h2>
+      <p class="texto-suave">Receba novidades e acompanhe os lançamentos da AM Closet.</p>
+
+      <input id="clientName" placeholder="Seu nome" autocomplete="name">
+      <input id="clientPhone" placeholder="Seu WhatsApp">
+
+      <button onclick="saveClient()">Cadastrar</button>
+
+      <p id="clientMsg"></p>
+    </section>
+  </main>
+
+  <footer>
+    <h3>AM Closet</h3>
+    <p>@useamcloseet</p>
+    <p>© 2026 AM Closet - Todos os direitos reservados.</p>
+  </footer>
+
+  <script src="/app.js?v=63"></script>
+</body>
+</html>
