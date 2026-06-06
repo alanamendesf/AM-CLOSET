@@ -1248,3 +1248,98 @@ border-bottom: 1px solid #f1ece9;
 .btn-esgotado:hover {
   opacity: 1;
 }
+
+/* =========================
+   AMCLOSET PREMIUM
+========================= */
+
+.premium-section {
+  background: linear-gradient(
+    180deg,
+    #f8f2eb 0%,
+    #fbf8f4 100%
+  );
+  border-top: 1px solid #eadfd5;
+  border-bottom: 1px solid #eadfd5;
+  margin-bottom: 40px;
+}
+
+.premium-banner {
+  max-width: 900px;
+  margin: 0 auto 40px;
+  text-align: center;
+  padding: 40px 25px;
+}
+
+.premium-banner span {
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #eadfd5;
+  color: #8b5e4b;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.premium-banner h2 {
+  font-size: 42px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  margin-bottom: 15px;
+  color: #2b2724;
+}
+
+.premium-banner p {
+  color: #7a6f67;
+  font-size: 17px;
+  line-height: 1.8;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+#premiumProducts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 35px;
+}
+
+#premiumProducts .card {
+  border: 1px solid #e6d7ca;
+  box-shadow: 0 12px 35px rgba(43,39,36,.08);
+}
+
+#premiumProducts .card img {
+  height: 520px;
+}
+
+#premiumProducts .card h3 {
+  font-size: 20px;
+}
+
+#premiumProducts .card b {
+  font-size: 24px;
+  color: #8b5e4b;
+}
+
+#premiumProducts .card:hover {
+  transform: translateY(-8px);
+}
+
+@media(max-width:768px) {
+
+  .premium-banner {
+    padding: 20px;
+  }
+
+  .premium-banner h2 {
+    font-size: 28px;
+  }
+
+  #premiumProducts .card img {
+    height: 380px;
+  }
+
+}
