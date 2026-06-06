@@ -132,59 +132,77 @@ area.innerHTML = categories.map(cat => `     <button class="${selectedCategory =
 function selectCategory(category) {
 selectedCategory = category;
 renderCategories();
-renderProducts();
-document.getElementById('products')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+function renderProductCard(p) {
+  const isSoldOut = Number(p.stock || 0) <= 0;
+
+  return `
+    <article class="card produto-card ${isSoldOut ? 'produto-card-esgotado' : ''}">
+      <img src="${p.image || '/produto-1.svg'}" alt="${p.name || 'Produto'}" onerror="this.src='/produto-1.svg'">
+
+      <div class="card-body">
+        <h3>${p.name || 'Produto'}</h3>
+        <p>${p.description || ''}</p>
+        <b>${money(p.price || 0)}</b>
+        <small>Categoria: ${p.category || 'Sem categoria'}</small>
+        <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
+
+        ${
+          isSoldOut
+            ? `
+              <small class="produto-esgotado">Esgotado</small>
+              <button disabled class="btn-esgotado">Esgotado</button>
+            `
+            : `
+              <small>Estoque: ${p.stock || 0}</small>
+              <button onclick="add('${p.id}')">Adicionar ao carrinho</button>
+            `
+        }
+      </div>
+    </article>
+  `;
 }
 
 function renderProducts() {
-const area = document.getElementById('products');
-if (!area) return;
+  const area = document.getElementById('products');
+  if (!area) return;
 
-let filteredProducts = products;
+  const premiumSection = document.getElementById('premiumSection');
+  const premiumProductsArea = document.getElementById('premiumProducts');
 
-if (selectedCategory !== 'Todos') {
-filteredProducts = products.filter(p => (p.category || 'Sem categoria') === selectedCategory);
+  const premiumProducts = products.filter(p =>
+    String(p.category || '').trim().toUpperCase() === 'AMCLOSET PREMIUM'
+  );
+
+  if (premiumSection && premiumProductsArea) {
+    if (premiumProducts.length) {
+      premiumSection.classList.remove('hidden');
+      premiumProductsArea.innerHTML = premiumProducts.map(renderProductCard).join('');
+    } else {
+      premiumSection.classList.add('hidden');
+      premiumProductsArea.innerHTML = '';
+    }
+  }
+
+  let filteredProducts = products;
+
+  if (selectedCategory === 'Todos') {
+    filteredProducts = products.filter(p =>
+      String(p.category || '').trim().toUpperCase() !== 'AMCLOSET PREMIUM'
+    );
+  } else {
+    filteredProducts = products.filter(p =>
+      (p.category || 'Sem categoria') === selectedCategory
+    );
+  }
+
+  if (!filteredProducts.length) {
+    area.innerHTML = '<p class="texto-centro">Nenhum produto nessa categoria.</p>';
+    return;
+  }
+
+  area.innerHTML = filteredProducts.map(renderProductCard).join('');
 }
-
-if (!filteredProducts.length) {
-area.innerHTML = '<p class="texto-centro">Nenhum produto nessa categoria.</p>';
-return;
-}
-
-area.innerHTML = filteredProducts.map(p => {
-const isSoldOut = Number(p.stock || 0) <= 0;
-
-
-return `
-  <article class="card produto-card ${isSoldOut ? 'produto-card-esgotado' : ''}">
-    <img src="${p.image || '/produto-1.svg'}" alt="${p.name || 'Produto'}" onerror="this.src='/produto-1.svg'">
-
-    <div class="card-body">
-      <h3>${p.name || 'Produto'}</h3>
-      <p>${p.description || ''}</p>
-      <b>${money(p.price || 0)}</b>
-      <small>Categoria: ${p.category || 'Sem categoria'}</small>
-      <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
-
-      ${
-        isSoldOut
-          ? `
-            <small class="produto-esgotado">Esgotado</small>
-            <button disabled class="btn-esgotado">Esgotado</button>
-          `
-          : `
-            <small>Estoque: ${p.stock || 0}</small>
-            <button onclick="add('${p.id}')">Adicionar ao carrinho</button>
-          `
-      }
-    </div>
-  </article>
-`;
-
-
-}).join('');
-}
-
+  
 function add(id) {
 const p = products.find(x => String(x.id) === String(id));
 
