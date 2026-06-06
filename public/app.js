@@ -130,8 +130,12 @@ area.innerHTML = categories.map(cat => `     <button class="${selectedCategory =
 }
 
 function selectCategory(category) {
-selectedCategory = category;
-renderCategories();
+  selectedCategory = category;
+  renderCategories();
+  renderProducts();
+  document.getElementById('products')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function renderProductCard(p) {
   const isSoldOut = Number(p.stock || 0) <= 0;
 
