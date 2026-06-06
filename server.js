@@ -237,8 +237,8 @@ async function sendCancelOrderEmail(order, reason) {
   if (!customerEmail) return;
 
   const html = emailLayout(
-    '❌ Pedido cancelado'
-    `
+  '❌ Pedido cancelado',
+  `
       <p>Olá, <strong>${customer.name || 'cliente'}</strong>.</p>
 
       <p>Sentimos muito, mas seu pedido precisou ser cancelado.</p>
