@@ -584,7 +584,13 @@ async function cancelOrder(orderId, customerPhone, customerName) {
     body: JSON.stringify({ reason })
   });
 
-  const data = await r.json();
+  let data = {};
+
+try {
+  data = await r.json();
+} catch (e) {
+  data = {};
+}
 
   if (!r.ok) {
     if (whatsappWindow) whatsappWindow.close();
