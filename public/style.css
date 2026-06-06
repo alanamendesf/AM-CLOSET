@@ -1302,7 +1302,8 @@ border-bottom: 1px solid #f1ece9;
 
 #premiumProducts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 420px));
+  justify-content: center;
   gap: 35px;
 }
 
@@ -1342,4 +1343,26 @@ border-bottom: 1px solid #f1ece9;
     height: 380px;
   }
 
+}
+
+#premiumProducts {
+  justify-items: center;
+}
+
+#premiumProducts .card {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#premiumProducts .card-body {
+  padding: 22px;
+}
+
+#premiumProducts .card h3 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+#premiumProducts .card b {
+  font-size: 28px;
 }
