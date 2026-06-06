@@ -603,23 +603,23 @@ try {
   if (phone && whatsappWindow) {
     const finalPhone = phone.startsWith('55') ? phone : '55' + phone;
 
-const message = `😔 Olá, ${customerName || 'cliente'}!
+const message = `Olá, ${customerName || 'cliente'}! ❤️
 
 Infelizmente seu pedido na AM Closet precisou ser cancelado.
 
 📦 Pedido: ${orderId}
 
-📝 Motivo:
+📄 Motivo:
 ${reason}
 
 💖 Pedimos desculpas pelo transtorno.
 
 Caso tenha qualquer dúvida ou queira realizar um novo pedido, nossa equipe está à disposição.
 
-👉 Fale conosco:
+Fale conosco:
 https://wa.me/5585991346349
 
-🌷 Equipe AM Closet`;
+✨ Equipe AM Closet`;
 
    whatsappWindow.location = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
   }
