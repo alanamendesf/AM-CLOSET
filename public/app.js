@@ -459,15 +459,13 @@ async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email, addre
   }
 }
 
-function sendOrderToWhatsapp(name, phone, paymentMethod) {
+function sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod) {
   const {
     subtotal,
     feeValue,
     shippingValue,
     total
   } = getCartTotals();
-
-  const shippingMethod = getSelectedShippingMethod();
 
   let shippingText = 'Retirada gratuita';
 
@@ -482,6 +480,18 @@ function sendOrderToWhatsapp(name, phone, paymentMethod) {
   if (shippingMethod === 'national') {
     shippingText = 'Outras cidades do Brasil - Melhor Envio';
   }
+
+  const addressText =
+    shippingMethod === 'pickup'
+      ? 'Retirada gratuita mediante agendamento.'
+      : `CEP: ${address.zipCode || '-'}
+Rua: ${address.street || '-'}
+Número: ${address.number || '-'}
+Complemento: ${address.complement || '-'}
+Bairro: ${address.neighborhood || '-'}
+Cidade: ${address.city || '-'}
+Estado: ${address.state || '-'}
+Observação: ${address.note || '-'}`;
 
   const itensTexto = cart.map((item, index) => {
     const itemTotal = Number(item.price) * Number(item.quantity);
@@ -498,25 +508,25 @@ Total do item: ${money(itemTotal)}`;
       ? `Taxa Mercado Pago 4,98%: ${money(feeValue)}\n`
       : '';
 
-  const mensagem = `🌷 Olá, AM Closet!
+  const mensagem = `✅ AM CLOSET
 
-Gostaria de finalizar meu pedido. ✨
+Novo pedido recebido
 
 ━━━━━━━━━━━━━━━
-👤 DADOS DA CLIENTE
+📋 DADOS DA CLIENTE
 ━━━━━━━━━━━━━━━
 
 Nome: ${name}
 WhatsApp: ${phone}
 
 ━━━━━━━━━━━━━━━
-🛍️ ITENS DO PEDIDO
+📦 ITENS DO PEDIDO
 ━━━━━━━━━━━━━━━
 
 ${itensTexto}
 
 ━━━━━━━━━━━━━━━
-💳 RESUMO DO PEDIDO
+💵 RESUMO DO PEDIDO
 ━━━━━━━━━━━━━━━
 
 Subtotal: ${money(subtotal)}
@@ -524,7 +534,7 @@ ${taxaTexto}Frete: ${money(shippingValue)}
 Total: ${money(total)}
 
 ━━━━━━━━━━━━━━━
-💰 FORMA DE PAGAMENTO
+💳 FORMA DE PAGAMENTO
 ━━━━━━━━━━━━━━━
 
 ${getPaymentLabel()}
@@ -535,9 +545,15 @@ ${getPaymentLabel()}
 
 ${shippingText}
 
-Aguardo a confirmação do pedido.
+━━━━━━━━━━━━━━━
+🏠 ENDEREÇO / RETIRADA
+━━━━━━━━━━━━━━━
 
-Muito obrigada! 💖`;
+${addressText}
+
+Aguardando confirmação do pedido.
+
+⭐ Obrigada por comprar na AM CLOSET.`;
 
   const url = `https://wa.me/55${STORE_WHATSAPP}?text=${encodeURIComponent(mensagem)}`;
 
