@@ -598,7 +598,7 @@ msg.textContent = 'Salvando pedido e abrindo WhatsApp...';
 const cartBackup = [...cart];
 
 await saveWhatsappOrderToPanel(name, phone, paymentMethod, email, address, shippingMethod);
-sendOrderToWhatsapp(name, phone, paymentMethod);
+sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod);
 
 cart = cartBackup;
 saveCart();
