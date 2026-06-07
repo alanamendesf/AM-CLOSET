@@ -309,6 +309,16 @@ async function sendNewOrderEmail(order) {
         <p><strong>Nome:</strong> ${customer.name || '-'}</p>
         <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
         <p><strong>E-mail:</strong> ${customer.email || '-'}</p>
+        <h3 style="color:#8b5e4b;">Entrega</h3>
+<p><strong>Forma de entrega:</strong> ${customer.shipping_method || '-'}</p>
+<p><strong>CEP:</strong> ${customer.address?.zipCode || '-'}</p>
+<p><strong>Rua:</strong> ${customer.address?.street || '-'}</p>
+<p><strong>Número:</strong> ${customer.address?.number || '-'}</p>
+<p><strong>Complemento:</strong> ${customer.address?.complement || '-'}</p>
+<p><strong>Bairro:</strong> ${customer.address?.neighborhood || '-'}</p>
+<p><strong>Cidade:</strong> ${customer.address?.city || '-'}</p>
+<p><strong>Estado:</strong> ${customer.address?.state || '-'}</p>
+<p><strong>Observação:</strong> ${customer.address?.note || '-'}</p>
 
         <h3 style="color:#8b5e4b;">Pagamento</h3>
         <p><strong>Forma:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
