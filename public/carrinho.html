@@ -69,11 +69,58 @@
         <span>Cartão de Crédito</span>
         <small>Taxa Mercado Pago: 4,98%</small>
       </label>
-    </div>
+    <div class="checkout-section">
+  <h2>Forma de entrega</h2>
+
+  <div class="payment-box minimal-payment">
+    <label class="payment-option">
+      <input type="radio" name="shippingMethod" value="pickup" checked>
+      <span>Retirada gratuita</span>
+      <small>Mediante agendamento pelo WhatsApp</small>
+    </label>
+
+    <label class="payment-option">
+      <input type="radio" name="shippingMethod" value="fortaleza">
+      <span>Fortaleza</span>
+      <small>R$ 15,00 ou grátis acima de R$ 200,00</small>
+    </label>
+
+    <label class="payment-option">
+      <input type="radio" name="shippingMethod" value="metro">
+      <span>Região Metropolitana</span>
+      <small>Taxa fixa de R$ 20,00</small>
+    </label>
+
+    <label class="payment-option">
+      <input type="radio" name="shippingMethod" value="national">
+      <span>Outras cidades do Brasil</span>
+      <small>Frete calculado após a compra</small>
+    </label>
   </div>
 
-  <div class="checkout-section">
-    <h2>Seus dados</h2>
+  <p class="checkout-note">
+    📦 Via Melhor Envio: Correios e transportadoras parceiras.
+  </p>
+</div>
+
+<div id="shippingAddressBox" class="checkout-section hidden">
+  <h2>Endereço de entrega</h2>
+
+  <input id="zipCode" placeholder="CEP">
+  <input id="street" placeholder="Rua / Avenida">
+  <input id="number" placeholder="Número">
+  <input id="complement" placeholder="Complemento (opcional)">
+  <input id="neighborhood" placeholder="Bairro">
+  <input id="city" placeholder="Cidade">
+  <input id="state" placeholder="Estado">
+  <input id="shippingNote" placeholder="Observação para entrega (opcional)">
+</div>
+
+<div id="pickupInfo" class="checkout-section">
+  <p class="checkout-note">
+    Retirada gratuita mediante agendamento. Nossa equipe entrará em contato pelo WhatsApp.
+  </p>
+</div>
 
     <input id="name" placeholder="Nome completo" autocomplete="name">
     <input id="phone" placeholder="WhatsApp com DDD">
@@ -103,7 +150,7 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=64"></script>
+  <script src="/app.js?v=71"></script>
 
 </body>
 </html>
