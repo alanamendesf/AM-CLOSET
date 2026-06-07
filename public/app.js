@@ -80,6 +80,7 @@ renderConfig();
 renderCategories();
 renderProducts();
 renderCart();
+updateShippingFields();
 
 document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
   input.addEventListener('change', renderCart);
@@ -270,6 +271,29 @@ function getShippingValue(subtotal) {
   }
 
   return 0;
+}
+
+function updateShippingFields() {
+  const shippingMethod =
+    document.querySelector('input[name="shippingMethod"]:checked')?.value;
+
+  const addressBox =
+    document.getElementById('shippingAddressBox');
+
+  const pickupInfo =
+    document.getElementById('pickupInfo');
+
+  if (!addressBox || !pickupInfo) return;
+
+  if (shippingMethod === 'pickup') {
+    addressBox.classList.add('hidden');
+    pickupInfo.classList.remove('hidden');
+  } else {
+    addressBox.classList.remove('hidden');
+    pickupInfo.classList.add('hidden');
+  }
+
+  renderCart();
 }
 
 function getCartTotals() {
@@ -528,8 +552,21 @@ return;
 const name = document.getElementById('name').value.trim();
 const phone = document.getElementById('phone').value.trim();
 const email = document.getElementById('email')?.value.trim() || '';
-const paymentMethod = getSelectedPaymentMethod();
 
+const paymentMethod = getSelectedPaymentMethod();
+  
+const shippingMethod = getSelectedShippingMethod();
+
+const address = {
+  zipCode: document.getElementById('zipCode')?.value || '',
+  street: document.getElementById('street')?.value || '',
+  number: document.getElementById('number')?.value || '',
+  complement: document.getElementById('complement')?.value || '',
+  neighborhood: document.getElementById('neighborhood')?.value || '',
+  city: document.getElementById('city')?.value || '',
+  state: document.getElementById('state')?.value || '',
+  note: document.getElementById('shippingNote')?.value || ''
+};
 if (!name || !phone) {
 msg.textContent = 'Preencha nome e WhatsApp antes de finalizar.';
 return;
@@ -620,6 +657,12 @@ function goToCart() {
 closeCartModal();
 window.location.href = '/carrinho.html';
 }
+
+document.addEventListener('change', e => {
+  if (e.target.name === 'shippingMethod') {
+    updateShippingFields();
+  }
+});
 
 load();
 
