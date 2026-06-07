@@ -85,6 +85,10 @@ document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
   input.addEventListener('change', renderCart);
 });
 
+  document.querySelectorAll('input[name="shippingMethod"]').forEach(input => {
+  input.addEventListener('change', renderCart);
+});
+  
 
 } catch (error) {
 console.error(error);
@@ -242,23 +246,67 @@ saveCart();
 renderCart();
 }
 
-function getCartTotals() {
-const subtotal = cart.reduce((s, i) => s + Number(i.price) * Number(i.quantity), 0);
-const feePercent = getPaymentFeePercent();
-const feeValue = roundMoney(subtotal * feePercent);
-const total = roundMoney(subtotal + feeValue);
+function getSelectedShippingMethod() {
+  return document.querySelector('input[name="shippingMethod"]:checked')?.value || 'pickup';
+}
 
-return {
-subtotal,
-feeValue,
-total
-};
+function getShippingValue(subtotal) {
+  const shippingMethod = getSelectedShippingMethod();
+
+  if (shippingMethod === 'pickup') {
+    return 0;
+  }
+
+  if (shippingMethod === 'fortaleza') {
+    return subtotal >= 200 ? 0 : 15;
+  }
+
+  if (shippingMethod === 'metro') {
+    return 20;
+  }
+
+  if (shippingMethod === 'national') {
+    return 0;
+  }
+
+  return 0;
+}
+
+function getCartTotals() {
+  const subtotal = cart.reduce(
+    (s, i) => s + Number(i.price) * Number(i.quantity),
+    0
+  );
+
+  const feePercent = getPaymentFeePercent();
+  const feeValue = roundMoney(subtotal * feePercent);
+
+  const shippingValue = getShippingValue(subtotal);
+
+  const total = roundMoney(
+    subtotal +
+    feeValue +
+    shippingValue
+  );
+
+  return {
+    subtotal,
+    feeValue,
+    shippingValue,
+    total
+  };
 }
 
 function renderCart() {
 saveCart();
 
-const { subtotal, feeValue, total } = getCartTotals();
+const {
+  subtotal,
+  feeValue,
+  shippingValue,
+  total
+} = getCartTotals();
+  
 const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
 const paymentMethod = getSelectedPaymentMethod();
 
@@ -285,14 +333,21 @@ return;
 }
 
 if (paymentMethod === 'credit' || paymentMethod === 'debit') {
-document.getElementById('total').innerHTML = `       Subtotal: ${money(subtotal)}<br>       <small>Taxa Mercado Pago 4,98%: ${money(feeValue)}</small><br>
-      Total: ${money(total)}
-    `;
+document.getElementById('total').innerHTML = `
+  Subtotal: ${money(subtotal)}<br>
+  <small>Taxa Mercado Pago 4,98%: ${money(feeValue)}</small><br>
+  <small>Frete: ${money(shippingValue)}</small><br>
+  Total: ${money(total)}
+`;
+  
 } else {
-document.getElementById('total').innerHTML = `       Subtotal: ${money(subtotal)}<br>
-      Forma de pagamento: ${getPaymentLabel()}<br>
-      Total: ${money(total)}
-    `;
+document.getElementById('total').innerHTML = `
+  Subtotal: ${money(subtotal)}<br>
+  <small>Frete: ${money(shippingValue)}</small><br>
+  Forma de pagamento: ${getPaymentLabel()}<br>
+  Total: ${money(total)}
+`;
+  
 }
 }
 
@@ -336,7 +391,12 @@ if (document.getElementById('clientEmail')) {
 }
 
 async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email) {
-const { subtotal, feeValue, total } = getCartTotals();
+const {
+  subtotal,
+  feeValue,
+  shippingValue,
+  total
+} = getCartTotals();
 
 try {
 await fetch('/api/orders/whatsapp', {
@@ -373,47 +433,88 @@ console.error('Erro ao salvar pedido no painel:', error);
 }
 
 function sendOrderToWhatsapp(name, phone, paymentMethod) {
-const { subtotal, feeValue, total } = getCartTotals();
+  const {
+    subtotal,
+    feeValue,
+    shippingValue,
+    total
+  } = getCartTotals();
 
-const itensTexto = cart.map((item, index) => {
-const itemTotal = Number(item.price) * Number(item.quantity);
+  const shippingMethod = getSelectedShippingMethod();
 
+  let shippingText = 'Retirada gratuita';
 
-return `${index + 1}. ${item.name}
+  if (shippingMethod === 'fortaleza') {
+    shippingText = 'Entrega em Fortaleza';
+  }
 
+  if (shippingMethod === 'metro') {
+    shippingText = 'Entrega na Região Metropolitana';
+  }
+
+  if (shippingMethod === 'national') {
+    shippingText = 'Outras cidades do Brasil - Melhor Envio';
+  }
+
+  const itensTexto = cart.map((item, index) => {
+    const itemTotal = Number(item.price) * Number(item.quantity);
+
+    return `${index + 1}. ${item.name}
 
 Quantidade: ${item.quantity}
 Valor unitário: ${money(item.price)}
 Total do item: ${money(itemTotal)}`;
-}).join('\n\n');
+  }).join('\n\n');
 
-const taxaTexto =
-paymentMethod === 'credit' || paymentMethod === 'debit'
-? `Taxa Mercado Pago 4,98%: ${money(feeValue)}\n`
-: '';
+  const taxaTexto =
+    paymentMethod === 'credit' || paymentMethod === 'debit'
+      ? `Taxa Mercado Pago 4,98%: ${money(feeValue)}\n`
+      : '';
 
-const mensagem = `Olá! Gostaria de finalizar meu pedido na AM Closet. ♡
+  const mensagem = `🌷 Olá, AM Closet!
 
-DADOS DA CLIENTE
+Gostaria de finalizar meu pedido. ✨
+
+━━━━━━━━━━━━━━━
+👤 DADOS DA CLIENTE
+━━━━━━━━━━━━━━━
+
 Nome: ${name}
 WhatsApp: ${phone}
 
-ITENS DO PEDIDO
+━━━━━━━━━━━━━━━
+🛍️ ITENS DO PEDIDO
+━━━━━━━━━━━━━━━
+
 ${itensTexto}
 
-RESUMO DO PEDIDO
-Subtotal: ${money(subtotal)}
-${taxaTexto}Total final: ${money(total)}
+━━━━━━━━━━━━━━━
+💳 RESUMO DO PEDIDO
+━━━━━━━━━━━━━━━
 
-FORMA DE PAGAMENTO
+Subtotal: ${money(subtotal)}
+${taxaTexto}Frete: ${money(shippingValue)}
+Total: ${money(total)}
+
+━━━━━━━━━━━━━━━
+💰 FORMA DE PAGAMENTO
+━━━━━━━━━━━━━━━
+
 ${getPaymentLabel()}
 
+━━━━━━━━━━━━━━━
+🚚 FORMA DE ENTREGA
+━━━━━━━━━━━━━━━
+
+${shippingText}
+
 Aguardo a confirmação do pedido.
-Obrigada!`;
 
-const url = `https://wa.me/55${STORE_WHATSAPP}?text=${encodeURIComponent(mensagem)}`;
+Muito obrigada! 💖`;
 
-window.location.href = url;
+  const url = `https://wa.me/55${STORE_WHATSAPP}?text=${encodeURIComponent(mensagem)}`;
+
+  window.location.href = url;
 }
 
 async function checkout() {
