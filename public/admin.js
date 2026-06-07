@@ -262,11 +262,42 @@ async function loadOrders() {
           </div>
 
           <div class="order-grid">
-            <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
-            <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
-            <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
-            <p><strong>Origem:</strong> ${customer.source || '-'}</p>
-          </div>
+  <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
+  <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
+  <p><strong>E-mail:</strong> ${customer.email || '-'}</p>
+  <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
+  <p><strong>Origem:</strong> ${customer.source || '-'}</p>
+
+  <p><strong>Entrega:</strong> ${customer.shipping_method || '-'}</p>
+
+  <p><strong>CEP:</strong> ${customer.address?.zipCode || '-'}</p>
+
+  <p><strong>Rua:</strong>
+    ${customer.address?.street || '-'},
+    ${customer.address?.number || ''}
+  </p>
+
+  <p><strong>Complemento:</strong>
+    ${customer.address?.complement || '-'}
+  </p>
+
+  <p><strong>Bairro:</strong>
+    ${customer.address?.neighborhood || '-'}
+  </p>
+
+  <p><strong>Cidade:</strong>
+    ${customer.address?.city || '-'}
+  </p>
+
+  <p><strong>Estado:</strong>
+    ${customer.address?.state || '-'}
+  </p>
+
+  <p><strong>Observação:</strong>
+    ${customer.address?.note || '-'}
+  </p>
+</div>
+
 
           <div class="order-values">
             <p><strong>Subtotal:</strong> ${money(customer.subtotal || 0)}</p>
