@@ -1,159 +1,146 @@
-<section id="cart" class="checkout-card">
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Carrinho - AM Closet</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
 
-  <div class="checkout-section">
-    <h2>Itens do pedido</h2>
-    <div id="cartItems"></div>
-  </div>
+<body>
+  <header class="loja-topo">
+    <div class="topo-linha">
+      <a class="marca" href="/">AM CLOSET</a>
 
-  <div class="checkout-section">
-    <h2>Resumo</h2>
-    <strong id="total" class="checkout-total">Total: R$ 0,00</strong>
-  </div>
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <a href="/carrinho.html">Carrinho</a>
+        <a href="/cadastro.html">Cadastro</a>
+        <a href="/pedido.html">Acompanhar Pedido</a>
+      </nav>
+    </div>
+  </header>
 
-  <div class="checkout-section">
-    <h2>Forma de pagamento</h2>
+  <main class="loja-main checkout-page">
+    <section class="checkout-header">
+      <span>AM CLOSET</span>
+      <h1>Finalizar compra</h1>
+      <p>Confira seu pedido, escolha a forma de entrega e finalize sua compra.</p>
+    </section>
 
+    <section id="cart" class="checkout-card">
 
-<div class="payment-box minimal-payment">
+      <div class="checkout-section">
+        <h2>Itens do pedido</h2>
+        <div id="cartItems"></div>
+      </div>
 
-  <label class="payment-option">
-    <input type="radio" name="paymentMethod" value="pix">
-    <span>PIX</span>
-  </label>
+      <div class="checkout-section">
+        <h2>Resumo</h2>
+        <strong id="total" class="checkout-total">Total: R$ 0,00</strong>
+      </div>
 
-  <label class="payment-option">
-    <input type="radio" name="paymentMethod" value="cash">
-    <span>Dinheiro em espécie</span>
-  </label>
+      <div class="checkout-section">
+        <h2>Forma de pagamento</h2>
 
-  <label class="payment-option">
-    <input type="radio" name="paymentMethod" value="debit">
-    <span>Cartão de Débito</span>
-    <small>Taxa Mercado Pago: 4,98%</small>
-  </label>
+        <div class="payment-box minimal-payment">
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" value="pix">
+            <span>PIX</span>
+          </label>
 
-  <label class="payment-option">
-    <input type="radio" name="paymentMethod" value="credit" checked>
-    <span>Cartão de Crédito</span>
-    <small>Taxa Mercado Pago: 4,98%</small>
-  </label>
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" value="cash">
+            <span>Dinheiro em espécie</span>
+          </label>
 
-</div>
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" value="debit">
+            <span>Cartão de Débito</span>
+            <small>Taxa Mercado Pago: 4,98%</small>
+          </label>
 
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" value="credit" checked>
+            <span>Cartão de Crédito</span>
+            <small>Taxa Mercado Pago: 4,98%</small>
+          </label>
+        </div>
+      </div>
 
-  </div>
+      <div class="checkout-section">
+        <h2>Forma de entrega</h2>
 
-  <div class="checkout-section">
-    <h2>Forma de entrega</h2>
+        <div class="payment-box minimal-payment">
+          <label class="payment-option">
+            <input type="radio" name="shippingMethod" value="pickup" checked>
+            <span>Retirada gratuita</span>
+            <small>Mediante agendamento pelo WhatsApp</small>
+          </label>
 
+          <label class="payment-option">
+            <input type="radio" name="shippingMethod" value="fortaleza">
+            <span>Fortaleza</span>
+            <small>R$ 15,00 ou grátis acima de R$ 200,00</small>
+          </label>
 
-<div class="payment-box minimal-payment">
+          <label class="payment-option">
+            <input type="radio" name="shippingMethod" value="metro">
+            <span>Região Metropolitana</span>
+            <small>Taxa fixa de R$ 20,00</small>
+          </label>
 
-  <label class="payment-option">
-    <input type="radio" name="shippingMethod" value="pickup" checked>
-    <span>Retirada gratuita</span>
-    <small>Mediante agendamento pelo WhatsApp</small>
-  </label>
+          <label class="payment-option">
+            <input type="radio" name="shippingMethod" value="national">
+            <span>Outras cidades do Brasil</span>
+            <small>Frete calculado após a compra</small>
+          </label>
+        </div>
 
-  <label class="payment-option">
-    <input type="radio" name="shippingMethod" value="fortaleza">
-    <span>Fortaleza</span>
-    <small>R$ 15,00 ou grátis acima de R$ 200,00</small>
-  </label>
+        <p class="checkout-note">
+          📦 Via Melhor Envio (Correios e transportadoras parceiras)
+        </p>
+      </div>
 
-  <label class="payment-option">
-    <input type="radio" name="shippingMethod" value="metro">
-    <span>Região Metropolitana</span>
-    <small>Taxa fixa de R$ 20,00</small>
-  </label>
+      <div id="shippingAddressBox" class="checkout-section hidden">
+        <h2>Endereço de entrega</h2>
 
-  <label class="payment-option">
-    <input type="radio" name="shippingMethod" value="national">
-    <span>Outras cidades do Brasil</span>
-    <small>Frete calculado após a compra</small>
-  </label>
+        <input id="zipCode" placeholder="CEP">
+        <input id="street" placeholder="Rua / Avenida">
+        <input id="number" placeholder="Número">
+        <input id="complement" placeholder="Complemento (opcional)">
+        <input id="neighborhood" placeholder="Bairro">
+        <input id="city" placeholder="Cidade">
+        <input id="state" placeholder="Estado">
+        <input id="shippingNote" placeholder="Observação para entrega (opcional)">
+      </div>
 
-</div>
+      <div id="pickupInfo" class="checkout-section">
+        <p class="checkout-note">
+          Retirada gratuita mediante agendamento. Nossa equipe entrará em contato pelo WhatsApp.
+        </p>
+      </div>
 
-<p class="checkout-note">
-  📦 Via Melhor Envio (Correios e transportadoras parceiras)
-</p>
+      <div class="checkout-section">
+        <h2>Seus dados</h2>
 
+        <input id="name" placeholder="Nome completo" autocomplete="name">
+        <input id="phone" placeholder="WhatsApp com DDD">
+        <input id="email" type="email" placeholder="E-mail para atualizações do pedido (opcional)" autocomplete="email">
+      </div>
 
-  </div>
+      <button class="checkout-button" onclick="checkout()">
+        Finalizar compra
+      </button>
 
-  <div id="shippingAddressBox" class="checkout-section hidden">
+      <p class="checkout-note">
+        Ao finalizar, você será direcionada para concluir o pagamento ou falar com a AM Closet.
+      </p>
 
+      <p id="msg"></p>
+    </section>
+  </main>
 
-<h2>Endereço de entrega</h2>
-
-<input id="zipCode" placeholder="CEP">
-
-<input id="street" placeholder="Rua / Avenida">
-
-<input id="number" placeholder="Número">
-
-<input id="complement" placeholder="Complemento (opcional)">
-
-<input id="neighborhood" placeholder="Bairro">
-
-<input id="city" placeholder="Cidade">
-
-<input id="state" placeholder="Estado">
-
-<input id="shippingNote" placeholder="Observação para entrega (opcional)">
-
-
-  </div>
-
-  <div id="pickupInfo" class="checkout-section">
-    <p class="checkout-note">
-      Retirada gratuita mediante agendamento. Nossa equipe entrará em contato pelo WhatsApp.
-    </p>
-  </div>
-
-  <div class="checkout-section">
-
-
-<h2>Seus dados</h2>
-
-<input
-  id="name"
-  placeholder="Nome completo"
-  autocomplete="name"
->
-
-<input
-  id="phone"
-  placeholder="WhatsApp com DDD"
->
-
-<input
-  id="email"
-  type="email"
-  placeholder="E-mail para atualizações do pedido (opcional)"
-  autocomplete="email"
->
-
-
-  </div>
-
-<button
-class="checkout-button"
-onclick="checkout()"
-
->
-
-
-Finalizar compra
-
-
-  </button>
-
-  <p class="checkout-note">
-    Ao finalizar, você será direcionada para concluir o pagamento ou falar com a AM Closet.
-  </p>
-
-  <p id="msg"></p>
-
-</section>
+  <script src="/app.js"></script>
+</body>
+</html>
