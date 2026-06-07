@@ -414,46 +414,49 @@ if (document.getElementById('clientEmail')) {
 }
 }
 
-async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email) {
-const {
-  subtotal,
-  feeValue,
-  shippingValue,
-  total
-} = getCartTotals();
+async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email, address, shippingMethod) {
+  const {
+    subtotal,
+    feeValue,
+    shippingValue,
+    total
+  } = getCartTotals();
 
-try {
-await fetch('/api/orders/whatsapp', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json'
-},
-body: JSON.stringify({
-customer: {
-name: name,
-phone: phone,
-email: email || ''
-},
-items: cart.map(item => ({
-id: item.id,
-name: item.name,
-quantity: Number(item.quantity || 1),
-price: Number(item.price || 0),
-image: item.image || '',
-size: item.size || '',
-category: item.category || ''
-})),
-payment_method: paymentMethod,
-payment_label: getPaymentLabel(),
-subtotal: subtotal,
-fee_value: feeValue,
-total: total,
-status: 'Aguardando confirmação'
-})
-});
-} catch (error) {
-console.error('Erro ao salvar pedido no painel:', error);
-}
+  try {
+    await fetch('/api/orders/whatsapp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        customer: {
+          name: name,
+          phone: phone,
+          email: email || '',
+          shipping_method: shippingMethod,
+          address: address
+        },
+        items: cart.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: Number(item.quantity || 1),
+          price: Number(item.price || 0),
+          image: item.image || '',
+          size: item.size || '',
+          category: item.category || ''
+        })),
+        payment_method: paymentMethod,
+        payment_label: getPaymentLabel(),
+        subtotal: subtotal,
+        fee_value: feeValue,
+        shipping_value: shippingValue,
+        total: total,
+        status: 'Aguardando confirmação'
+      })
+    });
+  } catch (error) {
+    console.error('Erro ao salvar pedido no painel:', error);
+  }
 }
 
 function sendOrderToWhatsapp(name, phone, paymentMethod) {
@@ -578,7 +581,7 @@ msg.textContent = 'Salvando pedido e abrindo WhatsApp...';
 
 const cartBackup = [...cart];
 
-await saveWhatsappOrderToPanel(name, phone, paymentMethod, email);
+await saveWhatsappOrderToPanel(name, phone, paymentMethod, email, address, shippingMethod);
 sendOrderToWhatsapp(name, phone, paymentMethod);
 
 cart = cartBackup;
@@ -601,9 +604,11 @@ body: JSON.stringify({
 items: cart,
 paymentMethod: 'card',
 customer: {
-name: name,
-email: email,
-phone: phone
+  name: name,
+  email: email,
+  phone: phone,
+  shipping_method: shippingMethod,
+  address: address
 }
 })
 });
