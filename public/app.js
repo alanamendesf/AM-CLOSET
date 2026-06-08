@@ -629,6 +629,12 @@ Aguardando confirmação do pedido.
 
 async function checkout() {
 const msg = document.getElementById('msg');
+const acceptTerms = document.getElementById('acceptTerms')?.checked;
+
+if (!acceptTerms) {
+  alert('Você precisa aceitar a Política de Trocas e Devoluções.');
+  return;
+}
 
 if (!cart.length) {
 msg.textContent = 'Seu carrinho está vazio.';
@@ -653,6 +659,9 @@ const address = {
   state: document.getElementById('state')?.value || '',
   note: document.getElementById('shippingNote')?.value || ''
 };
+
+const orderNote = document.getElementById('orderNote')?.value.trim() || '';
+
 if (!name || !phone) {
 msg.textContent = 'Preencha nome e WhatsApp antes de finalizar.';
 return;
@@ -691,7 +700,8 @@ customer: {
   email: email,
   phone: phone,
   shipping_method: shippingMethod,
-  address: address
+address: address,
+order_note: orderNote
 }
 })
 });
