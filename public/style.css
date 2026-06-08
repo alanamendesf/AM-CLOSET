@@ -1558,3 +1558,41 @@ border-bottom: 1px solid #f1ece9;
     width: 100%;
   }
 }
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-confirmado {
+  background: #e8f7ec;
+  color: #157347;
+}
+
+.status-separando-pedido {
+  background: #fff4db;
+  color: #b7791f;
+}
+
+.status-em-rota {
+  background: #e7f1ff;
+  color: #0d6efd;
+}
+
+.status-pedido-entregue {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-cancelado {
+  background: #ffe2e2;
+  color: #b42318;
+}
+
+.order-status-actions button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
