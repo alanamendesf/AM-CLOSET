@@ -352,12 +352,12 @@ function increaseCartItem(id) {
   saveCart();
   renderCart();
 }
+
 function renderCart() {
   saveCart();
 
   const { subtotal, feeValue, shippingValue, total } = getCartTotals();
   const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
-  const paymentMethod = getSelectedPaymentMethod();
 
   if (document.getElementById('cartCount')) {
     document.getElementById('cartCount').textContent = quantidadeItens;
@@ -370,13 +370,14 @@ function renderCart() {
   document.getElementById('cartItems').innerHTML =
     cart.map(i => `
       <div class="cartline premium-cart-item">
+
         <div class="cart-produto-info">
           <img src="${i.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
 
           <div>
-            <strong>${i.name}</strong>
-            <small>${i.size ? 'Tamanho: ' + i.size : ''}</small>
-            <small>Valor unitário: ${money(i.price)}</small>
+            <strong>${i.name}</strong><br>
+            <small>${i.size ? 'Tamanho: ' + i.size : ''}</small><br>
+            <small>Valor unitário: ${money(i.price)}</small><br>
             <small>Total: ${money(Number(i.price) * Number(i.quantity))}</small>
           </div>
         </div>
@@ -387,7 +388,10 @@ function renderCart() {
           <button type="button" onclick="increaseCartItem('${i.id}')">+</button>
         </div>
 
-        <button class="cart-remove-btn" onclick="removeItem('${i.id}')">Remover</button>
+        <button class="cart-remove-btn" onclick="removeItem('${i.id}')">
+          Remover
+        </button>
+
       </div>
     `).join('') || '<p>Carrinho vazio.</p>';
 
@@ -398,9 +402,45 @@ function renderCart() {
 
   document.getElementById('total').innerHTML = `
     <div class="checkout-summary-box">
+
       <div class="summary-row">
         <span>Quantidade</span>
-        <
+        <strong>${quantidadeItens} ${quantidadeItens === 1 ? 'item' : 'itens'}</strong>
+      </div>
+
+      <div class="summary-divider"></div>
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <strong>${money(subtotal)}</strong>
+      </div>
+
+      <div class="summary-row">
+        <span>Frete</span>
+        <strong>${money(shippingValue)}</strong>
+      </div>
+
+      ${
+        feeValue > 0
+          ? `
+            <div class="summary-row">
+              <span>Taxa Mercado Pago</span>
+              <strong>${money(feeValue)}</strong>
+            </div>
+          `
+          : ''
+      }
+
+      <div class="summary-divider"></div>
+
+      <div class="summary-row summary-total">
+        <span>Total</span>
+        <strong>${money(total)}</strong>
+      </div>
+
+    </div>
+  `;
+}
 
 async function saveClient() {
 const msg = document.getElementById('clientMsg');
