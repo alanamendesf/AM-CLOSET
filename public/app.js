@@ -406,18 +406,37 @@ return;
 
 if (paymentMethod === 'credit' || paymentMethod === 'debit') {
 document.getElementById('total').innerHTML = `
-  Subtotal: ${money(subtotal)}<br>
-  <small>Taxa Mercado Pago 4,98%: ${money(feeValue)}</small><br>
-  <small>Frete: ${money(shippingValue)}</small><br>
-  Total: ${money(total)}
-`;
-  
-} else {
-document.getElementById('total').innerHTML = `
-  Subtotal: ${money(subtotal)}<br>
-  <small>Frete: ${money(shippingValue)}</small><br>
-  Forma de pagamento: ${getPaymentLabel()}<br>
-  Total: ${money(total)}
+  <div class="checkout-summary-box">
+
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <strong>${money(subtotal)}</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Frete</span>
+      <strong>${money(shippingValue)}</strong>
+    </div>
+
+    ${
+      feeValue > 0
+        ? `
+          <div class="summary-row">
+            <span>Taxa Mercado Pago</span>
+            <strong>${money(feeValue)}</strong>
+          </div>
+        `
+        : ''
+    }
+
+    <div class="summary-divider"></div>
+
+    <div class="summary-row summary-total">
+      <span>Total</span>
+      <strong>${money(total)}</strong>
+    </div>
+
+  </div>
 `;
   
 }
