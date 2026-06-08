@@ -130,50 +130,15 @@ function renderDashboard() {
   }, 0);
 
   dashboard.innerHTML = `
-    <div class="dashboard-card">
-      <small>Produtos</small>
-      <strong>${totalProducts}</strong>
-    </div>
-
-    <div class="dashboard-card">
-      <small>Clientes</small>
-      <strong>${totalCustomers}</strong>
-    </div>
-
-    <div class="dashboard-card">
-      <small>Pendentes</small>
-      <strong>${pedidosPendentes}</strong>
-    </div>
-
-    <div class="dashboard-card">
-      <small>Confirmados</small>
-      <strong>${pedidosConfirmados}</strong>
-    </div>
-
-    <div class="dashboard-card">
-      <small>Separando</small>
-      <strong>${pedidosSeparando}</strong>
-    </div>
-
-    <div class="dashboard-card">
-      <small>Em rota</small>
-      <strong>${pedidosEmRota}</strong>
-    </div>
-
-    <div class="dashboard-card">
-      <small>Entregues</small>
-      <strong>${pedidosEntregues}</strong>
-    </div>
-
-    <div class="dashboard-card">
-      <small>Cancelados</small>
-      <strong>${pedidosCancelados}</strong>
-    </div>
-
-    <div class="dashboard-card">
-      <small>Faturamento</small>
-      <strong>${money(faturamento)}</strong>
-    </div>
+    <div class="dashboard-card"><small>Produtos</small><strong>${totalProducts}</strong></div>
+    <div class="dashboard-card"><small>Clientes</small><strong>${totalCustomers}</strong></div>
+    <div class="dashboard-card"><small>Pendentes</small><strong>${pedidosPendentes}</strong></div>
+    <div class="dashboard-card"><small>Confirmados</small><strong>${pedidosConfirmados}</strong></div>
+    <div class="dashboard-card"><small>Separando</small><strong>${pedidosSeparando}</strong></div>
+    <div class="dashboard-card"><small>Em rota</small><strong>${pedidosEmRota}</strong></div>
+    <div class="dashboard-card"><small>Entregues</small><strong>${pedidosEntregues}</strong></div>
+    <div class="dashboard-card"><small>Cancelados</small><strong>${pedidosCancelados}</strong></div>
+    <div class="dashboard-card"><small>Faturamento</small><strong>${money(faturamento)}</strong></div>
   `;
 }
 
@@ -222,6 +187,14 @@ async function loadProducts() {
   `).join('');
 }
 
+function getStatusClass(status) {
+  return String(status || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replaceAll(' ', '-');
+}
+
 async function loadOrders() {
   try {
     const data = await (await fetch('/api/orders', {
@@ -243,6 +216,7 @@ async function loadOrders() {
     orders.innerHTML = data.map(o => {
       const customer = o.customer || {};
       const items = Array.isArray(o.items) ? o.items : [];
+      const statusAtual = o.status || '-';
 
       const itemsHtml = items.length
         ? items.map(i => `
@@ -257,47 +231,28 @@ async function loadOrders() {
       return `
         <div class="order admin-order-card">
           <div class="order-top">
-           <b>Pedido ${customer.order_code || o.id}</b>
-            <span>${o.status || '-'}</span>
+            <b>Pedido ${customer.order_code || o.id}</b>
+            <span class="status-badge status-${getStatusClass(statusAtual)}">
+              ${statusAtual}
+            </span>
           </div>
 
           <div class="order-grid">
-  <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
-  <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
-  <p><strong>E-mail:</strong> ${customer.email || '-'}</p>
-  <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
-  <p><strong>Origem:</strong> ${customer.source || '-'}</p>
-
-  <p><strong>Entrega:</strong> ${customer.shipping_method || '-'}</p>
-
-  <p><strong>CEP:</strong> ${customer.address?.zipCode || '-'}</p>
-
-  <p><strong>Rua:</strong>
-    ${customer.address?.street || '-'},
-    ${customer.address?.number || ''}
-  </p>
-
-  <p><strong>Complemento:</strong>
-    ${customer.address?.complement || '-'}
-  </p>
-
-  <p><strong>Bairro:</strong>
-    ${customer.address?.neighborhood || '-'}
-  </p>
-
-  <p><strong>Cidade:</strong>
-    ${customer.address?.city || '-'}
-  </p>
-
-  <p><strong>Estado:</strong>
-    ${customer.address?.state || '-'}
-  </p>
-
-  <p><strong>Observação:</strong>
-    ${customer.address?.note || '-'}
-  </p>
-</div>
-
+            <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
+            <p><strong>WhatsApp:</strong> ${customer.phone || '-'}</p>
+            <p><strong>E-mail:</strong> ${customer.email || '-'}</p>
+            <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
+            <p><strong>Origem:</strong> ${customer.source || '-'}</p>
+            <p><strong>Entrega:</strong> ${customer.shipping_method || '-'}</p>
+            <p><strong>CEP:</strong> ${customer.address?.zipCode || '-'}</p>
+            <p><strong>Rua:</strong> ${customer.address?.street || '-'}, ${customer.address?.number || ''}</p>
+            <p><strong>Complemento:</strong> ${customer.address?.complement || '-'}</p>
+            <p><strong>Bairro:</strong> ${customer.address?.neighborhood || '-'}</p>
+            <p><strong>Cidade:</strong> ${customer.address?.city || '-'}</p>
+            <p><strong>Estado:</strong> ${customer.address?.state || '-'}</p>
+            <p><strong>Observação entrega:</strong> ${customer.address?.note || '-'}</p>
+            <p><strong>Observação pedido:</strong> ${customer.order_note || '-'}</p>
+          </div>
 
           <div class="order-values">
             <p><strong>Subtotal:</strong> ${money(customer.subtotal || 0)}</p>
@@ -309,28 +264,35 @@ async function loadOrders() {
           <ul class="order-items">${itemsHtml}</ul>
 
           ${
-            o.status !== 'Cancelado'
+            statusAtual !== 'Cancelado'
               ? `
                 <div class="order-status-actions">
-                  <button onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Confirmado')">
+
+                  <button ${statusAtual === 'Confirmado' ? 'disabled' : ''}
+                    onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Confirmado')">
                     Confirmado
                   </button>
 
-                  <button onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Separando pedido')">
-                    Separando pedido
+                  <button ${statusAtual === 'Separando pedido' ? 'disabled' : ''}
+                    onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Separando pedido')">
+                    Separando
                   </button>
 
-                  <button onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Em rota')">
+                  <button ${statusAtual === 'Em rota' ? 'disabled' : ''}
+                    onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Em rota')">
                     Em rota
                   </button>
 
-                  <button onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Pedido entregue')">
-                    Pedido entregue
+                  <button ${statusAtual === 'Pedido entregue' ? 'disabled' : ''}
+                    onclick="updateOrderStatus('${o.id}', '${customer.phone || ''}', '${customer.name || ''}', 'Pedido entregue')">
+                    Entregue
                   </button>
 
-                  <button class="btn-danger" onclick="cancelOrder('${o.id}', '${customer.phone || ''}', '${customer.name || ''}')">
+                  <button class="btn-danger"
+                    onclick="cancelOrder('${o.id}', '${customer.phone || ''}', '${customer.name || ''}')">
                     Cancelar
                   </button>
+
                 </div>
 
                 <div class="tracking-box">
@@ -511,24 +473,29 @@ async function updateOrderStatus(orderId, customerPhone, customerName, status) {
     const messages = {
       'Confirmado': `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
 
-Seu pedido foi confirmado e já está sendo preparado. ♡`,
+Seu pedido foi confirmado e já está sendo preparado.`,
 
       'Separando pedido': `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
 
-Estamos separando o seu pedido com muito carinho. ♡`,
+Estamos separando o seu pedido com muito carinho.`,
 
       'Em rota': `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
 
-Seu pedido está em rota para entrega. ♡`,
+Seu pedido está em rota para entrega.`,
 
       'Pedido entregue': `Olá, ${customerName || 'tudo bem'}! Aqui é da AM Closet.
 
-Seu pedido foi entregue. Esperamos que ame sua peça! ♡`
+Seu pedido foi entregue. Esperamos que ame sua peça!`
     };
 
-    const message = messages[status] || `Olá! Seu pedido na AM Closet foi atualizado para: ${status}.`;
+    const message =
+      messages[status] ||
+      `Olá! Seu pedido na AM Closet foi atualizado para: ${status}.`;
 
-    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(
+      `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`,
+      '_blank'
+    );
   }
 
   await loadOrders();
@@ -577,9 +544,12 @@ Seu pedido está em rota.
 Código de rastreio:
 ${trackingCode}
 
-Obrigada pela compra! ♡`;
+Obrigada pela compra!`;
 
-    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(
+      `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`,
+      '_blank'
+    );
   }
 
   await loadOrders();
@@ -617,11 +587,11 @@ async function cancelOrder(orderId, customerPhone, customerName) {
 
   let data = {};
 
-try {
-  data = await r.json();
-} catch (e) {
-  data = {};
-}
+  try {
+    data = await r.json();
+  } catch (e) {
+    data = {};
+  }
 
   if (!r.ok) {
     if (whatsappWindow) whatsappWindow.close();
@@ -634,25 +604,26 @@ try {
   if (phone && whatsappWindow) {
     const finalPhone = phone.startsWith('55') ? phone : '55' + phone;
 
-const message = `Olá, ${customerName || 'cliente'}! ❤️
+    const message = `Olá, ${customerName || 'cliente'}!
 
 Infelizmente seu pedido na AM Closet precisou ser cancelado.
 
-📦 Pedido: ${orderId}
+Pedido: ${orderId}
 
-📄 Motivo:
+Motivo:
 ${reason}
 
-💖 Pedimos desculpas pelo transtorno.
+Pedimos desculpas pelo transtorno.
 
 Caso tenha qualquer dúvida ou queira realizar um novo pedido, nossa equipe está à disposição.
 
 Fale conosco:
 https://wa.me/5585991346349
 
-✨ Equipe AM Closet`;
+Equipe AM Closet`;
 
-   whatsappWindow.location = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
+    whatsappWindow.location =
+      `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
   }
 
   await loadOrders();
