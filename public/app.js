@@ -526,7 +526,7 @@ async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email, addre
   }
 }
 
-async function sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod, orderNote) {
+async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email, address, shippingMethod, orderNote) {
   const {
     subtotal,
     feeValue,
