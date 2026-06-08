@@ -481,7 +481,7 @@ if (document.getElementById('clientEmail')) {
 }
 }
 
-async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email, address, shippingMethod) {
+function sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod, orderNote) {
   const {
     subtotal,
     feeValue,
