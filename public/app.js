@@ -409,6 +409,12 @@ document.getElementById('total').innerHTML = `
   <div class="checkout-summary-box">
 
     <div class="summary-row">
+    <div class="summary-row">
+  <span>Itens no pedido</span>
+  <strong>${quantidadeItens}</strong>
+</div>
+
+<div class="summary-divider"></div>
       <span>Subtotal</span>
       <strong>${money(subtotal)}</strong>
     </div>
