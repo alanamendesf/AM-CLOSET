@@ -6,131 +6,128 @@ let selectedCategory = 'Todos';
 const STORE_WHATSAPP = '85991346349';
 
 const money = v => Number(v || 0).toLocaleString('pt-BR', {
-style: 'currency',
-currency: 'BRL'
+  style: 'currency',
+  currency: 'BRL'
 });
 
 function saveCart() {
-localStorage.setItem('amcloset_cart', JSON.stringify(cart));
+  localStorage.setItem('amcloset_cart', JSON.stringify(cart));
 }
 
 function clearCart() {
-cart = [];
-localStorage.removeItem('amcloset_cart');
-renderCart();
+  cart = [];
+  localStorage.removeItem('amcloset_cart');
+  renderCart();
 }
 
 function roundMoney(value) {
-return Math.round(Number(value) * 100) / 100;
+  return Math.round(Number(value) * 100) / 100;
 }
 
 function getSelectedPaymentMethod() {
-return document.querySelector('input[name="paymentMethod"]:checked')?.value || 'credit';
+  return document.querySelector('input[name="paymentMethod"]:checked')?.value || 'credit';
 }
 
 function getPaymentFeePercent() {
-const paymentMethod = getSelectedPaymentMethod();
+  const paymentMethod = getSelectedPaymentMethod();
 
-if (paymentMethod === 'credit' || paymentMethod === 'debit') {
-return 0.0498;
-}
+  if (paymentMethod === 'credit' || paymentMethod === 'debit') {
+    return 0.0498;
+  }
 
-return 0;
+  return 0;
 }
 
 function getPaymentLabel() {
-const paymentMethod = getSelectedPaymentMethod();
+  const paymentMethod = getSelectedPaymentMethod();
 
-if (paymentMethod === 'pix') return 'PIX';
-if (paymentMethod === 'cash') return 'Dinheiro em espécie';
-if (paymentMethod === 'debit') return 'Cartão de Débito';
-if (paymentMethod === 'credit') return 'Cartão de Crédito';
+  if (paymentMethod === 'pix') return 'PIX';
+  if (paymentMethod === 'cash') return 'Dinheiro em espécie';
+  if (paymentMethod === 'debit') return 'Cartão de Débito';
+  if (paymentMethod === 'credit') return 'Cartão de Crédito';
 
-return 'Cartão de Crédito';
+  return 'Cartão de Crédito';
 }
 
 async function load() {
-try {
-const configResponse = await fetch('/api/config');
-config = await configResponse.json();
+  try {
+    const configResponse = await fetch('/api/config');
+    config = await configResponse.json();
 
+    const productsResponse = await fetch('/api/products');
+    const productsData = await productsResponse.json();
 
-const productsResponse = await fetch('/api/products');
-const productsData = await productsResponse.json();
+    if (!productsResponse.ok || !Array.isArray(productsData)) {
+      console.error('Erro ao carregar produtos:', productsData);
 
-if (!productsResponse.ok || !Array.isArray(productsData)) {
-  console.error('Erro ao carregar produtos:', productsData);
+      if (document.getElementById('products')) {
+        document.getElementById('products').innerHTML =
+          `<p>Erro ao carregar produtos: ${productsData.details || productsData.error || 'verifique a tabela products no Supabase.'}</p>`;
+      }
 
-  if (document.getElementById('products')) {
-    document.getElementById('products').innerHTML =
-      `<p>Erro ao carregar produtos: ${productsData.details || productsData.error || 'verifique a tabela products no Supabase.'}</p>`;
+      products = [];
+    } else {
+      products = productsData.map(p => ({
+        ...p,
+        id: String(p.id),
+        price: Number(p.price || 0),
+        stock: Number(p.stock || 0)
+      }));
+    }
+
+    renderConfig();
+    renderCategories();
+    renderProducts();
+    renderCart();
+    updateShippingFields();
+
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
+      input.addEventListener('change', renderCart);
+    });
+
+    document.querySelectorAll('input[name="shippingMethod"]').forEach(input => {
+      input.addEventListener('change', renderCart);
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    if (document.getElementById('products')) {
+      document.getElementById('products').innerHTML = '<p>Erro ao carregar produtos.</p>';
+    }
   }
-
-  products = [];
-} else {
-  products = productsData.map(p => ({
-    ...p,
-    id: String(p.id),
-    price: Number(p.price || 0),
-    stock: Number(p.stock || 0)
-  }));
-}
-
-renderConfig();
-renderCategories();
-renderProducts();
-renderCart();
-updateShippingFields();
-
-document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
-  input.addEventListener('change', renderCart);
-});
-
-  document.querySelectorAll('input[name="shippingMethod"]').forEach(input => {
-  input.addEventListener('change', renderCart);
-});
-  
-
-} catch (error) {
-console.error(error);
-
-
-if (document.getElementById('products')) {
-  document.getElementById('products').innerHTML = '<p>Erro ao carregar produtos.</p>';
-}
-
-
-}
 }
 
 function renderConfig() {
-if (document.getElementById('storeNameText')) {
-storeNameText.textContent = config.storeName || 'AM Closet';
-}
+  if (document.getElementById('storeNameText')) {
+    storeNameText.textContent = config.storeName || 'AM Closet';
+  }
 
-if (document.getElementById('footerStoreName')) {
-footerStoreName.textContent = config.storeName || 'AM Closet';
-}
+  if (document.getElementById('footerStoreName')) {
+    footerStoreName.textContent = config.storeName || 'AM Closet';
+  }
 
-if (document.getElementById('footerInstagram')) {
-footerInstagram.textContent = '@useamcloseet';
-}
+  if (document.getElementById('footerInstagram')) {
+    footerInstagram.textContent = '@useamcloseet';
+  }
 
-const link = `https://wa.me/55${STORE_WHATSAPP}`;
+  const link = `https://wa.me/55${STORE_WHATSAPP}`;
 
-if (document.getElementById('whatsappFloat')) {
-whatsappFloat.href = link;
-}
+  if (document.getElementById('whatsappFloat')) {
+    whatsappFloat.href = link;
+  }
 }
 
 function renderCategories() {
-const area = document.getElementById('categoryTabs');
-if (!area) return;
+  const area = document.getElementById('categoryTabs');
+  if (!area) return;
 
-const categories = ['Todos', ...new Set(products.map(p => p.category || 'Sem categoria'))];
+  const categories = ['Todos', ...new Set(products.map(p => p.category || 'Sem categoria'))];
 
-area.innerHTML = categories.map(cat => `     <button class="${selectedCategory === cat ? 'categoria-ativa' : ''}" onclick="selectCategory('${cat}')">
-      ${cat}     </button>
+  area.innerHTML = categories.map(cat => `
+    <button class="${selectedCategory === cat ? 'categoria-ativa' : ''}" onclick="selectCategory('${cat}')">
+      ${cat}
+    </button>
   `).join('');
 }
 
@@ -211,40 +208,37 @@ function renderProducts() {
 
   area.innerHTML = filteredProducts.map(renderProductCard).join('');
 }
-  
+
 function add(id) {
-const p = products.find(x => String(x.id) === String(id));
+  const p = products.find(x => String(x.id) === String(id));
 
-if (!p || Number(p.stock) <= 0) {
-alert('Produto sem estoque.');
-return;
-}
+  if (!p || Number(p.stock) <= 0) {
+    alert('Produto sem estoque.');
+    return;
+  }
 
-const item = cart.find(x => String(x.id) === String(id));
+  const item = cart.find(x => String(x.id) === String(id));
 
-if (item) {
-if (item.quantity >= Number(p.stock)) {
-alert('Quantidade maior que o estoque disponível.');
-return;
-}
+  if (item) {
+    if (item.quantity >= Number(p.stock)) {
+      alert('Quantidade maior que o estoque disponível.');
+      return;
+    }
 
+    item.quantity++;
+  } else {
+    cart.push({ ...p, quantity: 1 });
+  }
 
-item.quantity++;
-
-
-} else {
-cart.push({ ...p, quantity: 1 });
-}
-
-saveCart();
-renderCart();
-openCartModal();
+  saveCart();
+  renderCart();
+  openCartModal();
 }
 
 function removeItem(id) {
-cart = cart.filter(i => String(i.id) !== String(id));
-saveCart();
-renderCart();
+  cart = cart.filter(i => String(i.id) !== String(id));
+  saveCart();
+  renderCart();
 }
 
 function getSelectedShippingMethod() {
@@ -254,21 +248,10 @@ function getSelectedShippingMethod() {
 function getShippingValue(subtotal) {
   const shippingMethod = getSelectedShippingMethod();
 
-  if (shippingMethod === 'pickup') {
-    return 0;
-  }
-
-  if (shippingMethod === 'fortaleza') {
-    return subtotal >= 200 ? 0 : 15;
-  }
-
-  if (shippingMethod === 'metro') {
-    return 20;
-  }
-
-  if (shippingMethod === 'national') {
-    return 0;
-  }
+  if (shippingMethod === 'pickup') return 0;
+  if (shippingMethod === 'fortaleza') return subtotal >= 200 ? 0 : 15;
+  if (shippingMethod === 'metro') return 20;
+  if (shippingMethod === 'national') return 0;
 
   return 0;
 }
@@ -277,11 +260,8 @@ function updateShippingFields() {
   const shippingMethod =
     document.querySelector('input[name="shippingMethod"]:checked')?.value;
 
-  const addressBox =
-    document.getElementById('shippingAddressBox');
-
-  const pickupInfo =
-    document.getElementById('pickupInfo');
+  const addressBox = document.getElementById('shippingAddressBox');
+  const pickupInfo = document.getElementById('pickupInfo');
 
   if (!addressBox || !pickupInfo) return;
 
@@ -323,6 +303,7 @@ function getCartTotals() {
 
 function decreaseCartItem(id) {
   const item = cart.find(i => String(i.id) === String(id));
+
   if (!item) return;
 
   if (Number(item.quantity) <= 1) {
@@ -331,6 +312,7 @@ function decreaseCartItem(id) {
   }
 
   item.quantity = Number(item.quantity) - 1;
+
   saveCart();
   renderCart();
 }
@@ -349,6 +331,7 @@ function increaseCartItem(id) {
   }
 
   item.quantity = Number(item.quantity) + 1;
+
   saveCart();
   renderCart();
 }
@@ -357,7 +340,11 @@ function renderCart() {
   saveCart();
 
   const { subtotal, feeValue, shippingValue, total } = getCartTotals();
-  const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
+
+  const quantidadeItens = cart.reduce(
+    (s, i) => s + Number(i.quantity),
+    0
+  );
 
   if (document.getElementById('cartCount')) {
     document.getElementById('cartCount').textContent = quantidadeItens;
@@ -372,7 +359,8 @@ function renderCart() {
       <div class="cartline premium-cart-item">
 
         <div class="cart-produto-info">
-          <img src="${i.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
+          <img src="${i.image || '/produto-1.svg'}"
+               onerror="this.src='/produto-1.svg'">
 
           <div>
             <strong>${i.name}</strong><br>
@@ -443,45 +431,50 @@ function renderCart() {
 }
 
 async function saveClient() {
-const msg = document.getElementById('clientMsg');
+  const msg = document.getElementById('clientMsg');
 
-const body = {
-name: document.getElementById('clientName').value,
-email: document.getElementById('clientEmail')?.value.trim() || '',
-phone: document.getElementById('clientPhone').value
-};
+  const body = {
+    name: document.getElementById('clientName').value,
+    email: document.getElementById('clientEmail')?.value.trim() || '',
+    phone: document.getElementById('clientPhone').value
+  };
 
-if (!body.name || !body.phone) {
-msg.textContent = 'Preencha nome e WhatsApp.';
-return;
+  if (!body.name || !body.phone) {
+    msg.textContent = 'Preencha nome e WhatsApp.';
+    return;
+  }
+
+  const r = await fetch('/api/customers', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await r.json();
+
+  msg.textContent = data.error || 'Cadastro realizado com sucesso!';
+
+  if (!data.error) {
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientPhone').value = '';
+
+    if (document.getElementById('clientEmail')) {
+      document.getElementById('clientEmail').value = '';
+    }
+  }
 }
 
-const r = await fetch('/api/customers', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json'
-},
-body: JSON.stringify(body)
-});
-
-const data = await r.json();
-
-msg.textContent = data.error || 'Cadastro realizado com sucesso!';
-
-if (!data.error) {
-document.getElementById('clientName').value = '';
-document.getElementById('clientPhone').value = '';
-
-
-if (document.getElementById('clientEmail')) {
-  document.getElementById('clientEmail').value = '';
-}
-
-
-}
-}
-
-function sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod, orderNote) {
+async function saveWhatsappOrderToPanel(
+  name,
+  phone,
+  paymentMethod,
+  email,
+  address,
+  shippingMethod,
+  orderNote
+) {
   const {
     subtotal,
     feeValue,
@@ -501,7 +494,8 @@ function sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod
           phone: phone,
           email: email || '',
           shipping_method: shippingMethod,
-          address: address
+          address: address,
+          order_note: orderNote
         },
         items: cart.map(item => ({
           id: item.id,
@@ -526,7 +520,14 @@ function sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod
   }
 }
 
-async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email, address, shippingMethod, orderNote) {
+function sendOrderToWhatsapp(
+  name,
+  phone,
+  paymentMethod,
+  address,
+  shippingMethod,
+  orderNote
+) {
   const {
     subtotal,
     feeValue,
@@ -558,7 +559,7 @@ Complemento: ${address.complement || '-'}
 Bairro: ${address.neighborhood || '-'}
 Cidade: ${address.city || '-'}
 Estado: ${address.state || '-'}
-Observação: ${address.note || '-'}`;
+Observação de entrega: ${address.note || '-'}`;
 
   const itensTexto = cart.map((item, index) => {
     const itemTotal = Number(item.price) * Number(item.quantity);
@@ -618,6 +619,12 @@ ${shippingText}
 
 ${addressText}
 
+━━━━━━━━━━━━━━━
+📝 OBSERVAÇÃO DO PEDIDO
+━━━━━━━━━━━━━━━
+
+${orderNote || '-'}
+
 Aguardando confirmação do pedido.
 
 ⭐ Obrigada por comprar na AM CLOSET.`;
@@ -628,140 +635,143 @@ Aguardando confirmação do pedido.
 }
 
 async function checkout() {
-const msg = document.getElementById('msg');
-const acceptTerms = document.getElementById('acceptTerms')?.checked;
+  const msg = document.getElementById('msg');
+  const acceptTerms = document.getElementById('acceptTerms')?.checked;
 
-if (!acceptTerms) {
-  alert('Você precisa aceitar a Política de Trocas e Devoluções.');
-  return;
-}
+  if (!acceptTerms) {
+    alert('Você precisa aceitar a Política de Trocas e Devoluções.');
+    return;
+  }
 
-if (!cart.length) {
-msg.textContent = 'Seu carrinho está vazio.';
-return;
-}
+  if (!cart.length) {
+    msg.textContent = 'Seu carrinho está vazio.';
+    return;
+  }
 
-const name = document.getElementById('name').value.trim();
-const phone = document.getElementById('phone').value.trim();
-const email = document.getElementById('email')?.value.trim() || '';
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email')?.value.trim() || '';
 
-const paymentMethod = getSelectedPaymentMethod();
-  
-const shippingMethod = getSelectedShippingMethod();
+  const paymentMethod = getSelectedPaymentMethod();
+  const shippingMethod = getSelectedShippingMethod();
 
-const address = {
-  zipCode: document.getElementById('zipCode')?.value || '',
-  street: document.getElementById('street')?.value || '',
-  number: document.getElementById('number')?.value || '',
-  complement: document.getElementById('complement')?.value || '',
-  neighborhood: document.getElementById('neighborhood')?.value || '',
-  city: document.getElementById('city')?.value || '',
-  state: document.getElementById('state')?.value || '',
-  note: document.getElementById('shippingNote')?.value || ''
-};
+  const address = {
+    zipCode: document.getElementById('zipCode')?.value || '',
+    street: document.getElementById('street')?.value || '',
+    number: document.getElementById('number')?.value || '',
+    complement: document.getElementById('complement')?.value || '',
+    neighborhood: document.getElementById('neighborhood')?.value || '',
+    city: document.getElementById('city')?.value || '',
+    state: document.getElementById('state')?.value || '',
+    note: document.getElementById('shippingNote')?.value || ''
+  };
 
-const orderNote = document.getElementById('orderNote')?.value.trim() || '';
+  const orderNote =
+    document.getElementById('orderNote')?.value.trim() || '';
 
-if (!name || !phone) {
-msg.textContent = 'Preencha nome e WhatsApp antes de finalizar.';
-return;
-}
+  if (!name || !phone) {
+    msg.textContent = 'Preencha nome e WhatsApp antes de finalizar.';
+    return;
+  }
 
-if (paymentMethod === 'pix' || paymentMethod === 'cash' || paymentMethod === 'debit') {
-msg.textContent = 'Salvando pedido e abrindo WhatsApp...';
+  if (paymentMethod === 'pix' || paymentMethod === 'cash' || paymentMethod === 'debit') {
+    msg.textContent = 'Salvando pedido e abrindo WhatsApp...';
 
+    const cartBackup = [...cart];
 
-const cartBackup = [...cart];
+    await saveWhatsappOrderToPanel(
+      name,
+      phone,
+      paymentMethod,
+      email,
+      address,
+      shippingMethod,
+      orderNote
+    );
 
-await saveWhatsappOrderToPanel(
-  name,
-  phone,
-  paymentMethod,
-  email,
-  address,
-  shippingMethod,
-  orderNote
-);
-sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod, orderNote);
+    sendOrderToWhatsapp(
+      name,
+      phone,
+      paymentMethod,
+      address,
+      shippingMethod,
+      orderNote
+    );
 
-cart = cartBackup;
-saveCart();
+    cart = cartBackup;
+    saveCart();
 
-return;
+    return;
+  }
 
+  msg.textContent = 'Criando pedido...';
 
-}
+  try {
+    const r = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        items: cart,
+        paymentMethod: 'card',
+        customer: {
+          name: name,
+          email: email,
+          phone: phone,
+          shipping_method: shippingMethod,
+          address: address,
+          order_note: orderNote
+        }
+      })
+    });
 
-msg.textContent = 'Criando pedido...';
+    const data = await r.json();
 
-try {
-const r = await fetch('/api/checkout', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json'
-},
-body: JSON.stringify({
-items: cart,
-paymentMethod: 'card',
-customer: {
-  name: name,
-  email: email,
-  phone: phone,
-  shipping_method: shippingMethod,
-address: address,
-order_note: orderNote
-}
-})
-});
+    if (!r.ok) {
+      msg.textContent =
+        data.details ||
+        data.message ||
+        data.error ||
+        'Erro ao finalizar.';
 
-  
-const data = await r.json();
+      console.error('Erro checkout:', data);
+      return;
+    }
 
-if (!r.ok) {
-  msg.textContent =
-    data.details ||
-    data.message ||
-    data.error ||
-    'Erro ao finalizar.';
+    if (data.init_point) {
+      window.location.href = data.init_point;
+      return;
+    }
 
-  console.error('Erro checkout:', data);
-  return;
-}
+    msg.textContent =
+      data.details ||
+      data.message ||
+      data.error ||
+      'Erro ao finalizar.';
 
-if (data.init_point) {
-  window.location.href = data.init_point;
-  return;
-}
-
-msg.textContent =
-  data.details ||
-  data.message ||
-  data.error ||
-  'Erro ao finalizar.';
-  
-
-} catch (error) {
-msg.textContent = 'Erro ao conectar com o checkout.';
-console.error(error);
-}
+  } catch (error) {
+    msg.textContent = 'Erro ao conectar com o checkout.';
+    console.error(error);
+  }
 }
 
 function openCartModal() {
-document.getElementById('cartModal')?.classList.add('ativo');
+  document.getElementById('cartModal')?.classList.add('ativo');
 }
 
 function closeCartModal() {
-document.getElementById('cartModal')?.classList.remove('ativo');
+  document.getElementById('cartModal')?.classList.remove('ativo');
 }
 
 function continueShopping() {
-closeCartModal();
-window.location.href = '/';
+  closeCartModal();
+  window.location.href = '/';
 }
 
 function goToCart() {
-closeCartModal();
-window.location.href = '/carrinho.html';
+  closeCartModal();
+  window.location.href = '/carrinho.html';
 }
 
 document.addEventListener('change', e => {
@@ -771,4 +781,3 @@ document.addEventListener('change', e => {
 });
 
 load();
-
