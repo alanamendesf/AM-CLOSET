@@ -410,8 +410,8 @@ document.getElementById('total').innerHTML = `
 
     <div class="summary-row">
     <div class="summary-row">
-  <span>Itens no pedido</span>
-  <strong>${quantidadeItens}</strong>
+ <span>Itens no pedido</span>
+<strong>${quantidadeItens} item${quantidadeItens > 1 ? 's' : ''}</strong>
 </div>
 
 <div class="summary-divider"></div>
