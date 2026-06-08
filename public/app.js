@@ -321,6 +321,38 @@ function getCartTotals() {
   };
 }
 
+function decreaseCartItem(id) {
+  const item = cart.find(i => String(i.id) === String(id));
+  if (!item) return;
+
+  if (Number(item.quantity) <= 1) {
+    removeItem(id);
+    return;
+  }
+
+  item.quantity = Number(item.quantity) - 1;
+  saveCart();
+  renderCart();
+}
+
+function increaseCartItem(id) {
+  const item = cart.find(i => String(i.id) === String(id));
+  const product = products.find(p => String(p.id) === String(id));
+
+  if (!item) return;
+
+  const stock = Number(product?.stock || item.stock || 0);
+
+  if (stock && Number(item.quantity) >= stock) {
+    alert('Quantidade maior que o estoque disponível.');
+    return;
+  }
+
+  item.quantity = Number(item.quantity) + 1;
+  saveCart();
+  renderCart();
+}
+
 function renderCart() {
 saveCart();
 
@@ -343,10 +375,26 @@ return;
 }
 
 document.getElementById('cartItems').innerHTML =
-cart.map(i => ` <div class="cartline"> <div class="cart-produto-info"> <img src="${i.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'"> <div> <strong>${i.name}</strong><br> <small>${i.quantity}x ${money(i.price)}</small> </div> </div>
+cart.map(i => `
+  <div class="cartline premium-cart-item">
+    <div class="cart-produto-info">
+      <img src="${i.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
 
+      <div>
+        <strong>${i.name}</strong><br>
+        <small>${i.size ? 'Tamanho: ' + i.size + '<br>' : ''}</small>
+        <small>Valor unitário: ${money(i.price)}</small><br>
+        <small>Total: ${money(Number(i.price) * Number(i.quantity))}</small>
+      </div>
+    </div>
 
-    <button onclick="removeItem('${i.id}')">x</button>
+    <div class="cart-qty-box">
+      <button type="button" onclick="decreaseCartItem('${i.id}')">-</button>
+      <span>${i.quantity}</span>
+      <button type="button" onclick="increaseCartItem('${i.id}')">+</button>
+    </div>
+
+    <button class="cart-remove-btn" onclick="removeItem('${i.id}')">Remover</button>
   </div>
 `).join('') || '<p>Carrinho vazio.</p>';
 
