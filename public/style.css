@@ -1499,3 +1499,61 @@ border-bottom: 1px solid #f1ece9;
   color: #8b5e4b;
   font-size: 22px;
 }
+
+.checkout-card textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 14px;
+  border: 1px solid #e7d8d0;
+  border-radius: 12px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.checkout-accept-box {
+  margin: 20px 0;
+}
+
+.checkout-accept-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #6f655f;
+  font-size: 14px;
+}
+
+.checkout-accept-label input {
+  width: auto;
+  margin: 0;
+}
+
+.coupon-box {
+  display: flex;
+  gap: 10px;
+}
+
+.coupon-box input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.coupon-box button {
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+#couponMessage {
+  display: block;
+  margin-top: 8px;
+  color: #8b5e4b;
+}
+
+@media(max-width: 768px) {
+  .coupon-box {
+    flex-direction: column;
+  }
+
+  .coupon-box button {
+    width: 100%;
+  }
+}
