@@ -410,9 +410,11 @@ document.getElementById('total').innerHTML = `
 
     <div class="summary-row">
     <div class="summary-row">
- <span>Itens no pedido</span>
-<strong>${quantidadeItens} item${quantidadeItens > 1 ? 's' : ''}</strong>
+<div class="summary-row">
+  <span>Quantidade</span>
+  <strong>${quantidadeItens} ${quantidadeItens > 1 ? 'itens' : 'item'}</strong>
 </div>
+
 
 <div class="summary-divider"></div>
       <span>Subtotal</span>
