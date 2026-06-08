@@ -526,7 +526,7 @@ async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email, addre
   }
 }
 
-function sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod) {
+async function saveWhatsappOrderToPanel(name, phone, paymentMethod, email, address, shippingMethod, orderNote) {
   const {
     subtotal,
     feeValue,
@@ -673,7 +673,15 @@ msg.textContent = 'Salvando pedido e abrindo WhatsApp...';
 
 const cartBackup = [...cart];
 
-await saveWhatsappOrderToPanel(name, phone, paymentMethod, email, address, shippingMethod);
+await saveWhatsappOrderToPanel(
+  name,
+  phone,
+  paymentMethod,
+  email,
+  address,
+  shippingMethod,
+  orderNote
+);
 sendOrderToWhatsapp(name, phone, paymentMethod, address, shippingMethod);
 
 cart = cartBackup;
