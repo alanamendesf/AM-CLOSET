@@ -352,103 +352,55 @@ function increaseCartItem(id) {
   saveCart();
   renderCart();
 }
-
 function renderCart() {
-saveCart();
+  saveCart();
 
-const {
-  subtotal,
-  feeValue,
-  shippingValue,
-  total
-} = getCartTotals();
-  
-const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
-const paymentMethod = getSelectedPaymentMethod();
+  const { subtotal, feeValue, shippingValue, total } = getCartTotals();
+  const quantidadeItens = cart.reduce((s, i) => s + Number(i.quantity), 0);
+  const paymentMethod = getSelectedPaymentMethod();
 
-if (document.getElementById('cartCount')) {
-document.getElementById('cartCount').textContent = quantidadeItens;
-}
+  if (document.getElementById('cartCount')) {
+    document.getElementById('cartCount').textContent = quantidadeItens;
+  }
 
-if (!document.getElementById('cartItems') || !document.getElementById('total')) {
-return;
-}
+  if (!document.getElementById('cartItems') || !document.getElementById('total')) {
+    return;
+  }
 
-document.getElementById('cartItems').innerHTML =
-cart.map(i => `
-  <div class="cartline premium-cart-item">
-    <div class="cart-produto-info">
-      <img src="${i.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
+  document.getElementById('cartItems').innerHTML =
+    cart.map(i => `
+      <div class="cartline premium-cart-item">
+        <div class="cart-produto-info">
+          <img src="${i.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
 
-      <div>
-        <strong>${i.name}</strong><br>
-        <small>${i.size ? 'Tamanho: ' + i.size + '<br>' : ''}</small>
-        <small>Valor unitário: ${money(i.price)}</small><br>
-        <small>Total: ${money(Number(i.price) * Number(i.quantity))}</small>
-      </div>
-    </div>
-
-    <div class="cart-qty-box">
-      <button type="button" onclick="decreaseCartItem('${i.id}')">-</button>
-      <span>${i.quantity}</span>
-      <button type="button" onclick="increaseCartItem('${i.id}')">+</button>
-    </div>
-
-    <button class="cart-remove-btn" onclick="removeItem('${i.id}')">Remover</button>
-  </div>
-`).join('') || '<p>Carrinho vazio.</p>';
-
-
-if (!cart.length) {
-document.getElementById('total').textContent = 'Total: R$ 0,00';
-return;
-}
-
-if (paymentMethod === 'credit' || paymentMethod === 'debit') {
-document.getElementById('total').innerHTML = `
-  <div class="checkout-summary-box">
-
-    <div class="summary-row">
-    <div class="summary-row">
-<div class="summary-row">
-  <span>Quantidade</span>
-  <strong>${quantidadeItens} ${quantidadeItens > 1 ? 'itens' : 'item'}</strong>
-</div>
-
-
-<div class="summary-divider"></div>
-      <span>Subtotal</span>
-      <strong>${money(subtotal)}</strong>
-    </div>
-
-    <div class="summary-row">
-      <span>Frete</span>
-      <strong>${money(shippingValue)}</strong>
-    </div>
-
-    ${
-      feeValue > 0
-        ? `
-          <div class="summary-row">
-            <span>Taxa Mercado Pago</span>
-            <strong>${money(feeValue)}</strong>
+          <div>
+            <strong>${i.name}</strong>
+            <small>${i.size ? 'Tamanho: ' + i.size : ''}</small>
+            <small>Valor unitário: ${money(i.price)}</small>
+            <small>Total: ${money(Number(i.price) * Number(i.quantity))}</small>
           </div>
-        `
-        : ''
-    }
+        </div>
 
-    <div class="summary-divider"></div>
+        <div class="cart-qty-box">
+          <button type="button" onclick="decreaseCartItem('${i.id}')">-</button>
+          <span>${i.quantity}</span>
+          <button type="button" onclick="increaseCartItem('${i.id}')">+</button>
+        </div>
 
-    <div class="summary-row summary-total">
-      <span>Total</span>
-      <strong>${money(total)}</strong>
-    </div>
+        <button class="cart-remove-btn" onclick="removeItem('${i.id}')">Remover</button>
+      </div>
+    `).join('') || '<p>Carrinho vazio.</p>';
 
-  </div>
-`;
-  
-}
-}
+  if (!cart.length) {
+    document.getElementById('total').textContent = 'Total: R$ 0,00';
+    return;
+  }
+
+  document.getElementById('total').innerHTML = `
+    <div class="checkout-summary-box">
+      <div class="summary-row">
+        <span>Quantidade</span>
+        <
 
 async function saveClient() {
 const msg = document.getElementById('clientMsg');
