@@ -1459,3 +1459,43 @@ border-bottom: 1px solid #f1ece9;
   }
 
 }
+
+/* =========================
+   RESUMO PREMIUM
+========================= */
+
+.checkout-summary-box {
+  background: #fbf8f4;
+  border: 1px solid #eadfd5;
+  border-radius: 18px;
+  padding: 18px;
+  margin-top: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  color: #6f655f;
+}
+
+.summary-row strong {
+  color: #2b2724;
+}
+
+.summary-divider {
+  height: 1px;
+  background: #eadfd5;
+  margin: 10px 0;
+}
+
+.summary-total {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.summary-total strong {
+  color: #8b5e4b;
+  font-size: 22px;
+}
