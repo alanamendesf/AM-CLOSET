@@ -1413,13 +1413,13 @@ border-bottom: 1px solid #f1ece9;
 }
 
 .cart-qty-box button {
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   padding: 0;
   border-radius: 50%;
   background: #2b2724;
   color: #fff;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
 }
 
@@ -1497,7 +1497,8 @@ border-bottom: 1px solid #f1ece9;
 
 .summary-total strong {
   color: #8b5e4b;
-  font-size: 22px;
+  font-size: 28px;
+  font-weight: 800;
 }
 
 .checkout-card textarea {
