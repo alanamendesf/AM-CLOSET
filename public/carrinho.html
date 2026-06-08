@@ -128,7 +128,36 @@
         <input id="phone" placeholder="WhatsApp com DDD">
         <input id="email" type="email" placeholder="E-mail para atualizações do pedido (opcional)" autocomplete="email">
       </div>
+    <div class="checkout-section">
+  <h2>Cupom de desconto</h2>
 
+  <div class="coupon-box">
+    <input id="couponCode" placeholder="Digite seu cupom">
+
+    <button type="button" onclick="applyCoupon()">
+      Aplicar
+    </button>
+  </div>
+
+  <small id="couponMessage"></small>
+</div>
+
+<div class="checkout-section">
+  <h2>Observação do pedido</h2>
+
+  <textarea
+    id="orderNote"
+    placeholder="Ex.: entregar após 18h, chamar no WhatsApp ao chegar..."
+  ></textarea>
+</div>
+
+<div class="checkout-accept-box">
+  <label class="checkout-accept-label">
+    <input type="checkbox" id="acceptTerms">
+    Li e concordo com a Política de Trocas e Devoluções.
+  </label>
+</div>
+      
       <button class="checkout-button" onclick="checkout()">
         Finalizar compra
       </button>
