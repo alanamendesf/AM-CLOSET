@@ -13,14 +13,13 @@
     <div class="topo-linha">
       <a class="marca" href="/">AM CLOSET</a>
 
-  <nav class="menu-loja">
-    <a href="/">Início</a>
-    <a href="/carrinho.html">Carrinho</a>
-    <a href="/cadastro.html">Cadastro</a>
-    <a href="/pedido.html">Acompanhar Pedido</a>
-  </nav>
-</div>
-
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <a href="/carrinho.html">Carrinho</a>
+        <a href="/cadastro.html">Cadastro</a>
+        <a href="/pedido.html">Acompanhar Pedido</a>
+      </nav>
+    </div>
   </header>
 
   <a class="cart-float" href="/carrinho.html" aria-label="Carrinho">
@@ -34,24 +33,34 @@
       <span class="since-text">SINCE 2026</span>
     </section>
 
+    <section class="first-order-banner">
+      <span>Primeira compra</span>
+      <h2>Ganhe 5% OFF</h2>
+      <p>
+        Use o cupom <strong>PRIMEIRACOMPRA</strong> no carrinho.
+        Válido somente para a primeira compra e não cumulativo com produtos em promoção.
+      </p>
 
-<section id="premiumSection" class="vitrine premium-section hidden">
-  <div class="premium-banner">
-    <span>Nova coleção</span>
-    <h2>AMCLOSET PREMIUM</h2>
-    <p>Peças selecionadas com elegância, qualidade e exclusividade.</p>
-  </div>
+      <a href="#products">Ver produtos</a>
+    </section>
 
-  <div id="premiumProducts" class="grid"></div>
-</section>
+    <section id="premiumSection" class="vitrine premium-section hidden">
+      <div class="premium-banner">
+        <span>Nova coleção</span>
+        <h2>AMCLOSET PREMIUM</h2>
+        <p>Peças selecionadas com elegância, qualidade e exclusividade.</p>
+      </div>
 
-<section class="vitrine">
-  <h2>Produtos</h2>
+      <div id="premiumProducts" class="grid"></div>
+    </section>
 
-  <div id="categoryTabs" class="category-tabs"></div>
+    <section class="vitrine">
+      <h2>Produtos</h2>
 
-  <div id="products" class="grid"></div>
-</section>
+      <div id="categoryTabs" class="category-tabs"></div>
+
+      <div id="products" class="grid"></div>
+    </section>
 
   </main>
 
@@ -59,21 +68,18 @@
     <div class="cart-modal-content">
       <h3>Produto adicionado ao carrinho</h3>
 
+      <p>Deseja continuar comprando ou ir para o carrinho?</p>
 
-  <p>Deseja continuar comprando ou ir para o carrinho?</p>
+      <div class="modal-buttons">
+        <button onclick="continueShopping()">
+          Continuar comprando
+        </button>
 
-  <div class="modal-buttons">
-    <button onclick="continueShopping()">
-      Continuar comprando
-    </button>
-
-    <button onclick="window.location.href='/carrinho.html'">
-      Ir para o carrinho
-    </button>
-  </div>
-</div>
-
-
+        <button onclick="window.location.href='/carrinho.html'">
+          Ir para o carrinho
+        </button>
+      </div>
+    </div>
   </div>
 
   <a class="instagram-float" href="https://instagram.com/useamcloseet" target="_blank">
@@ -87,29 +93,26 @@
   <footer>
     <h3 id="footerStoreName">AM Closet</h3>
 
+    <p id="footerInstagram">@useamcloseet</p>
 
-<p id="footerInstagram">@useamcloseet</p>
+    <section id="politica-trocas" class="footer-policy">
+      <h4>Política de Trocas e Devoluções</h4>
 
-<section id="politica-trocas" class="footer-policy">
-  <h4>Política de Trocas e Devoluções</h4>
+      <p>A empresa realiza trocas e devoluções em conformidade com as condições abaixo:</p>
 
-  <p>A empresa realiza trocas e devoluções em conformidade com as condições abaixo:</p>
+      <p>• As solicitações de troca deverão ser realizadas no prazo máximo de 7 (sete) dias corridos a contar da data da compra, mediante apresentação da peça em perfeito estado de conservação, sem indícios de uso e com a etiqueta original devidamente afixada.</p>
 
-  <p>• As solicitações de troca deverão ser realizadas no prazo máximo de 7 (sete) dias corridos a contar da data da compra, mediante apresentação da peça em perfeito estado de conservação, sem indícios de uso e com a etiqueta original devidamente afixada.</p>
+      <p>• Não serão aceitas trocas ou devoluções de peças na cor branca.</p>
 
-  <p>• Não serão aceitas trocas ou devoluções de peças na cor branca.</p>
+      <p>• Não serão aceitas trocas ou devoluções de produtos adquiridos em promoção, liquidação ou campanhas especiais.</p>
 
-  <p>• Não serão aceitas trocas ou devoluções de produtos adquiridos em promoção, liquidação ou campanhas especiais.</p>
+      <p>• A empresa não se responsabiliza por danos decorrentes de mau uso, lavagem inadequada, conservação incorreta ou qualquer utilização em desacordo com as orientações de cuidados da peça.</p>
+    </section>
 
-  <p>• A empresa não se responsabiliza por danos decorrentes de mau uso, lavagem inadequada, conservação incorreta ou qualquer utilização em desacordo com as orientações de cuidados da peça.</p>
-</section>
-
-<p>© 2026 AM Closet - Todos os direitos reservados.</p>
-
-
+    <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=72"></script>
+  <script src="/app.js?v=73"></script>
 
 </body>
 </html>
