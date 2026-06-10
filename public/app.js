@@ -211,6 +211,7 @@ function renderProductPrice(product) {
 
 function renderProductCard(p) {
   const isSoldOut = Number(p.stock || 0) <= 0;
+  const lowStock = Number(p.stock || 0) > 0 && Number(p.stock || 0) <= 3;
   const promoAtiva = isProductPromo(p);
   const favoriteActive = isFavorite(p.id);
 
@@ -218,14 +219,17 @@ function renderProductCard(p) {
     <article class="card produto-card ${isSoldOut ? 'produto-card-esgotado' : ''}">
       <div class="product-image-wrap">
         ${promoAtiva ? '<span class="promo-badge">OFERTA</span>' : ''}
+        ${p.is_best_seller ? '<span class="best-seller-badge">MAIS VENDIDO</span>' : ''}
+        ${p.is_featured ? '<span class="featured-badge">DESTAQUE</span>' : ''}
 
-<button
-  type="button"
-  class="favorite-heart ${favoriteActive ? 'favorite-active' : ''}"
-  onclick="toggleFavorite('${p.id}')"
->
- ♡
-</button>
+        <button
+          type="button"
+          class="favorite-heart ${favoriteActive ? 'favorite-active' : ''}"
+          onclick="toggleFavorite('${p.id}')"
+          aria-label="Favoritar produto"
+        >
+          ♡
+        </button>
 
         <img src="${p.image || '/produto-1.svg'}" alt="${p.name || 'Produto'}" onerror="this.src='/produto-1.svg'">
       </div>
@@ -236,6 +240,7 @@ function renderProductCard(p) {
 
         ${renderProductPrice(p)}
 
+        ${lowStock ? '<small class="low-stock-text">Últimas unidades</small>' : ''}
 
         <small>Categoria: ${p.category || 'Sem categoria'}</small>
         <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
@@ -266,6 +271,10 @@ function renderProducts() {
   const searchTerm =
     document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
 
+  const isVisibleProduct = product => {
+    return product.is_visible !== false && Number(product.stock || 0) > 0;
+  };
+
   const matchesSearch = product => {
     const text = `
       ${product.name || ''}
@@ -278,6 +287,7 @@ function renderProducts() {
   };
 
   const premiumProducts = products.filter(p =>
+    isVisibleProduct(p) &&
     String(p.category || '').trim().toUpperCase() === 'AMCLOSET PREMIUM' &&
     matchesSearch(p)
   );
@@ -292,19 +302,29 @@ function renderProducts() {
     }
   }
 
-  let filteredProducts = products;
+  let filteredProducts = products.filter(isVisibleProduct);
 
   if (selectedCategory === 'Todos') {
-    filteredProducts = products.filter(p =>
+    filteredProducts = filteredProducts.filter(p =>
       String(p.category || '').trim().toUpperCase() !== 'AMCLOSET PREMIUM'
     );
   } else {
-    filteredProducts = products.filter(p =>
+    filteredProducts = filteredProducts.filter(p =>
       (p.category || 'Sem categoria') === selectedCategory
     );
   }
 
   filteredProducts = filteredProducts.filter(matchesSearch);
+
+  filteredProducts.sort((a, b) => {
+    if (a.is_featured && !b.is_featured) return -1;
+    if (!a.is_featured && b.is_featured) return 1;
+
+    if (a.is_best_seller && !b.is_best_seller) return -1;
+    if (!a.is_best_seller && b.is_best_seller) return 1;
+
+    return Number(b.sales_count || 0) - Number(a.sales_count || 0);
+  });
 
   if (!filteredProducts.length) {
     area.innerHTML = '<p class="texto-centro">Nenhum produto encontrado.</p>';
