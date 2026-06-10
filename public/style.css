@@ -1798,3 +1798,23 @@ border-bottom: 1px solid #f1ece9;
     font-size:26px;
   }
 }
+
+/* CUPOM DE DESCONTO */
+
+.coupon-highlight{
+  background:#fbf8f4;
+  border:1px dashed #c7b8ad;
+  color:#6f655f;
+  padding:14px;
+  border-radius:14px;
+  margin-bottom:15px;
+  text-align:center;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.coupon-highlight strong{
+  color:#8b5e4b;
+  font-weight:700;
+  letter-spacing:.5px;
+}
