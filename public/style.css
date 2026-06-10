@@ -1932,3 +1932,15 @@ border-bottom: 1px solid #f1ece9;
   outline:none;
   border-color:#8b5e4b;
 }
+
+.favorite-btn.favorite-active{
+  background:#c0392b;
+  color:#fff;
+}
+
+.favorite-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
