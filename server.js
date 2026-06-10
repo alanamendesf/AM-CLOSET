@@ -569,18 +569,24 @@ app.put('/api/products/:id', checkAdmin, async (req, res) => {
   const promoPrice = Number(req.body.promo_price || 0);
   const isPromo = Boolean(req.body.is_promo);
 
-  const product = {
-    name: req.body.name || '',
-    price: price,
-    promo_price: promoPrice,
-    is_promo: isPromo,
-    category: req.body.category || 'Sem categoria',
-    image: req.body.image || '/produto-1.svg',
-    description: req.body.description || '',
-    stock: Number(req.body.stock || 0),
-    sizes: req.body.sizes || ''
-  };
+const product = {
+  name: req.body.name || '',
+  price: price,
+  promo_price: promoPrice,
+  is_promo: isPromo,
 
+  is_best_seller: Boolean(req.body.is_best_seller),
+  is_featured: Boolean(req.body.is_featured),
+  is_visible: req.body.is_visible !== false,
+  sales_count: Number(req.body.sales_count || 0),
+
+  category: req.body.category || 'Sem categoria',
+  image: req.body.image || '/produto-1.svg',
+  description: req.body.description || '',
+  stock: Number(req.body.stock || 0),
+  sizes: req.body.sizes || ''
+};
+  
   const { data, error } = await supabase
     .from('products')
     .update(product)
