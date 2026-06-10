@@ -1733,3 +1733,68 @@ border-bottom: 1px solid #f1ece9;
   }
 
 }
+
+/* BANNER PRIMEIRA COMPRA */
+
+.first-order-banner{
+  max-width:900px;
+  margin:20px auto 35px;
+  padding:28px 24px;
+  background:#fffdfb;
+  border:1px solid #eadfd5;
+  border-radius:22px;
+  text-align:center;
+  box-shadow:0 12px 35px rgba(43,39,36,.05);
+}
+
+.first-order-banner span{
+  display:inline-block;
+  background:#f2ebe5;
+  color:#8b5e4b;
+  padding:7px 16px;
+  border-radius:999px;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  margin-bottom:12px;
+}
+
+.first-order-banner h2{
+  font-size:34px;
+  color:#2b2724;
+  margin-bottom:10px;
+}
+
+.first-order-banner p{
+  max-width:650px;
+  margin:0 auto 18px;
+  color:#6f655f;
+  line-height:1.7;
+}
+
+.first-order-banner strong{
+  color:#8b5e4b;
+  letter-spacing:.5px;
+}
+
+.first-order-banner a{
+  display:inline-block;
+  background:#2b2724;
+  color:#fff;
+  text-decoration:none;
+  padding:13px 22px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:14px;
+}
+
+@media(max-width:768px){
+  .first-order-banner{
+    margin:16px 16px 28px;
+    padding:24px 18px;
+  }
+
+  .first-order-banner h2{
+    font-size:26px;
+  }
+}
