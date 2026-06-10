@@ -1944,3 +1944,26 @@ border-bottom: 1px solid #f1ece9;
   justify-content:center;
   line-height:1;
 }
+
+.favorite-text-btn{
+  width:100%;
+  background:#fff;
+  color:#8b5e4b;
+  border:1px solid #eadfd5;
+  border-radius:999px;
+  padding:10px 14px;
+  margin:8px 0 12px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.favorite-text-btn:hover{
+  background:#fbf8f4;
+  opacity:1;
+}
+
+.favorite-text-btn.favorite-active{
+  background:#8b5e4b;
+  color:#fff;
+  border-color:#8b5e4b;
+}
