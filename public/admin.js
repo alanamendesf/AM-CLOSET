@@ -96,6 +96,8 @@ function renderDashboard() {
   if (!dashboard) return;
 
   const totalProducts = adminProductsData.length;
+  const totalVisible = adminProductsData.filter(p => p.is_visible !== false).length;
+  const totalHidden = adminProductsData.filter(p => p.is_visible === false).length;
   const totalCustomers = adminCustomersData.length;
 
   const pedidosPendentes = adminOrdersData.filter(o =>
@@ -106,14 +108,6 @@ function renderDashboard() {
 
   const pedidosConfirmados = adminOrdersData.filter(o =>
     o.status === 'Confirmado'
-  ).length;
-
-  const pedidosSeparando = adminOrdersData.filter(o =>
-    o.status === 'Separando pedido'
-  ).length;
-
-  const pedidosEmRota = adminOrdersData.filter(o =>
-    o.status === 'Em rota'
   ).length;
 
   const pedidosEntregues = adminOrdersData.filter(o =>
@@ -131,11 +125,11 @@ function renderDashboard() {
 
   dashboard.innerHTML = `
     <div class="dashboard-card"><small>Produtos</small><strong>${totalProducts}</strong></div>
+    <div class="dashboard-card"><small>Visíveis</small><strong>${totalVisible}</strong></div>
+    <div class="dashboard-card"><small>Ocultos</small><strong>${totalHidden}</strong></div>
     <div class="dashboard-card"><small>Clientes</small><strong>${totalCustomers}</strong></div>
     <div class="dashboard-card"><small>Pendentes</small><strong>${pedidosPendentes}</strong></div>
     <div class="dashboard-card"><small>Confirmados</small><strong>${pedidosConfirmados}</strong></div>
-    <div class="dashboard-card"><small>Separando</small><strong>${pedidosSeparando}</strong></div>
-    <div class="dashboard-card"><small>Em rota</small><strong>${pedidosEmRota}</strong></div>
     <div class="dashboard-card"><small>Entregues</small><strong>${pedidosEntregues}</strong></div>
     <div class="dashboard-card"><small>Cancelados</small><strong>${pedidosCancelados}</strong></div>
     <div class="dashboard-card"><small>Faturamento</small><strong>${money(faturamento)}</strong></div>
@@ -178,18 +172,25 @@ async function loadProducts() {
 
   adminProducts.innerHTML = data.map(p => {
     const promoAtiva = isProductPromo(p);
+    const isVisible = p.is_visible !== false;
 
     return `
-      <article class="card produto-card admin-product-card">
+      <article class="card produto-card admin-product-card ${!isVisible ? 'admin-product-hidden' : ''}">
         <img src="${p.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
 
         <div class="card-body">
           <h3>${p.name || 'Produto sem nome'}</h3>
 
+          <div class="admin-product-badges">
+            ${promoAtiva ? '<small class="promo-badge-admin">PROMOÇÃO</small>' : ''}
+            ${p.is_best_seller ? '<small class="best-badge-admin">MAIS VENDIDO</small>' : ''}
+            ${p.is_featured ? '<small class="featured-badge-admin">DESTAQUE</small>' : ''}
+            ${!isVisible ? '<small class="hidden-badge-admin">OCULTO</small>' : ''}
+          </div>
+
           ${
             promoAtiva
               ? `
-                <small class="promo-badge-admin">PROMOÇÃO ATIVA</small>
                 <b><s>${money(p.price || 0)}</s></b>
                 <b>${money(getPromoPrice(p))}</b>
               `
@@ -199,6 +200,7 @@ async function loadProducts() {
           <small>Categoria: ${p.category || 'Sem categoria'}</small>
           <small>Tamanhos: ${p.sizes || 'Não informado'}</small>
           <small>Estoque: ${p.stock || 0}</small>
+          <small>Vendas: ${p.sales_count || 0}</small>
 
           <div class="admin-edit-form">
             <input id="name-${p.id}" value="${p.name || ''}" placeholder="Nome">
@@ -211,6 +213,23 @@ async function loadProducts() {
               <input id="isPromo-${p.id}" type="checkbox" ${p.is_promo ? 'checked' : ''}>
               Ativar promoção
             </label>
+
+            <label class="admin-checkbox-line">
+              <input id="bestSeller-${p.id}" type="checkbox" ${p.is_best_seller ? 'checked' : ''}>
+              Marcar como Mais Vendido
+            </label>
+
+            <label class="admin-checkbox-line">
+              <input id="featured-${p.id}" type="checkbox" ${p.is_featured ? 'checked' : ''}>
+              Marcar como Destaque
+            </label>
+
+            <label class="admin-checkbox-line">
+              <input id="visible-${p.id}" type="checkbox" ${isVisible ? 'checked' : ''}>
+              Produto visível na loja
+            </label>
+
+            <input id="sales-${p.id}" value="${p.sales_count || 0}" type="number" placeholder="Contagem de vendas">
 
             <input id="cat-${p.id}" value="${p.category || ''}" placeholder="Categoria">
             <input id="sizes-${p.id}" value="${p.sizes || ''}" placeholder="Tamanhos">
@@ -285,9 +304,7 @@ async function loadOrders() {
             <p><strong>E-mail:</strong> ${customer.email || '-'}</p>
             <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
             <p><strong>Origem:</strong> ${customer.source || '-'}</p>
-
             <p><strong>Entrega:</strong> ${customer.shipping_method || '-'}</p>
-
             <p><strong>CEP:</strong> ${customer.address?.zipCode || '-'}</p>
 
             <p><strong>Rua:</strong>
@@ -435,6 +452,10 @@ async function addProduct() {
     price: pprice.value,
     promo_price: document.getElementById('ppromo')?.value || 0,
     is_promo: document.getElementById('pisPromo')?.checked || false,
+    is_best_seller: document.getElementById('pbestSeller')?.checked || false,
+    is_featured: document.getElementById('pfeatured')?.checked || false,
+    is_visible: document.getElementById('pvisible')?.checked !== false,
+    sales_count: Number(document.getElementById('psales')?.value || 0),
     category: pcat.value,
     image,
     description: pdesc.value,
@@ -464,13 +485,12 @@ async function addProduct() {
     pfile.value = '';
     pimg.value = '';
 
-    if (document.getElementById('ppromo')) {
-      document.getElementById('ppromo').value = '';
-    }
-
-    if (document.getElementById('pisPromo')) {
-      document.getElementById('pisPromo').checked = false;
-    }
+    if (document.getElementById('ppromo')) document.getElementById('ppromo').value = '';
+    if (document.getElementById('pisPromo')) document.getElementById('pisPromo').checked = false;
+    if (document.getElementById('pbestSeller')) document.getElementById('pbestSeller').checked = false;
+    if (document.getElementById('pfeatured')) document.getElementById('pfeatured').checked = false;
+    if (document.getElementById('pvisible')) document.getElementById('pvisible').checked = true;
+    if (document.getElementById('psales')) document.getElementById('psales').value = '';
   }
 
   await loadProducts();
@@ -483,6 +503,10 @@ async function editProduct(id) {
     price: document.getElementById(`price-${id}`).value,
     promo_price: document.getElementById(`promo-${id}`)?.value || 0,
     is_promo: document.getElementById(`isPromo-${id}`)?.checked || false,
+    is_best_seller: document.getElementById(`bestSeller-${id}`)?.checked || false,
+    is_featured: document.getElementById(`featured-${id}`)?.checked || false,
+    is_visible: document.getElementById(`visible-${id}`)?.checked !== false,
+    sales_count: Number(document.getElementById(`sales-${id}`)?.value || 0),
     category: document.getElementById(`cat-${id}`).value,
     sizes: document.getElementById(`sizes-${id}`).value,
     stock: document.getElementById(`stock-${id}`).value,
