@@ -224,7 +224,7 @@ function renderProductCard(p) {
   class="favorite-heart ${favoriteActive ? 'favorite-active' : ''}"
   onclick="toggleFavorite('${p.id}')"
 >
-  ♥
+ ♡
 </button>
 
         <img src="${p.image || '/produto-1.svg'}" alt="${p.name || 'Produto'}" onerror="this.src='/produto-1.svg'">
