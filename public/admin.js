@@ -74,7 +74,7 @@ async function loadAdmin() {
     const config = await (await fetch('/api/config')).json();
 
     storeName.value = config.storeName || 'AM Closet';
-    subtitle.value = config.subtitle || 'Looks que valorizam você! ♡';
+    subtitle.value = config.subtitle || 'Looks que valorizam você!';
     whatsapp.value = config.whatsapp || '';
     instagram.value = config.instagram || '@useamcloseet';
 
@@ -142,6 +142,25 @@ function renderDashboard() {
   `;
 }
 
+function getPromoPrice(product) {
+  const price = Number(product.price || 0);
+  const promoPrice = Number(product.promo_price || 0);
+  const isPromo = Boolean(product.is_promo);
+
+  if (isPromo && promoPrice > 0 && promoPrice < price) {
+    return promoPrice;
+  }
+
+  return price;
+}
+
+function isProductPromo(product) {
+  const price = Number(product.price || 0);
+  const promoPrice = Number(product.promo_price || 0);
+
+  return Boolean(product.is_promo) && promoPrice > 0 && promoPrice < price;
+}
+
 async function loadProducts() {
   const data = await (await fetch('/api/products')).json();
 
@@ -157,34 +176,57 @@ async function loadProducts() {
     return;
   }
 
-  adminProducts.innerHTML = data.map(p => `
-    <article class="card produto-card admin-product-card">
-      <img src="${p.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
+  adminProducts.innerHTML = data.map(p => {
+    const promoAtiva = isProductPromo(p);
 
-      <div class="card-body">
-        <h3>${p.name || 'Produto sem nome'}</h3>
-        <b>${money(p.price || 0)}</b>
-        <small>Categoria: ${p.category || 'Sem categoria'}</small>
-        <small>Tamanhos: ${p.sizes || 'Não informado'}</small>
-        <small>Estoque: ${p.stock || 0}</small>
+    return `
+      <article class="card produto-card admin-product-card">
+        <img src="${p.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
 
-        <div class="admin-edit-form">
-          <input id="name-${p.id}" value="${p.name || ''}" placeholder="Nome">
-          <input id="price-${p.id}" value="${p.price || 0}" type="number" step="0.01" placeholder="Preço">
-          <input id="cat-${p.id}" value="${p.category || ''}" placeholder="Categoria">
-          <input id="sizes-${p.id}" value="${p.sizes || ''}" placeholder="Tamanhos">
-          <input id="stock-${p.id}" value="${p.stock || 0}" type="number" placeholder="Estoque">
-          <input id="img-${p.id}" value="${p.image || ''}" placeholder="Imagem">
-          <textarea id="desc-${p.id}" placeholder="Descrição">${p.description || ''}</textarea>
+        <div class="card-body">
+          <h3>${p.name || 'Produto sem nome'}</h3>
+
+          ${
+            promoAtiva
+              ? `
+                <small class="promo-badge-admin">PROMOÇÃO ATIVA</small>
+                <b><s>${money(p.price || 0)}</s></b>
+                <b>${money(getPromoPrice(p))}</b>
+              `
+              : `<b>${money(p.price || 0)}</b>`
+          }
+
+          <small>Categoria: ${p.category || 'Sem categoria'}</small>
+          <small>Tamanhos: ${p.sizes || 'Não informado'}</small>
+          <small>Estoque: ${p.stock || 0}</small>
+
+          <div class="admin-edit-form">
+            <input id="name-${p.id}" value="${p.name || ''}" placeholder="Nome">
+
+            <input id="price-${p.id}" value="${p.price || 0}" type="number" step="0.01" placeholder="Preço normal">
+
+            <input id="promo-${p.id}" value="${p.promo_price || 0}" type="number" step="0.01" placeholder="Preço promocional">
+
+            <label class="admin-checkbox-line">
+              <input id="isPromo-${p.id}" type="checkbox" ${p.is_promo ? 'checked' : ''}>
+              Ativar promoção
+            </label>
+
+            <input id="cat-${p.id}" value="${p.category || ''}" placeholder="Categoria">
+            <input id="sizes-${p.id}" value="${p.sizes || ''}" placeholder="Tamanhos">
+            <input id="stock-${p.id}" value="${p.stock || 0}" type="number" placeholder="Estoque">
+            <input id="img-${p.id}" value="${p.image || ''}" placeholder="Imagem">
+            <textarea id="desc-${p.id}" placeholder="Descrição">${p.description || ''}</textarea>
+          </div>
+
+          <div class="admin-actions">
+            <button onclick="editProduct('${p.id}')">Salvar</button>
+            <button class="btn-danger" onclick="delProduct('${p.id}')">Excluir</button>
+          </div>
         </div>
-
-        <div class="admin-actions">
-          <button onclick="editProduct('${p.id}')">Salvar</button>
-          <button class="btn-danger" onclick="delProduct('${p.id}')">Excluir</button>
-        </div>
-      </div>
-    </article>
-  `).join('');
+      </article>
+    `;
+  }).join('');
 }
 
 function getStatusClass(status) {
@@ -243,20 +285,47 @@ async function loadOrders() {
             <p><strong>E-mail:</strong> ${customer.email || '-'}</p>
             <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
             <p><strong>Origem:</strong> ${customer.source || '-'}</p>
+
             <p><strong>Entrega:</strong> ${customer.shipping_method || '-'}</p>
+
             <p><strong>CEP:</strong> ${customer.address?.zipCode || '-'}</p>
-            <p><strong>Rua:</strong> ${customer.address?.street || '-'}, ${customer.address?.number || ''}</p>
-            <p><strong>Complemento:</strong> ${customer.address?.complement || '-'}</p>
-            <p><strong>Bairro:</strong> ${customer.address?.neighborhood || '-'}</p>
-            <p><strong>Cidade:</strong> ${customer.address?.city || '-'}</p>
-            <p><strong>Estado:</strong> ${customer.address?.state || '-'}</p>
-            <p><strong>Observação entrega:</strong> ${customer.address?.note || '-'}</p>
-            <p><strong>Observação pedido:</strong> ${customer.order_note || '-'}</p>
+
+            <p><strong>Rua:</strong>
+              ${customer.address?.street || '-'},
+              ${customer.address?.number || ''}
+            </p>
+
+            <p><strong>Complemento:</strong>
+              ${customer.address?.complement || '-'}
+            </p>
+
+            <p><strong>Bairro:</strong>
+              ${customer.address?.neighborhood || '-'}
+            </p>
+
+            <p><strong>Cidade:</strong>
+              ${customer.address?.city || '-'}
+            </p>
+
+            <p><strong>Estado:</strong>
+              ${customer.address?.state || '-'}
+            </p>
+
+            <p><strong>Observação entrega:</strong>
+              ${customer.address?.note || '-'}
+            </p>
+
+            <p><strong>Observação pedido:</strong>
+              ${customer.order_note || '-'}
+            </p>
           </div>
 
           <div class="order-values">
             <p><strong>Subtotal:</strong> ${money(customer.subtotal || 0)}</p>
+            <p><strong>Desconto:</strong> ${money(customer.discount_value || 0)}</p>
+            <p><strong>Cupom:</strong> ${customer.coupon_code || '-'}</p>
             <p><strong>Taxa:</strong> ${money(customer.fee_value || 0)}</p>
+            <p><strong>Frete:</strong> ${money(customer.shipping_value || 0)}</p>
             <p><strong>Total:</strong> ${money(customer.total || 0)}</p>
           </div>
 
@@ -364,6 +433,8 @@ async function addProduct() {
   const body = {
     name: pname.value,
     price: pprice.value,
+    promo_price: document.getElementById('ppromo')?.value || 0,
+    is_promo: document.getElementById('pisPromo')?.checked || false,
     category: pcat.value,
     image,
     description: pdesc.value,
@@ -392,6 +463,14 @@ async function addProduct() {
     pdesc.value = '';
     pfile.value = '';
     pimg.value = '';
+
+    if (document.getElementById('ppromo')) {
+      document.getElementById('ppromo').value = '';
+    }
+
+    if (document.getElementById('pisPromo')) {
+      document.getElementById('pisPromo').checked = false;
+    }
   }
 
   await loadProducts();
@@ -402,6 +481,8 @@ async function editProduct(id) {
   const body = {
     name: document.getElementById(`name-${id}`).value,
     price: document.getElementById(`price-${id}`).value,
+    promo_price: document.getElementById(`promo-${id}`)?.value || 0,
+    is_promo: document.getElementById(`isPromo-${id}`)?.checked || false,
     category: document.getElementById(`cat-${id}`).value,
     sizes: document.getElementById(`sizes-${id}`).value,
     stock: document.getElementById(`stock-${id}`).value,
@@ -420,6 +501,7 @@ async function editProduct(id) {
 
   const d = await r.json();
   adminMsg.textContent = d.error || 'Produto atualizado!';
+
   await loadProducts();
   renderDashboard();
 }
@@ -431,6 +513,7 @@ async function delProduct(id) {
   });
 
   adminMsg.textContent = 'Produto excluído!';
+
   await loadProducts();
   renderDashboard();
 }
@@ -442,6 +525,7 @@ async function delCustomer(id) {
   });
 
   adminMsg.textContent = 'Cliente excluída!';
+
   await loadCustomers();
   renderDashboard();
 }
