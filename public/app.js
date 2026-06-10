@@ -2,6 +2,7 @@ let products = [];
 let cart = JSON.parse(localStorage.getItem('amcloset_cart') || '[]');
 let config = {};
 let selectedCategory = 'Todos';
+let appliedCoupon = JSON.parse(localStorage.getItem('amcloset_coupon') || 'null');
 
 const STORE_WHATSAPP = '85991346349';
 
@@ -14,9 +15,20 @@ function saveCart() {
   localStorage.setItem('amcloset_cart', JSON.stringify(cart));
 }
 
+function saveCoupon() {
+  localStorage.setItem('amcloset_coupon', JSON.stringify(appliedCoupon));
+}
+
+function clearCoupon() {
+  appliedCoupon = null;
+  localStorage.removeItem('amcloset_coupon');
+  renderCart();
+}
+
 function clearCart() {
   cart = [];
   localStorage.removeItem('amcloset_cart');
+  clearCoupon();
   renderCart();
 }
 
@@ -49,6 +61,28 @@ function getPaymentLabel() {
   return 'Cartão de Crédito';
 }
 
+function isProductPromo(product) {
+  const price = Number(product.price || 0);
+  const promoPrice = Number(product.promo_price || 0);
+
+  return Boolean(product.is_promo) && promoPrice > 0 && promoPrice < price;
+}
+
+function getProductFinalPrice(product) {
+  const price = Number(product.price || 0);
+  const promoPrice = Number(product.promo_price || 0);
+
+  if (isProductPromo(product)) {
+    return promoPrice;
+  }
+
+  return price;
+}
+
+function cartHasPromoItem() {
+  return cart.some(item => isProductPromo(item));
+}
+
 async function load() {
   try {
     const configResponse = await fetch('/api/config');
@@ -71,6 +105,8 @@ async function load() {
         ...p,
         id: String(p.id),
         price: Number(p.price || 0),
+        promo_price: Number(p.promo_price || 0),
+        is_promo: Boolean(p.is_promo),
         stock: Number(p.stock || 0)
       }));
     }
@@ -138,17 +174,36 @@ function selectCategory(category) {
   document.getElementById('products')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function renderProductPrice(product) {
+  if (isProductPromo(product)) {
+    return `
+      <div class="product-price-box">
+        <small class="old-price">${money(product.price)}</small>
+        <b class="promo-price">${money(product.promo_price)}</b>
+      </div>
+    `;
+  }
+
+  return `<b>${money(product.price || 0)}</b>`;
+}
+
 function renderProductCard(p) {
   const isSoldOut = Number(p.stock || 0) <= 0;
+  const promoAtiva = isProductPromo(p);
 
   return `
     <article class="card produto-card ${isSoldOut ? 'produto-card-esgotado' : ''}">
-      <img src="${p.image || '/produto-1.svg'}" alt="${p.name || 'Produto'}" onerror="this.src='/produto-1.svg'">
+      <div class="product-image-wrap">
+        ${promoAtiva ? '<span class="promo-badge">OFERTA</span>' : ''}
+        <img src="${p.image || '/produto-1.svg'}" alt="${p.name || 'Produto'}" onerror="this.src='/produto-1.svg'">
+      </div>
 
       <div class="card-body">
         <h3>${p.name || 'Produto'}</h3>
         <p>${p.description || ''}</p>
-        <b>${money(p.price || 0)}</b>
+
+        ${renderProductPrice(p)}
+
         <small>Categoria: ${p.category || 'Sem categoria'}</small>
         <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
 
@@ -219,6 +274,14 @@ function add(id) {
 
   const item = cart.find(x => String(x.id) === String(id));
 
+  const cartProduct = {
+    ...p,
+    price: getProductFinalPrice(p),
+    original_price: Number(p.price || 0),
+    promo_price: Number(p.promo_price || 0),
+    is_promo: isProductPromo(p)
+  };
+
   if (item) {
     if (item.quantity >= Number(p.stock)) {
       alert('Quantidade maior que o estoque disponível.');
@@ -227,7 +290,11 @@ function add(id) {
 
     item.quantity++;
   } else {
-    cart.push({ ...p, quantity: 1 });
+    cart.push({ ...cartProduct, quantity: 1 });
+  }
+
+  if (cartHasPromoItem()) {
+    clearCoupon();
   }
 
   saveCart();
@@ -237,6 +304,11 @@ function add(id) {
 
 function removeItem(id) {
   cart = cart.filter(i => String(i.id) !== String(id));
+
+  if (!cart.length || !cartHasPromoItem()) {
+    clearCoupon();
+  }
+
   saveCart();
   renderCart();
 }
@@ -282,19 +354,30 @@ function getCartTotals() {
     0
   );
 
-  const feePercent = getPaymentFeePercent();
-  const feeValue = roundMoney(subtotal * feePercent);
+  const discountValue = appliedCoupon
+    ? Number(appliedCoupon.discount_value || 0)
+    : 0;
 
-  const shippingValue = getShippingValue(subtotal);
+  const subtotalAfterDiscount = Math.max(
+    subtotal - discountValue,
+    0
+  );
+
+  const feePercent = getPaymentFeePercent();
+  const feeValue = roundMoney(subtotalAfterDiscount * feePercent);
+
+  const shippingValue = getShippingValue(subtotalAfterDiscount);
 
   const total = roundMoney(
-    subtotal +
+    subtotalAfterDiscount +
     feeValue +
     shippingValue
   );
 
   return {
     subtotal,
+    discountValue,
+    subtotalAfterDiscount,
     feeValue,
     shippingValue,
     total
@@ -336,10 +419,96 @@ function increaseCartItem(id) {
   renderCart();
 }
 
+async function applyCoupon() {
+  const input = document.getElementById('couponCode');
+  const message = document.getElementById('couponMessage');
+
+  if (!input) return;
+
+  const code = input.value.trim().toUpperCase();
+
+  if (!code) {
+    if (message) message.textContent = 'Digite um cupom.';
+    return;
+  }
+
+  if (!cart.length) {
+    if (message) message.textContent = 'Adicione produtos ao carrinho antes de usar cupom.';
+    return;
+  }
+
+  if (cartHasPromoItem()) {
+    appliedCoupon = null;
+    saveCoupon();
+
+    if (message) {
+      message.textContent = 'Cupom não pode ser usado em produtos promocionais.';
+    }
+
+    renderCart();
+    return;
+  }
+
+  try {
+    const r = await fetch('/api/coupon/validate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        code,
+        items: cart
+      })
+    });
+
+    const data = await r.json();
+
+    if (!r.ok || !data.valid) {
+      appliedCoupon = null;
+      saveCoupon();
+
+      if (message) {
+        message.textContent = data.error || 'Cupom inválido.';
+      }
+
+      renderCart();
+      return;
+    }
+
+    appliedCoupon = {
+      code: data.code,
+      discount_value: Number(data.discount_value || 0),
+      discount_percent: Number(data.discount_percent || 0)
+    };
+
+    saveCoupon();
+
+    if (message) {
+      message.textContent = data.message || 'Cupom aplicado com sucesso.';
+    }
+
+    renderCart();
+
+  } catch (error) {
+    console.error(error);
+
+    if (message) {
+      message.textContent = 'Erro ao aplicar cupom.';
+    }
+  }
+}
+
 function renderCart() {
   saveCart();
 
-  const { subtotal, feeValue, shippingValue, total } = getCartTotals();
+  const {
+    subtotal,
+    discountValue,
+    subtotalAfterDiscount,
+    feeValue,
+    shippingValue,
+    total
+  } = getCartTotals();
 
   const quantidadeItens = cart.reduce(
     (s, i) => s + Number(i.quantity),
@@ -365,7 +534,16 @@ function renderCart() {
           <div>
             <strong>${i.name}</strong><br>
             <small>${i.size ? 'Tamanho: ' + i.size : ''}</small><br>
-            <small>Valor unitário: ${money(i.price)}</small><br>
+
+            ${
+              i.is_promo
+                ? `
+                  <small>De: <s>${money(i.original_price || i.price)}</s></small><br>
+                  <small>Por: ${money(i.price)}</small><br>
+                `
+                : `<small>Valor unitário: ${money(i.price)}</small><br>`
+            }
+
             <small>Total: ${money(Number(i.price) * Number(i.quantity))}</small>
           </div>
         </div>
@@ -402,6 +580,22 @@ function renderCart() {
         <span>Subtotal</span>
         <strong>${money(subtotal)}</strong>
       </div>
+
+      ${
+        discountValue > 0
+          ? `
+            <div class="summary-row">
+              <span>Desconto ${appliedCoupon?.code ? '(' + appliedCoupon.code + ')' : ''}</span>
+              <strong>-${money(discountValue)}</strong>
+            </div>
+
+            <div class="summary-row">
+              <span>Subtotal com desconto</span>
+              <strong>${money(subtotalAfterDiscount)}</strong>
+            </div>
+          `
+          : ''
+      }
 
       <div class="summary-row">
         <span>Frete</span>
@@ -454,7 +648,9 @@ async function saveClient() {
 
   const data = await r.json();
 
-  msg.textContent = data.error || 'Cadastro realizado com sucesso!';
+  msg.textContent =
+    data.error ||
+    'Cadastro realizado com sucesso! Use o cupom PRIMEIRACOMPRA na sua primeira compra.';
 
   if (!data.error) {
     document.getElementById('clientName').value = '';
@@ -477,6 +673,7 @@ async function saveWhatsappOrderToPanel(
 ) {
   const {
     subtotal,
+    discountValue,
     feeValue,
     shippingValue,
     total
@@ -502,6 +699,9 @@ async function saveWhatsappOrderToPanel(
           name: item.name,
           quantity: Number(item.quantity || 1),
           price: Number(item.price || 0),
+          original_price: Number(item.original_price || item.price || 0),
+          promo_price: Number(item.promo_price || 0),
+          is_promo: Boolean(item.is_promo),
           image: item.image || '',
           size: item.size || '',
           category: item.category || ''
@@ -509,6 +709,8 @@ async function saveWhatsappOrderToPanel(
         payment_method: paymentMethod,
         payment_label: getPaymentLabel(),
         subtotal: subtotal,
+        discount_value: discountValue,
+        coupon_code: appliedCoupon?.code || '',
         fee_value: feeValue,
         shipping_value: shippingValue,
         total: total,
@@ -530,6 +732,7 @@ function sendOrderToWhatsapp(
 ) {
   const {
     subtotal,
+    discountValue,
     feeValue,
     shippingValue,
     total
@@ -571,6 +774,11 @@ Valor unitário: ${money(item.price)}
 Total do item: ${money(itemTotal)}`;
   }).join('\n\n');
 
+  const descontoTexto =
+    discountValue > 0
+      ? `Desconto ${appliedCoupon?.code ? '(' + appliedCoupon.code + ')' : ''}: -${money(discountValue)}\n`
+      : '';
+
   const taxaTexto =
     paymentMethod === 'credit' || paymentMethod === 'debit'
       ? `Taxa Mercado Pago 4,98%: ${money(feeValue)}\n`
@@ -598,7 +806,7 @@ ${itensTexto}
 ━━━━━━━━━━━━━━━
 
 Subtotal: ${money(subtotal)}
-${taxaTexto}Frete: ${money(shippingValue)}
+${descontoTexto}${taxaTexto}Frete: ${money(shippingValue)}
 Total: ${money(total)}
 
 ━━━━━━━━━━━━━━━
@@ -715,6 +923,7 @@ async function checkout() {
       body: JSON.stringify({
         items: cart,
         paymentMethod: 'card',
+        couponCode: appliedCoupon?.code || '',
         customer: {
           name: name,
           email: email,
