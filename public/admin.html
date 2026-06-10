@@ -51,13 +51,29 @@
 
           <input id="pname" placeholder="Nome do produto">
           <input id="pprice" placeholder="Preço normal" type="number" step="0.01">
-
           <input id="ppromo" placeholder="Preço promocional, se houver" type="number" step="0.01">
 
           <label class="admin-checkbox-line">
             <input id="pisPromo" type="checkbox">
             Ativar promoção para este produto
           </label>
+
+          <label class="admin-checkbox-line">
+            <input id="pbestSeller" type="checkbox">
+            Marcar como Mais Vendido
+          </label>
+
+          <label class="admin-checkbox-line">
+            <input id="pfeatured" type="checkbox">
+            Marcar como Destaque
+          </label>
+
+          <label class="admin-checkbox-line">
+            <input id="pvisible" type="checkbox" checked>
+            Produto visível na loja
+          </label>
+
+          <input id="psales" placeholder="Contagem de vendas" type="number">
 
           <input id="pcat" placeholder="Categoria. Ex: Vestidos, Blusas, Conjuntos">
           <input id="psizes" placeholder="Tamanhos. Ex: P, M, G">
@@ -107,6 +123,6 @@
 
   </main>
 
-  <script src="/admin.js?v=27"></script>
+  <script src="/admin.js?v=28"></script>
 </body>
 </html>
