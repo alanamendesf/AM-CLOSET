@@ -28,6 +28,11 @@
       <p>Confira seu pedido, escolha a forma de entrega e finalize sua compra.</p>
     </section>
 
+    <section class="checkout-security-banner">
+      <strong>Compra segura na AM Closet</strong>
+      <span>Pagamento protegido, atendimento via WhatsApp e acompanhamento do pedido.</span>
+    </section>
+
     <section id="cart" class="checkout-card">
 
       <div class="checkout-section">
@@ -38,6 +43,24 @@
       <div class="checkout-section">
         <h2>Resumo</h2>
         <strong id="total" class="checkout-total">Total: R$ 0,00</strong>
+      </div>
+
+      <div class="checkout-section">
+        <h2>Cupom de desconto</h2>
+
+        <div class="coupon-highlight">
+          Primeira compra na AM Closet? Use o cupom <strong>PRIMEIRACOMPRA</strong> e ganhe 5% OFF.
+        </div>
+
+        <div class="coupon-box">
+          <input id="couponCode" placeholder="Digite seu cupom de desconto">
+
+          <button type="button" onclick="applyCoupon()">
+            Aplicar
+          </button>
+        </div>
+
+        <small id="couponMessage"></small>
       </div>
 
       <div class="checkout-section">
@@ -98,7 +121,7 @@
         </div>
 
         <p class="checkout-note">
-          📦 Via Melhor Envio (Correios e transportadoras parceiras)
+          Via Melhor Envio: Correios e transportadoras parceiras.
         </p>
       </div>
 
@@ -128,36 +151,23 @@
         <input id="phone" placeholder="WhatsApp com DDD">
         <input id="email" type="email" placeholder="E-mail para atualizações do pedido (opcional)" autocomplete="email">
       </div>
-    <div class="checkout-section">
-  <h2>Cupom de desconto</h2>
 
-  <div class="coupon-box">
-    <input id="couponCode" placeholder="Digite seu cupom">
+      <div class="checkout-section">
+        <h2>Observação do pedido</h2>
 
-    <button type="button" onclick="applyCoupon()">
-      Aplicar
-    </button>
-  </div>
+        <textarea
+          id="orderNote"
+          placeholder="Ex.: entregar após 18h, chamar no WhatsApp ao chegar..."
+        ></textarea>
+      </div>
 
-  <small id="couponMessage"></small>
-</div>
+      <div class="checkout-accept-box">
+        <label class="checkout-accept-label">
+          <input type="checkbox" id="acceptTerms">
+          Li e concordo com a Política de Trocas e Devoluções.
+        </label>
+      </div>
 
-<div class="checkout-section">
-  <h2>Observação do pedido</h2>
-
-  <textarea
-    id="orderNote"
-    placeholder="Ex.: entregar após 18h, chamar no WhatsApp ao chegar..."
-  ></textarea>
-</div>
-
-<div class="checkout-accept-box">
-  <label class="checkout-accept-label">
-    <input type="checkbox" id="acceptTerms">
-    Li e concordo com a Política de Trocas e Devoluções.
-  </label>
-</div>
-      
       <button class="checkout-button" onclick="checkout()">
         Finalizar compra
       </button>
@@ -170,6 +180,6 @@
     </section>
   </main>
 
-  <script src="/app.js"></script>
+  <script src="/app.js?v=74"></script>
 </body>
 </html>
