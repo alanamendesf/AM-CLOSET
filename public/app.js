@@ -219,15 +219,6 @@ function renderProductCard(p) {
       <div class="product-image-wrap">
         ${promoAtiva ? '<span class="promo-badge">OFERTA</span>' : ''}
 
-        <button
-          type="button"
-          class="favorite-btn ${favoriteActive ? 'favorite-active' : ''}"
-          onclick="toggleFavorite('${p.id}')"
-          aria-label="Favoritar produto"
-        >
-          ${favoriteActive ? '❤' : '♡'}
-        </button>
-
         <img src="${p.image || '/produto-1.svg'}" alt="${p.name || 'Produto'}" onerror="this.src='/produto-1.svg'">
       </div>
 
@@ -236,6 +227,14 @@ function renderProductCard(p) {
         <p>${p.description || ''}</p>
 
         ${renderProductPrice(p)}
+
+<button
+  type="button"
+  class="favorite-text-btn ${favoriteActive ? 'favorite-active' : ''}"
+  onclick="toggleFavorite('${p.id}')"
+>
+  ${favoriteActive ? 'Favoritado' : 'Favoritar'}
+</button>
 
         <small>Categoria: ${p.category || 'Sem categoria'}</small>
         <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
