@@ -1933,40 +1933,47 @@ border-bottom: 1px solid #f1ece9;
   border-color:#8b5e4b;
 }
 
-.favorite-btn.favorite-active{
-  background:#c0392b;
-  color:#fff;
+/* FAVORITOS - CORAÇÃO SOBRE A FOTO */
+
+.product-image-wrap{
+  position:relative;
 }
 
-.favorite-btn{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  line-height:1;
-}
 .favorite-heart{
   position:absolute;
   top:12px;
   right:12px;
   width:38px;
   height:38px;
+  min-width:38px;
+  padding:0;
   border:none;
   border-radius:50%;
-  background:rgba(255,255,255,.95);
-  color:#c7c7c7;
-  font-size:20px;
+  background:#ffffff;
+  color:#b8a9a0;
+  font-size:21px;
+  line-height:1;
   cursor:pointer;
+  z-index:8;
   display:flex;
   align-items:center;
   justify-content:center;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-  z-index:5;
+  box-shadow:0 6px 18px rgba(0,0,0,.14);
 }
 
 .favorite-heart:hover{
-  transform:scale(1.08);
+  background:#fff;
+  color:#8b5e4b;
+  transform:scale(1.05);
+  opacity:1;
 }
 
 .favorite-heart.favorite-active{
-  color:#d64545;
+  background:#8b5e4b;
+  color:#ffffff;
+}
+
+.product-image-wrap .favorite-heart{
+  width:38px !important;
+  height:38px !important;
 }
