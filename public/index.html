@@ -14,18 +14,22 @@
 
       <nav class="menu-loja">
         <a href="/">Início</a>
+        <a href="/favoritos.html">Favoritos</a>
+        <a href="/cliente.html">Área da Cliente</a>
         <a href="/carrinho.html">Carrinho</a>
         <a href="/cadastro.html">Cadastro</a>
         <a href="/pedido.html">Acompanhar Pedido</a>
-        <a href="/quem-somos.html">Quem Somos</a>
       </nav>
     </div>
   </header>
 
-  <a class="cart-float" href="/carrinho.html" aria-label="Carrinho">
-    🛒
-    <span id="cartCount">0</span>
-  </a>
+ <a class="cart-float luxury-cart" href="/carrinho.html" aria-label="Sacola AM Closet">
+  <div class="am-bag">
+    <span>AM</span>
+  </div>
+
+  <span id="cartCount">0</span>
+</a>
 
   <main class="loja-main">
     <section class="intro-loja pequena">
@@ -44,34 +48,14 @@
     </section>
 
     <section class="trust-banner">
-      <div>
-        <strong>Pagamento seguro</strong>
-        <span>Mercado Pago</span>
-      </div>
-
-      <div>
-        <strong>Atendimento</strong>
-        <span>Via WhatsApp</span>
-      </div>
-
-      <div>
-        <strong>Trocas</strong>
-        <span>Até 7 dias</span>
-      </div>
-
-      <div>
-        <strong>Acompanhe</strong>
-        <span>Seu pedido online</span>
-      </div>
+      <div><strong>Pagamento seguro</strong><span>Mercado Pago</span></div>
+      <div><strong>Atendimento</strong><span>Via WhatsApp</span></div>
+      <div><strong>Trocas</strong><span>Até 7 dias</span></div>
+      <div><strong>Acompanhe</strong><span>Seu pedido online</span></div>
     </section>
 
     <section class="search-section">
-      <input
-        id="searchInput"
-        type="search"
-        placeholder="Buscar produto..."
-        oninput="renderProducts()"
-      >
+      <input id="searchInput" type="search" placeholder="Buscar produto..." oninput="renderProducts()">
     </section>
 
     <section id="premiumSection" class="vitrine premium-section hidden">
@@ -86,9 +70,7 @@
 
     <section class="vitrine">
       <h2>Produtos</h2>
-
       <div id="categoryTabs" class="category-tabs"></div>
-
       <div id="products" class="grid"></div>
     </section>
   </main>
@@ -96,7 +78,6 @@
   <div id="cartModal" class="cart-modal">
     <div class="cart-modal-content">
       <h3>Produto adicionado ao carrinho</h3>
-
       <p>Deseja continuar comprando ou ir para o carrinho?</p>
 
       <div class="modal-buttons">
@@ -106,20 +87,16 @@
     </div>
   </div>
 
-  <a class="instagram-float" href="https://instagram.com/useamcloseet" target="_blank">
-    Instagram
-  </a>
-
-  <a class="whatsapp" id="whatsappFloat" href="#" target="_blank">
-    WhatsApp
-  </a>
+  <a class="instagram-float" href="https://instagram.com/useamcloseet" target="_blank">Instagram</a>
+  <a class="whatsapp" id="whatsappFloat" href="#" target="_blank">WhatsApp</a>
 
   <footer>
     <h3 id="footerStoreName">AM Closet</h3>
-
     <p id="footerInstagram">@useamcloseet</p>
 
     <div class="footer-links">
+      <a href="/favoritos.html">Favoritos</a>
+      <a href="/cliente.html">Área da Cliente</a>
       <a href="/quem-somos.html">Quem Somos</a>
       <a href="/politica-privacidade.html">Política de Privacidade</a>
       <a href="/termos-de-uso.html">Termos de Uso</a>
@@ -128,21 +105,16 @@
 
     <section id="politica-trocas" class="footer-policy">
       <h4>Política de Trocas e Devoluções</h4>
-
       <p>A empresa realiza trocas e devoluções em conformidade com as condições abaixo:</p>
-
       <p>• As solicitações de troca deverão ser realizadas no prazo máximo de 7 (sete) dias corridos a contar da data da compra, mediante apresentação da peça em perfeito estado de conservação, sem indícios de uso e com a etiqueta original devidamente afixada.</p>
-
       <p>• Não serão aceitas trocas ou devoluções de peças na cor branca.</p>
-
       <p>• Não serão aceitas trocas ou devoluções de produtos adquiridos em promoção, liquidação ou campanhas especiais.</p>
-
       <p>• A empresa não se responsabiliza por danos decorrentes de mau uso, lavagem inadequada, conservação incorreta ou qualquer utilização em desacordo com as orientações de cuidados da peça.</p>
     </section>
 
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=75"></script>
+  <script src="/app.js?v=76"></script>
 </body>
 </html>
