@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meus Favoritos - AM Closet</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <header class="loja-topo">
+    <div class="topo-linha">
+      <a class="marca" href="/">AM CLOSET</a>
+
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <a href="/favoritos.html">Favoritos</a>
+        <a href="/cliente.html">Área da Cliente</a>
+        <a href="/carrinho.html">Carrinho</a>
+        <a href="/pedido.html">Acompanhar Pedido</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="loja-main">
+    <section class="checkout-header">
+      <span>AM CLOSET</span>
+      <h1>Meus Favoritos</h1>
+      <p>Veja as peças que você salvou para comprar depois.</p>
+    </section>
+
+    <section class="checkout-card">
+      <div id="favoritesList" class="grid"></div>
+    </section>
+  </main>
+
+  <script>
+    const money = v => Number(v || 0).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+
+    function isPromo(p){
+      return Boolean(p.is_promo) && Number(p.promo_price || 0) > 0 && Number(p.promo_price) < Number(p.price);
+    }
+
+    function removeFavorite(id){
+      let favorites = JSON.parse(localStorage.getItem('amcloset_favorites') || '[]');
+      favorites = favorites.filter(item => String(item) !== String(id));
+      localStorage.setItem('amcloset_favorites', JSON.stringify(favorites));
+      loadFavorites();
+    }
+
+    async function loadFavorites(){
+      const area = document.getElementById('favoritesList');
+      const favorites = JSON.parse(localStorage.getItem('amcloset_favorites') || '[]');
+
+      if (!favorites.length) {
+        area.innerHTML = '<p class="texto-centro">Você ainda não favoritou nenhum produto.</p>';
+        return;
+      }
+
+      const response = await fetch('/api/products');
+      const products = await response.json();
+
+      const filtered = products.filter(p =>
+        favorites.includes(String(p.id)) &&
+        p.is_visible !== false &&
+        Number(p.stock || 0) > 0
+      );
+
+      if (!filtered.length) {
+        area.innerHTML = '<p class="texto-centro">Seus produtos favoritos não estão disponíveis no momento.</p>';
+        return;
+      }
+
+      area.innerHTML = filtered.map(p => `
+        <article class="card produto-card">
+          <div class="product-image-wrap">
+            ${isPromo(p) ? '<span class="promo-badge">OFERTA</span>' : ''}
+            <img src="${p.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
+          </div>
+
+          <div class="card-body">
+            <h3>${p.name || 'Produto'}</h3>
+            <p>${p.description || ''}</p>
+
+            ${
+              isPromo(p)
+                ? `<small class="old-price">${money(p.price)}</small><b class="promo-price">${money(p.promo_price)}</b>`
+                : `<b>${money(p.price || 0)}</b>`
+            }
+
+            <small>Categoria: ${p.category || 'Sem categoria'}</small>
+            <small>Tamanhos: ${p.sizes || 'Consultar'}</small>
+
+            <button onclick="window.location.href='/'">Ver na loja</button>
+            <button class="btn-danger" onclick="removeFavorite('${p.id}')">Remover dos favoritos</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    loadFavorites();
+  </script>
+</body>
+</html>
