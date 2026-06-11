@@ -22,27 +22,45 @@
     </div>
   </header>
 
-  <main class="loja-main checkout-page">
-    <section class="checkout-header">
+  <main class="loja-main">
+    <section class="client-hero">
       <span>AM CLOSET</span>
       <h1>Área da Cliente</h1>
-      <p>Consulte seus pedidos usando o número do pedido e o WhatsApp cadastrado.</p>
+      <p>Acompanhe suas compras, veja seus favoritos e fale com a nossa equipe.</p>
     </section>
 
-    <section class="checkout-card cliente-area-card">
-      <div class="checkout-section">
-        <h2>Consultar pedido</h2>
+    <section class="client-dashboard">
+      <a class="client-card" href="/pedido.html">
+        <strong>Meus pedidos</strong>
+        <span>Consulte o status da sua compra</span>
+      </a>
 
-        <input id="clientOrderId" placeholder="Número do pedido. Ex: AM12345">
-        <input id="clientPhone" placeholder="WhatsApp com DDD">
+      <a class="client-card" href="/favoritos.html">
+        <strong>Meus favoritos</strong>
+        <span>Veja as peças que você salvou</span>
+      </a>
 
-        <button class="checkout-button" onclick="consultClientOrder()">
-          Consultar
-        </button>
-
-        <p id="clientMsg"></p>
+      <div class="client-card">
+        <strong>Cupom primeira compra</strong>
+        <span>Use PRIMEIRACOMPRA no carrinho</span>
       </div>
 
+      <a class="client-card" href="https://wa.me/5585991346349" target="_blank">
+        <strong>Atendimento</strong>
+        <span>Fale com a AM Closet no WhatsApp</span>
+      </a>
+    </section>
+
+    <section class="client-consult-box">
+      <h2>Consulta rápida de pedido</h2>
+      <p>Informe o número do pedido e o WhatsApp cadastrado.</p>
+
+      <input id="clientOrderId" placeholder="Número do pedido. Ex: AM12345">
+      <input id="clientPhone" placeholder="WhatsApp com DDD">
+
+      <button onclick="consultClientOrder()">Consultar pedido</button>
+
+      <p id="clientMsg"></p>
       <div id="clientOrderResult"></div>
     </section>
   </main>
@@ -72,9 +90,7 @@
       try {
         const response = await fetch('/api/order-status', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ orderId, phone })
         });
 
@@ -94,16 +110,11 @@
         result.innerHTML = `
           <div class="cliente-order-box">
             <h2>Pedido ${customer.order_code || order.id}</h2>
-
             <p><strong>Status:</strong> ${order.status || '-'}</p>
-            <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
-            <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
-            <p><strong>Entrega:</strong> ${customer.shipping_method || '-'}</p>
             <p><strong>Total:</strong> ${money(customer.total || 0)}</p>
             <p><strong>Rastreio:</strong> ${customer.tracking_code || 'Ainda não informado'}</p>
 
             <h3>Produtos</h3>
-
             <ul class="cliente-items">
               ${
                 items.length
@@ -117,13 +128,10 @@
                   : '<li>Nenhum produto listado.</li>'
               }
             </ul>
-
-            <a class="page-button" href="/pedido.html">Acompanhar outro pedido</a>
           </div>
         `;
 
       } catch (error) {
-        console.error(error);
         msg.textContent = 'Erro ao consultar pedido.';
       }
     }
