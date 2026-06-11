@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Área da Cliente - AM Closet</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <header class="loja-topo">
+    <div class="topo-linha">
+      <a class="marca" href="/">AM CLOSET</a>
+
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <a href="/favoritos.html">Favoritos</a>
+        <a href="/cliente.html">Área da Cliente</a>
+        <a href="/carrinho.html">Carrinho</a>
+        <a href="/pedido.html">Acompanhar Pedido</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="loja-main checkout-page">
+    <section class="checkout-header">
+      <span>AM CLOSET</span>
+      <h1>Área da Cliente</h1>
+      <p>Consulte seus pedidos usando o número do pedido e o WhatsApp cadastrado.</p>
+    </section>
+
+    <section class="checkout-card cliente-area-card">
+      <div class="checkout-section">
+        <h2>Consultar pedido</h2>
+
+        <input id="clientOrderId" placeholder="Número do pedido. Ex: AM12345">
+        <input id="clientPhone" placeholder="WhatsApp com DDD">
+
+        <button class="checkout-button" onclick="consultClientOrder()">
+          Consultar
+        </button>
+
+        <p id="clientMsg"></p>
+      </div>
+
+      <div id="clientOrderResult"></div>
+    </section>
+  </main>
+
+  <script>
+    const money = v => Number(v || 0).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+
+    async function consultClientOrder(){
+      const orderId = document.getElementById('clientOrderId').value.trim();
+      const phone = document.getElementById('clientPhone').value.trim();
+      const msg = document.getElementById('clientMsg');
+      const result = document.getElementById('clientOrderResult');
+
+      msg.textContent = '';
+      result.innerHTML = '';
+
+      if (!orderId || !phone) {
+        msg.textContent = 'Informe o número do pedido e o WhatsApp.';
+        return;
+      }
+
+      msg.textContent = 'Consultando pedido...';
+
+      try {
+        const response = await fetch('/api/order-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ orderId, phone })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.order) {
+          msg.textContent = data.error || 'Pedido não encontrado.';
+          return;
+        }
+
+        const order = data.order;
+        const customer = order.customer || {};
+        const items = Array.isArray(order.items) ? order.items : [];
+
+        msg.textContent = '';
+
+        result.innerHTML = `
+          <div class="cliente-order-box">
+            <h2>Pedido ${customer.order_code || order.id}</h2>
+
+            <p><strong>Status:</strong> ${order.status || '-'}</p>
+            <p><strong>Cliente:</strong> ${customer.name || '-'}</p>
+            <p><strong>Pagamento:</strong> ${customer.payment_label || customer.payment_method || '-'}</p>
+            <p><strong>Entrega:</strong> ${customer.shipping_method || '-'}</p>
+            <p><strong>Total:</strong> ${money(customer.total || 0)}</p>
+            <p><strong>Rastreio:</strong> ${customer.tracking_code || 'Ainda não informado'}</p>
+
+            <h3>Produtos</h3>
+
+            <ul class="cliente-items">
+              ${
+                items.length
+                  ? items.map(item => `
+                    <li>
+                      <strong>${item.name || 'Produto'}</strong>
+                      <span>Qtd: ${item.quantity || 1}</span>
+                      <span>${money(item.price || 0)}</span>
+                    </li>
+                  `).join('')
+                  : '<li>Nenhum produto listado.</li>'
+              }
+            </ul>
+
+            <a class="page-button" href="/pedido.html">Acompanhar outro pedido</a>
+          </div>
+        `;
+
+      } catch (error) {
+        console.error(error);
+        msg.textContent = 'Erro ao consultar pedido.';
+      }
+    }
+  </script>
+</body>
+</html>
