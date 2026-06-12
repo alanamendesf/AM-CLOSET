@@ -14,22 +14,29 @@
 
       <nav class="menu-loja">
         <a href="/">Início</a>
+        <a href="/favoritos.html">Favoritos</a>
+        <a href="/cliente.html">Área da Cliente</a>
         <a href="/carrinho.html">Carrinho</a>
-        <a href="/cadastro.html">Cadastro</a>
-        <a href="/pedido.html">Acompanhar pedido</a>
+        <a href="/pedido.html">Acompanhar Pedido</a>
       </nav>
     </div>
   </header>
 
   <main class="loja-main">
-    <section class="cart">
-      <h2>Cadastre-se</h2>
-      <p class="texto-suave">Receba novidades e acompanhe os lançamentos da AM Closet.</p>
+    <section class="client-hero">
+      <span>AM CLOSET</span>
+      <h1>Crie seu cadastro</h1>
+      <p>Salve seus dados, acompanhe seus favoritos e tenha uma experiência mais rápida na AM Closet.</p>
+    </section>
 
-      <input id="clientName" placeholder="Seu nome" autocomplete="name">
-      <input id="clientPhone" placeholder="Seu WhatsApp">
+    <section class="client-consult-box cadastro-premium-box">
+      <h2>Seus dados</h2>
 
-      <button onclick="saveClient()">Cadastrar</button>
+      <input id="clientName" placeholder="Nome completo" autocomplete="name">
+      <input id="clientPhone" placeholder="WhatsApp com DDD">
+      <input id="clientEmail" type="email" placeholder="E-mail">
+
+      <button onclick="saveClientProfile()">Cadastrar</button>
 
       <p id="clientMsg"></p>
     </section>
@@ -41,6 +48,56 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=63"></script>
+  <script>
+    async function saveClientProfile(){
+      const name = document.getElementById('clientName').value.trim();
+      const phone = document.getElementById('clientPhone').value.trim();
+      const email = document.getElementById('clientEmail').value.trim();
+      const msg = document.getElementById('clientMsg');
+
+      if (!name || !phone) {
+        msg.textContent = 'Preencha nome e WhatsApp.';
+        return;
+      }
+
+      msg.textContent = 'Salvando cadastro...';
+
+      try {
+        const response = await fetch('/api/customers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name,
+            phone,
+            email
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          msg.textContent = data.error || 'Erro ao cadastrar.';
+          return;
+        }
+
+        localStorage.setItem('amcloset_customer', JSON.stringify({
+          name,
+          phone,
+          email
+        }));
+
+        msg.textContent = 'Cadastro realizado com sucesso! Redirecionando para sua área...';
+
+        setTimeout(() => {
+          window.location.href = '/cliente.html';
+        }, 900);
+
+      } catch (error) {
+        msg.textContent = 'Erro ao salvar cadastro.';
+      }
+    }
+  </script>
 </body>
 </html>
