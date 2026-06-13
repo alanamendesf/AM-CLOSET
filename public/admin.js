@@ -123,6 +123,28 @@ function renderDashboard() {
     return sum + Number(order.customer?.total || 0);
   }, 0);
 
+const pedidosPagos = adminOrdersData.filter(order =>
+  order.status === 'Pago' ||
+  order.status === 'Confirmado' ||
+  order.status === 'Separando pedido' ||
+  order.status === 'Em rota' ||
+  order.status === 'Pedido entregue'
+).length;
+
+const ticketMedio =
+  pedidosPagos > 0
+    ? faturamento / pedidosPagos
+    : 0;
+
+const produtosVendidos = adminOrdersData.reduce((total, order) => {
+  const items = Array.isArray(order.items)
+    ? order.items
+    : [];
+
+  return total + items.reduce((sum, item) =>
+    sum + Number(item.quantity || 0), 0);
+}, 0);
+  
   dashboard.innerHTML = `
     <div class="dashboard-card"><small>Produtos</small><strong>${totalProducts}</strong></div>
     <div class="dashboard-card"><small>Visíveis</small><strong>${totalVisible}</strong></div>
@@ -133,6 +155,21 @@ function renderDashboard() {
     <div class="dashboard-card"><small>Entregues</small><strong>${pedidosEntregues}</strong></div>
     <div class="dashboard-card"><small>Cancelados</small><strong>${pedidosCancelados}</strong></div>
     <div class="dashboard-card"><small>Faturamento</small><strong>${money(faturamento)}</strong></div>
+
+<div class="dashboard-card">
+  <small>Ticket Médio</small>
+  <strong>${money(ticketMedio)}</strong>
+</div>
+
+<div class="dashboard-card">
+  <small>Pedidos Pagos</small>
+  <strong>${pedidosPagos}</strong>
+</div>
+
+<div class="dashboard-card">
+  <small>Produtos Vendidos</small>
+  <strong>${produtosVendidos}</strong>
+</div>
   `;
 }
 
