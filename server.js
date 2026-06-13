@@ -874,6 +874,90 @@ app.get('/api/customers', checkAdmin, async (req, res) => {
   res.json(data);
 });
 
+app.get('/api/customer/:phone', async (req, res) => {
+  try {
+    const phone = String(req.params.phone || '').replace(/\D/g, '');
+
+    if (!phone) {
+      return res.status(400).json({
+        error: 'Informe o WhatsApp da cliente.'
+      });
+    }
+
+    const { data: customers, error: customerError } = await supabase
+      .from('customers')
+      .select('*');
+
+    if (customerError) {
+      return res.status(500).json({
+        error: 'Erro ao buscar cliente.',
+        details: customerError.message
+      });
+    }
+
+    const customer = (customers || []).find(c => {
+      const customerPhone = String(c.phone || '').replace(/\D/g, '');
+
+      return (
+        customerPhone === phone ||
+        customerPhone.endsWith(phone) ||
+        phone.endsWith(customerPhone)
+      );
+    });
+
+    if (!customer) {
+      return res.status(404).json({
+        error: 'Cliente não encontrada.'
+      });
+    }
+
+    const { data: orders, error: ordersError } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (ordersError) {
+      return res.status(500).json({
+        error: 'Erro ao buscar pedidos.',
+        details: ordersError.message
+      });
+    }
+
+    const customerOrders = (orders || []).filter(order => {
+      const orderPhone = String(order.customer?.phone || '').replace(/\D/g, '');
+
+      return (
+        orderPhone === phone ||
+        orderPhone.endsWith(phone) ||
+        phone.endsWith(orderPhone)
+      );
+    });
+
+    const totalOrders = customerOrders.length;
+
+    const totalSpent = customerOrders.reduce((sum, order) => {
+      if (order.status === 'Cancelado') return sum;
+      return sum + Number(order.customer?.total || 0);
+    }, 0);
+
+    res.json({
+      ok: true,
+      customer,
+      orders: customerOrders,
+      summary: {
+        total_orders: totalOrders,
+        total_spent: totalSpent
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erro ao carregar área da cliente.',
+      details: err.message
+    });
+  }
+});
+
 app.delete('/api/customers/:id', checkAdmin, async (req, res) => {
   const { error } = await supabase
     .from('customers')
