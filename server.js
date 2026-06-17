@@ -832,15 +832,33 @@ app.post('/api/upload', checkAdmin, upload.single('image'), async (req, res) => 
 /* CLIENTES */
 
 app.post('/api/customers', async (req, res) => {
+  const cpf = String(req.body.cpf || '').replace(/\D/g, '');
+
   const customer = {
     name: req.body.name || '',
     email: req.body.email || '',
-    phone: req.body.phone || ''
+    phone: req.body.phone || '',
+    cpf: cpf
   };
 
-  if (!customer.name || !customer.phone) {
+  if (!customer.name || !customer.phone || !customer.cpf) {
     return res.status(400).json({
-      error: 'Preencha nome e WhatsApp.'
+      error: 'Preencha nome, WhatsApp e CPF.'
+    });
+  }
+
+  const { data: existingCustomer } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('cpf', customer.cpf)
+    .maybeSingle();
+
+  if (existingCustomer) {
+    return res.json({
+      ok: true,
+      customer: existingCustomer,
+      first_purchase_coupon: 'PRIMEIRACOMPRA',
+      message: 'Cadastro já existente. Entrando na área da cliente.'
     });
   }
 
