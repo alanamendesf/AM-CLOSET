@@ -2372,3 +2372,9 @@ border-bottom: 1px solid #f1ece9;
     font-size:28px;
   }
 }
+
+.payment-pending .payment-icon{
+  background:#fff7e8;
+  color:#b7791f;
+  border:1px solid #ffe0a6;
+}
