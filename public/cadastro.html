@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -13,66 +12,35 @@
     <div class="topo-linha">
       <a class="marca" href="/">AM CLOSET</a>
 
-
-  <nav class="menu-loja">
-    <a href="/">Início</a>
-    <a href="/carrinho.html">Carrinho</a>
-    <a href="/cadastro.html">Cadastro</a>
-    <a href="/pedido.html">Acompanhar Pedido</a>
-  </nav>
-</div>
-
-
+      <nav class="menu-loja">
+        <a href="/">Início</a>
+        <a href="/favoritos.html">Favoritos</a>
+        <a href="/cliente.html">Área da Cliente</a>
+        <a href="/carrinho.html">Carrinho</a>
+        <a href="/pedido.html">Acompanhar Pedido</a>
+      </nav>
+    </div>
   </header>
 
-  <main class="checkout-page">
-    <section class="checkout-header">
+  <main class="loja-main">
+    <section class="client-hero">
       <span>AM CLOSET</span>
-      <h1>Cadastre-se</h1>
-      <p>Receba em primeira mão nossas novidades, promoções e coleções exclusivas.</p>
+      <h1>Crie seu cadastro</h1>
+      <p>Salve seus dados, acompanhe seus favoritos e use seu cupom de primeira compra com segurança.</p>
     </section>
 
+    <section class="client-consult-box cadastro-premium-box">
+      <h2>Seus dados</h2>
 
-<section class="checkout-card">
-  <div class="benefits-list">
-    <div>💖 Novas coleções</div>
-    <div>✨ Promoções especiais</div>
-    <div>🛍️ Lançamentos antecipados</div>
-  </div>
+      <input id="clientName" placeholder="Nome completo" autocomplete="name">
+      <input id="clientCpf" placeholder="CPF">
+      <input id="clientPhone" placeholder="WhatsApp com DDD">
+      <input id="clientEmail" type="email" placeholder="E-mail">
 
-  <input
-    id="clientName"
-    placeholder="Seu nome"
-    autocomplete="name"
-  >
+      <button onclick="saveClientProfile()">Cadastrar</button>
 
-  <input
-    id="clientPhone"
-    placeholder="Seu WhatsApp"
-  >
-
-  <input
-    id="clientEmail"
-    type="email"
-    placeholder="Seu e-mail (opcional)"
-    autocomplete="email"
-  >
-
-<button
-  class="checkout-button"
-  onclick="saveClient()"
->
-  Quero me cadastrar
-</button>
-
-<p class="cadastro-privacidade">
-  Seus dados serão utilizados apenas para contato e novidades da AM Closet.
-</p>
-
-<p id="clientMsg"></p>
-</section>
-
-
+      <p id="clientMsg"></p>
+    </section>
   </main>
 
   <footer>
@@ -81,8 +49,68 @@
     <p>© 2026 AM Closet - Todos os direitos reservados.</p>
   </footer>
 
-  <script src="/app.js?v=65"></script>
+  <script>
+    function onlyNumbers(value){
+      return String(value || '').replace(/\D/g, '');
+    }
 
+    async function saveClientProfile(){
+      const name = document.getElementById('clientName').value.trim();
+      const cpf = onlyNumbers(document.getElementById('clientCpf').value);
+      const phone = document.getElementById('clientPhone').value.trim();
+      const email = document.getElementById('clientEmail').value.trim();
+      const msg = document.getElementById('clientMsg');
+
+      if (!name || !cpf || !phone) {
+        msg.textContent = 'Preencha nome, CPF e WhatsApp.';
+        return;
+      }
+
+      if (cpf.length !== 11) {
+        msg.textContent = 'Digite um CPF válido com 11 números.';
+        return;
+      }
+
+      msg.textContent = 'Salvando cadastro...';
+
+      try {
+        const response = await fetch('/api/customers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name,
+            cpf,
+            phone,
+            email
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          msg.textContent = data.error || 'Erro ao cadastrar.';
+          return;
+        }
+
+        localStorage.setItem('amcloset_customer', JSON.stringify({
+          name: data.customer?.name || name,
+          cpf: data.customer?.cpf || cpf,
+          phone: data.customer?.phone || phone,
+          email: data.customer?.email || email
+        }));
+
+        msg.textContent = data.message || 'Cadastro realizado com sucesso! Redirecionando para sua área...';
+
+        setTimeout(() => {
+          window.location.href = '/cliente.html';
+        }, 900);
+
+      } catch (error) {
+        msg.textContent = 'Erro ao salvar cadastro.';
+      }
+    }
+  </script>
 </body>
 </html>
-
