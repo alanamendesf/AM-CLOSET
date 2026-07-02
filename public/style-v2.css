@@ -320,3 +320,192 @@ font-size:12px;
 }
 
 }
+
+/* HERO PREMIUM */
+
+.am-hero{
+  width:min(100% - 80px,var(--container));
+  margin:42px auto 28px;
+  min-height:440px;
+  border-radius:34px;
+  background:
+    linear-gradient(120deg, rgba(43,39,36,.92), rgba(139,94,75,.72)),
+    linear-gradient(135deg, #eadfd5, #fffdfb);
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  align-items:center;
+  gap:30px;
+  padding:58px;
+  color:#fff;
+  overflow:hidden;
+  position:relative;
+}
+
+.am-hero::after{
+  content:'';
+  position:absolute;
+  right:-120px;
+  top:-120px;
+  width:330px;
+  height:330px;
+  border-radius:50%;
+  background:rgba(255,255,255,.08);
+}
+
+.am-hero-content{
+  position:relative;
+  z-index:2;
+  max-width:680px;
+}
+
+.am-hero-content span{
+  display:inline-block;
+  font-size:12px;
+  letter-spacing:4px;
+  font-weight:800;
+  margin-bottom:18px;
+}
+
+.am-hero-content h1{
+  font-size:62px;
+  line-height:1.02;
+  font-weight:300;
+  margin-bottom:22px;
+}
+
+.am-hero-content p{
+  max-width:520px;
+  font-size:18px;
+  line-height:1.8;
+  color:rgba(255,255,255,.82);
+  margin-bottom:30px;
+}
+
+.am-hero-content a{
+  display:inline-block;
+  background:#fff;
+  color:var(--primary);
+  padding:15px 28px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:14px;
+}
+
+.am-hero-card{
+  position:relative;
+  z-index:2;
+  background:rgba(255,253,251,.92);
+  color:var(--primary);
+  border:1px solid rgba(255,255,255,.5);
+  border-radius:28px;
+  padding:34px;
+  box-shadow:var(--shadow-lg);
+}
+
+.am-hero-card span{
+  display:block;
+  color:var(--secondary);
+  font-size:12px;
+  letter-spacing:4px;
+  font-weight:900;
+  margin-bottom:18px;
+}
+
+.am-hero-card strong{
+  display:block;
+  font-size:34px;
+  line-height:1.18;
+  font-weight:300;
+  margin-bottom:18px;
+}
+
+.am-hero-card small{
+  display:block;
+  color:var(--text-light);
+  font-size:14px;
+  line-height:1.7;
+}
+
+/* BENEFÍCIOS PREMIUM */
+
+.am-benefits{
+  width:min(100% - 80px,1100px);
+  margin:0 auto 42px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:18px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+  box-shadow:var(--shadow-sm);
+}
+
+.am-benefits div{
+  text-align:center;
+  padding:14px 18px;
+  border-right:1px solid var(--border);
+}
+
+.am-benefits div:last-child{
+  border-right:none;
+}
+
+.am-benefits strong{
+  display:block;
+  font-size:14px;
+  color:var(--primary);
+  margin-bottom:4px;
+}
+
+.am-benefits span{
+  color:var(--text-light);
+  font-size:13px;
+}
+
+/* OCULTAR BANNERS ANTIGOS SE RESTAREM */
+
+.intro-loja.pequena,
+.first-order-banner,
+.trust-banner{
+  display:none !important;
+}
+
+@media(max-width:900px){
+  .am-hero{
+    width:min(100% - 32px,var(--container));
+    grid-template-columns:1fr;
+    padding:34px 24px;
+    min-height:auto;
+  }
+
+  .am-hero-content h1{
+    font-size:38px;
+  }
+
+  .am-hero-content p{
+    font-size:15px;
+  }
+
+  .am-hero-card strong{
+    font-size:26px;
+  }
+
+  .am-benefits{
+    width:min(100% - 32px,1100px);
+    grid-template-columns:1fr 1fr;
+  }
+
+  .am-benefits div:nth-child(2){
+    border-right:none;
+  }
+
+  .am-benefits div{
+    border-bottom:1px solid var(--border);
+  }
+
+  .am-benefits div:nth-child(3),
+  .am-benefits div:nth-child(4){
+    border-bottom:none;
+  }
+}
