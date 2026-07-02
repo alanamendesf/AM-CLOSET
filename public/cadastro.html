@@ -24,21 +24,25 @@
   <main class="loja-main">
     <section class="client-hero">
       <span>AM CLOSET</span>
-      <h1>Crie seu cadastro</h1>
-      <p>Salve seus dados, acompanhe seus favoritos e use seu cupom de primeira compra com segurança.</p>
+      <h1>Crie sua conta</h1>
+      <p>Cadastre-se para acessar seus pedidos, favoritos e benefícios.</p>
     </section>
 
     <section class="client-consult-box cadastro-premium-box">
-      <h2>Seus dados</h2>
+      <h2>Dados da conta</h2>
 
       <input id="clientName" placeholder="Nome completo" autocomplete="name">
       <input id="clientCpf" placeholder="CPF">
       <input id="clientPhone" placeholder="WhatsApp com DDD">
       <input id="clientEmail" type="email" placeholder="E-mail">
+      <input id="clientPassword" type="password" placeholder="Crie uma senha">
+      <input id="clientPasswordConfirm" type="password" placeholder="Confirme sua senha">
 
-      <button onclick="saveClientProfile()">Cadastrar</button>
+      <button onclick="createClientAccount()">Criar conta</button>
 
       <p id="clientMsg"></p>
+
+      <a class="page-button" href="/cliente.html">Já tenho conta</a>
     </section>
   </main>
 
@@ -53,15 +57,17 @@
       return String(value || '').replace(/\D/g, '');
     }
 
-    async function saveClientProfile(){
+    async function createClientAccount(){
       const name = document.getElementById('clientName').value.trim();
       const cpf = onlyNumbers(document.getElementById('clientCpf').value);
       const phone = document.getElementById('clientPhone').value.trim();
       const email = document.getElementById('clientEmail').value.trim();
+      const password = document.getElementById('clientPassword').value.trim();
+      const passwordConfirm = document.getElementById('clientPasswordConfirm').value.trim();
       const msg = document.getElementById('clientMsg');
 
-      if (!name || !cpf || !phone) {
-        msg.textContent = 'Preencha nome, CPF e WhatsApp.';
+      if (!name || !cpf || !phone || !password || !passwordConfirm) {
+        msg.textContent = 'Preencha nome, CPF, WhatsApp e senha.';
         return;
       }
 
@@ -70,44 +76,48 @@
         return;
       }
 
-      msg.textContent = 'Salvando cadastro...';
+      if (password.length < 4) {
+        msg.textContent = 'A senha precisa ter pelo menos 4 caracteres.';
+        return;
+      }
+
+      if (password !== passwordConfirm) {
+        msg.textContent = 'As senhas não conferem.';
+        return;
+      }
+
+      msg.textContent = 'Criando sua conta...';
 
       try {
         const response = await fetch('/api/customers', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             name,
             cpf,
             phone,
-            email
+            email,
+            password
           })
         });
 
         const data = await response.json();
 
         if (!response.ok || data.error) {
-          msg.textContent = data.error || 'Erro ao cadastrar.';
+          msg.textContent = data.error || 'Erro ao criar conta.';
           return;
         }
 
-        localStorage.setItem('amcloset_customer', JSON.stringify({
-          name: data.customer?.name || name,
-          cpf: data.customer?.cpf || cpf,
-          phone: data.customer?.phone || phone,
-          email: data.customer?.email || email
-        }));
+        localStorage.setItem('amcloset_customer', JSON.stringify(data.customer));
 
-        msg.textContent = data.message || 'Cadastro realizado com sucesso! Redirecionando para sua área...';
+        msg.textContent = 'Conta criada com sucesso! Redirecionando...';
 
         setTimeout(() => {
           window.location.href = '/cliente.html';
         }, 900);
 
       } catch (error) {
-        msg.textContent = 'Erro ao salvar cadastro.';
+        msg.textContent = 'Erro ao criar conta.';
       }
     }
   </script>
