@@ -10,20 +10,17 @@
 </head>
 
 <body>
-
   <header class="loja-topo premium-header">
     <div class="topo-linha premium-topo">
       <a class="marca premium-logo" href="/">AM CLOSET</a>
 
       <nav class="menu-loja premium-menu">
-        <a class="premium-nav-item" href="/">
-          <strong>Início</strong>
-        </a>
+        <a class="premium-nav-item" href="/">Início</a>
 
         <a class="premium-nav-item" href="/cliente.html">
           <span>
-            <strong>Login</strong>
-            <small>Cadastre-se</small>
+            <strong id="headerLoginText">Login</strong>
+            <small id="headerLoginSubtext">Cadastre-se</small>
           </span>
         </a>
 
@@ -39,7 +36,7 @@
 
   <main class="loja-main">
 
-    <section class="am-hero">
+    <section class="am-hero am-hero-6">
       <div class="am-hero-content">
         <span>NOVA COLEÇÃO</span>
         <h1>Elegância em cada detalhe.</h1>
@@ -56,28 +53,13 @@
     </section>
 
     <section class="am-benefits">
-      <div>
-        <strong>Pagamento seguro</strong>
-        <span>Mercado Pago</span>
-      </div>
-
-      <div>
-        <strong>Atendimento</strong>
-        <span>Via WhatsApp</span>
-      </div>
-
-      <div>
-        <strong>Trocas</strong>
-        <span>Até 7 dias</span>
-      </div>
-
-      <div>
-        <strong>Entrega</strong>
-        <span>Consulte sua região</span>
-      </div>
+      <div><strong>Pagamento seguro</strong><span>Mercado Pago</span></div>
+      <div><strong>Atendimento</strong><span>Via WhatsApp</span></div>
+      <div><strong>Trocas</strong><span>Até 7 dias</span></div>
+      <div><strong>Entrega</strong><span>Consulte sua região</span></div>
     </section>
 
-    <section class="search-section">
+    <section class="search-section search-premium">
       <input
         id="searchInput"
         type="search"
@@ -88,9 +70,9 @@
 
     <section id="premiumSection" class="vitrine premium-section hidden">
       <div class="premium-banner">
-        <span>Nova coleção</span>
+        <span>Seleção especial</span>
         <h2>AMCLOSET PREMIUM</h2>
-        <p>Peças selecionadas com elegância, qualidade e exclusividade.</p>
+        <p>Peças escolhidas para compor uma vitrine mais elegante, exclusiva e sofisticada.</p>
       </div>
 
       <div id="premiumProducts" class="grid"></div>
@@ -109,7 +91,6 @@
   <div id="cartModal" class="cart-modal">
     <div class="cart-modal-content">
       <h3>Produto adicionado ao carrinho</h3>
-
       <p>Deseja continuar comprando ou ir para o carrinho?</p>
 
       <div class="modal-buttons">
@@ -127,124 +108,87 @@
     WhatsApp
   </a>
 
-    <footer class="footer-premium">
-
+  <footer class="footer-premium">
     <div class="footer-container">
-
       <div class="footer-brand">
-
         <h3 id="footerStoreName">AM Closet</h3>
-
         <p id="footerInstagram">@useamcloseet</p>
-
-        <p class="footer-text">
-          Moda feminina pensada para valorizar sua personalidade.
-        </p>
-
+        <p class="footer-text">Moda feminina pensada para valorizar sua personalidade.</p>
       </div>
 
       <div class="footer-links">
-
         <a href="/cliente.html">Minha Conta AM</a>
-
         <a href="/favoritos.html">Favoritos</a>
-
+        <a href="/pedido.html">Acompanhar Pedido</a>
         <a href="/quem-somos.html">Quem Somos</a>
-
         <a href="/politica-privacidade.html">Política de Privacidade</a>
-
         <a href="/termos-de-uso.html">Termos de Uso</a>
-
       </div>
-
     </div>
 
     <section id="politica-trocas" class="footer-policy">
-
       <h4>Política de Trocas e Devoluções</h4>
 
       <p>
         As solicitações de troca deverão ser realizadas em até
-        <strong>7 dias corridos</strong>,
-        com a peça sem sinais de uso e com a etiqueta original.
+        <strong>7 dias corridos</strong>, com a peça sem sinais de uso e com a etiqueta original.
       </p>
 
       <p>
-        Não realizamos trocas de peças brancas,
-        produtos promocionais ou com indícios de uso.
+        Não realizamos trocas de peças brancas, produtos promocionais ou com indícios de uso.
       </p>
 
       <p>
-        A AM Closet não se responsabiliza por danos decorrentes de
-        lavagem inadequada, mau uso ou conservação incorreta.
+        A AM Closet não se responsabiliza por danos decorrentes de lavagem inadequada, mau uso ou conservação incorreta.
       </p>
-
     </section>
 
     <div class="footer-copy">
-
       © 2026 AM Closet • Todos os direitos reservados.
-
     </div>
-
   </footer>
 
-  <script src="/app.js?v=100"></script>
+  <script src="/app.js?v=101"></script>
 
   <script>
-
     function updatePremiumHeaderCart(){
-
       try{
-
         const cart = JSON.parse(localStorage.getItem('amcloset_cart') || '[]');
 
         const quantity = cart.reduce((sum,item)=>{
-
           return sum + Number(item.quantity || 0);
-
         },0);
 
         const total = cart.reduce((sum,item)=>{
-
           return sum + (Number(item.price || 0) * Number(item.quantity || 1));
-
         },0);
 
         const count = document.getElementById("headerCartCount");
-
         const totalLabel = document.getElementById("headerCartTotal");
 
-        if(count){
-
-          count.textContent = quantity;
-
-        }
+        if(count) count.textContent = quantity;
 
         if(totalLabel){
-
           totalLabel.textContent = total.toLocaleString("pt-BR",{
-
             style:"currency",
-
             currency:"BRL"
-
           });
+        }
 
+        const customer = JSON.parse(localStorage.getItem('amcloset_customer') || 'null');
+
+        if(customer && customer.name){
+          const firstName = String(customer.name).split(' ')[0];
+          document.getElementById('headerLoginText').textContent = 'Olá, ' + firstName;
+          document.getElementById('headerLoginSubtext').textContent = 'Minha conta';
         }
 
       }catch(e){}
-
     }
 
     updatePremiumHeaderCart();
-
-    window.addEventListener("storage",updatePremiumHeaderCart);
-
-    setInterval(updatePremiumHeaderCart,1000);
-
+    window.addEventListener("storage", updatePremiumHeaderCart);
+    setInterval(updatePremiumHeaderCart, 1000);
   </script>
-
 </body>
-
 </html>
