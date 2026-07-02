@@ -774,3 +774,42 @@ Equipe AM Closet`;
   await loadOrders();
   renderDashboard();
 }
+
+async function uploadHeroImage() {
+  const file = document.getElementById('heroFile')?.files[0];
+
+  if (!file) {
+    return document.getElementById('heroImage')?.value || '';
+  }
+
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const r = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'x-admin-password': pass() },
+    body: formData
+  });
+
+  const d = await r.json();
+
+  return d.image || '';
+}
+
+function previewHeroImage(url) {
+  const preview = document.getElementById('heroPreview');
+
+  if (!preview || !url) return;
+
+  preview.src = url;
+  preview.style.display = 'block';
+}
+
+document.getElementById('heroFile')?.addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+
+  const preview = document.getElementById('heroPreview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+});
