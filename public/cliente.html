@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Área da Cliente - AM Closet</title>
+  <title>Minha Conta - AM Closet</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -15,7 +15,7 @@
       <nav class="menu-loja">
         <a href="/">Início</a>
         <a href="/favoritos.html">Favoritos</a>
-        <a href="/cliente.html">Área da Cliente</a>
+        <a href="/cliente.html">Minha Conta</a>
         <a href="/carrinho.html">Carrinho</a>
         <a href="/pedido.html">Acompanhar Pedido</a>
       </nav>
@@ -25,33 +25,35 @@
   <main class="loja-main">
     <section class="client-hero">
       <span>AM CLOSET</span>
-      <h1>Área da Cliente</h1>
-      <p id="clientWelcome">Entre com seu cadastro para acessar seus dados, pedidos e favoritos.</p>
+      <h1>Minha Conta</h1>
+      <p id="accountSubtitle">Entre para acessar seus pedidos, favoritos, dados e benefícios.</p>
     </section>
 
-    <section id="clientLoginBox" class="client-consult-box">
-      <h2>Acessar minha área</h2>
-      <p>Informe o WhatsApp usado no cadastro.</p>
+    <section id="loginArea" class="client-consult-box">
+      <h2>Acessar conta</h2>
 
-      <input id="loginPhone" placeholder="WhatsApp com DDD">
+      <input id="loginCpf" placeholder="CPF">
+      <input id="loginPassword" type="password" placeholder="Senha">
 
-      <button onclick="loginClientArea()">Entrar</button>
+      <button onclick="loginAccount()">Entrar</button>
 
       <p id="loginMsg"></p>
 
-      <a class="page-button" href="/cadastro.html">Ainda não tenho cadastro</a>
+      <a class="page-button" href="/cadastro.html">Criar minha conta</a>
     </section>
 
-    <section id="clientDashboardArea" class="client-area-premium hidden">
+    <section id="accountArea" class="client-area-premium hidden">
+
       <div class="client-profile-card">
         <div>
           <span>Cliente AM Closet</span>
-          <h2 id="profileName">Cliente</h2>
-          <p id="profilePhone"></p>
-          <p id="profileEmail"></p>
+          <h2 id="accountName">Cliente</h2>
+          <p id="accountCpf"></p>
+          <p id="accountPhone"></p>
+          <p id="accountEmail"></p>
         </div>
 
-        <button onclick="logoutClient()">Sair</button>
+        <button onclick="logoutAccount()">Sair</button>
       </div>
 
       <section class="client-summary-grid">
@@ -72,43 +74,86 @@
       </section>
 
       <section class="client-dashboard">
-        <a class="client-card" href="/favoritos.html">
+        <button class="client-card" onclick="showAccountTab('ordersTab')">
+          <strong>Meus pedidos</strong>
+          <span>Histórico de compras e status.</span>
+        </button>
+
+        <button class="client-card" onclick="showAccountTab('favoritesTab')">
           <strong>Meus favoritos</strong>
-          <span>Veja as peças que você salvou.</span>
-        </a>
+          <span>Peças salvas para comprar depois.</span>
+        </button>
 
-        <a class="client-card" href="/carrinho.html">
-          <strong>Meu carrinho</strong>
-          <span>Continue sua compra.</span>
-        </a>
+        <button class="client-card" onclick="showAccountTab('profileTab')">
+          <strong>Meus dados</strong>
+          <span>Editar nome, WhatsApp e e-mail.</span>
+        </button>
 
-        <a class="client-card" href="/pedido.html">
-          <strong>Acompanhar pedido</strong>
-          <span>Consulte um pedido específico.</span>
-        </a>
+        <button class="client-card" onclick="showAccountTab('addressTab')">
+          <strong>Endereço</strong>
+          <span>Salvar endereço principal.</span>
+        </button>
+
+        <button class="client-card" onclick="showAccountTab('couponsTab')">
+          <strong>Cupons</strong>
+          <span>Benefícios disponíveis.</span>
+        </button>
 
         <a class="client-card" href="https://wa.me/5585991346349" target="_blank">
           <strong>Atendimento</strong>
-          <span>Fale com a AM Closet.</span>
+          <span>Falar com a AM Closet.</span>
         </a>
       </section>
 
-      <section class="client-consult-box">
-        <h2>Editar meus dados</h2>
+      <section id="ordersTab" class="account-tab client-consult-box active">
+        <h2>Meus pedidos</h2>
+        <div id="ordersList"></div>
+      </section>
+
+      <section id="favoritesTab" class="account-tab client-consult-box hidden">
+        <h2>Meus favoritos</h2>
+        <div id="favoritesList" class="grid"></div>
+      </section>
+
+      <section id="profileTab" class="account-tab client-consult-box hidden">
+        <h2>Meus dados</h2>
 
         <input id="editName" placeholder="Nome completo">
         <input id="editPhone" placeholder="WhatsApp com DDD">
         <input id="editEmail" type="email" placeholder="E-mail">
 
-        <button onclick="saveEditedClient()">Salvar alterações</button>
+        <button onclick="saveProfile()">Salvar dados</button>
 
-        <p id="editMsg"></p>
+        <p id="profileMsg"></p>
       </section>
 
-      <section class="client-consult-box">
-        <h2>Meus pedidos</h2>
-        <div id="clientOrdersList"></div>
+      <section id="addressTab" class="account-tab client-consult-box hidden">
+        <h2>Endereço principal</h2>
+
+        <input id="addrZip" placeholder="CEP">
+        <input id="addrStreet" placeholder="Rua / Avenida">
+        <input id="addrNumber" placeholder="Número">
+        <input id="addrComplement" placeholder="Complemento">
+        <input id="addrNeighborhood" placeholder="Bairro">
+        <input id="addrCity" placeholder="Cidade">
+        <input id="addrState" placeholder="Estado">
+
+        <button onclick="saveAddress()">Salvar endereço</button>
+
+        <p id="addressMsg"></p>
       </section>
+
+      <section id="couponsTab" class="account-tab client-consult-box hidden">
+        <h2>Meus cupons</h2>
+
+        <div class="coupon-highlight">
+          Cupom disponível para primeira compra:
+          <strong>PRIMEIRACOMPRA</strong>
+          <br>
+          5% OFF em produtos fora de promoção.
+        </div>
+      </section>
+
     </section>
   </main>
 
@@ -118,98 +163,122 @@
       currency: 'BRL'
     });
 
-    function getSavedClient(){
+    let currentCustomer = null;
+    let currentOrders = [];
+
+    function onlyNumbers(value){
+      return String(value || '').replace(/\D/g, '');
+    }
+
+    function getSavedAccount(){
       return JSON.parse(localStorage.getItem('amcloset_customer') || 'null');
     }
 
-    function saveClientLocal(customer){
-      localStorage.setItem('amcloset_customer', JSON.stringify({
-        name: customer.name || '',
-        phone: customer.phone || '',
-        email: customer.email || ''
-      }));
+    function saveAccount(customer){
+      localStorage.setItem('amcloset_customer', JSON.stringify(customer));
     }
 
-    async function loginClientArea(){
-      const phone = document.getElementById('loginPhone').value.trim();
+    async function loginAccount(){
+      const cpf = onlyNumbers(document.getElementById('loginCpf').value);
+      const password = document.getElementById('loginPassword').value.trim();
       const msg = document.getElementById('loginMsg');
 
-      if (!phone) {
-        msg.textContent = 'Informe seu WhatsApp.';
+      if (!cpf || !password) {
+        msg.textContent = 'Informe CPF e senha.';
         return;
       }
 
-      msg.textContent = 'Buscando cadastro...';
+      msg.textContent = 'Entrando...';
 
       try {
-        const response = await fetch('/api/customer/' + encodeURIComponent(phone));
+        const response = await fetch('/api/customer/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ cpf, password })
+        });
+
         const data = await response.json();
 
-        if (!response.ok || !data.customer) {
-          msg.textContent = data.error || 'Cadastro não encontrado.';
+        if (!response.ok || data.error) {
+          msg.textContent = data.error || 'Erro ao entrar.';
           return;
         }
 
-        saveClientLocal(data.customer);
-        renderClientArea(data);
+        saveAccount(data.customer);
+        await loadAccountData(data.customer);
 
       } catch (error) {
-        msg.textContent = 'Erro ao acessar área da cliente.';
+        msg.textContent = 'Erro ao acessar conta.';
       }
     }
 
-    async function loadClientFromStorage(){
-      const saved = getSavedClient();
+    async function loadAccountData(customer){
+      currentCustomer = customer;
 
-      if (!saved || !saved.phone) return;
+      document.getElementById('loginArea').classList.add('hidden');
+      document.getElementById('accountArea').classList.remove('hidden');
 
-      try {
-        const response = await fetch('/api/customer/' + encodeURIComponent(saved.phone));
-        const data = await response.json();
+      document.getElementById('accountSubtitle').textContent =
+        `Olá, ${customer.name || 'cliente'}! Bem-vinda à sua conta AM Closet.`;
 
-        if (response.ok && data.customer) {
-          renderClientArea(data);
-        }
-      } catch (error) {}
-    }
-
-    function renderClientArea(data){
-      const customer = data.customer || {};
-      const orders = Array.isArray(data.orders) ? data.orders : [];
-      const summary = data.summary || {};
-
-      document.getElementById('clientLoginBox').classList.add('hidden');
-      document.getElementById('clientDashboardArea').classList.remove('hidden');
-
-      document.getElementById('clientWelcome').textContent =
-        `Olá, ${customer.name || 'cliente'}! Seja bem-vinda à sua área AM Closet.`;
-
-      document.getElementById('profileName').textContent = customer.name || 'Cliente';
-      document.getElementById('profilePhone').textContent = customer.phone || '';
-      document.getElementById('profileEmail').textContent = customer.email || '';
+      document.getElementById('accountName').textContent = customer.name || 'Cliente';
+      document.getElementById('accountCpf').textContent = customer.cpf ? 'CPF: ' + customer.cpf : '';
+      document.getElementById('accountPhone').textContent = customer.phone || '';
+      document.getElementById('accountEmail').textContent = customer.email || '';
 
       document.getElementById('editName').value = customer.name || '';
       document.getElementById('editPhone').value = customer.phone || '';
       document.getElementById('editEmail').value = customer.email || '';
 
+      const address = customer.address || {};
+
+      document.getElementById('addrZip').value = address.zip || '';
+      document.getElementById('addrStreet').value = address.street || '';
+      document.getElementById('addrNumber').value = address.number || '';
+      document.getElementById('addrComplement').value = address.complement || '';
+      document.getElementById('addrNeighborhood').value = address.neighborhood || '';
+      document.getElementById('addrCity').value = address.city || '';
+      document.getElementById('addrState').value = address.state || '';
+
+      await loadOrders(customer);
+      await loadFavorites();
+
       const favorites = JSON.parse(localStorage.getItem('amcloset_favorites') || '[]');
 
-      document.getElementById('summaryOrders').textContent = summary.total_orders || 0;
-      document.getElementById('summarySpent').textContent = money(summary.total_spent || 0);
       document.getElementById('summaryFavorites').textContent = favorites.length;
-
-      renderOrders(orders);
     }
 
-    function renderOrders(orders){
-      const area = document.getElementById('clientOrdersList');
+    async function loadOrders(customer){
+      try {
+        const phone = customer.phone || '';
+        const response = await fetch('/api/customer/' + encodeURIComponent(phone));
+        const data = await response.json();
 
-      if (!orders.length) {
-        area.innerHTML = '<p class="texto-suave">Você ainda não possui pedidos vinculados a este WhatsApp.</p>';
+        currentOrders = Array.isArray(data.orders) ? data.orders : [];
+
+        document.getElementById('summaryOrders').textContent =
+          data.summary?.total_orders || 0;
+
+        document.getElementById('summarySpent').textContent =
+          money(data.summary?.total_spent || 0);
+
+        renderOrders();
+
+      } catch (error) {
+        document.getElementById('ordersList').innerHTML =
+          '<p class="texto-suave">Não foi possível carregar seus pedidos.</p>';
+      }
+    }
+
+    function renderOrders(){
+      const area = document.getElementById('ordersList');
+
+      if (!currentOrders.length) {
+        area.innerHTML = '<p class="texto-suave">Você ainda não possui pedidos vinculados à sua conta.</p>';
         return;
       }
 
-      area.innerHTML = orders.map(order => {
+      area.innerHTML = currentOrders.map(order => {
         const customer = order.customer || {};
         const items = Array.isArray(order.items) ? order.items : [];
 
@@ -242,36 +311,144 @@
       }).join('');
     }
 
-    function saveEditedClient(){
+    async function loadFavorites(){
+      const area = document.getElementById('favoritesList');
+      const favorites = JSON.parse(localStorage.getItem('amcloset_favorites') || '[]');
+
+      if (!favorites.length) {
+        area.innerHTML = '<p class="texto-suave">Você ainda não favoritou nenhum produto.</p>';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/products');
+        const products = await response.json();
+
+        const filtered = products.filter(p =>
+          favorites.includes(String(p.id)) &&
+          p.is_visible !== false &&
+          Number(p.stock || 0) > 0
+        );
+
+        if (!filtered.length) {
+          area.innerHTML = '<p class="texto-suave">Seus favoritos não estão disponíveis no momento.</p>';
+          return;
+        }
+
+        area.innerHTML = filtered.map(p => `
+          <article class="card produto-card">
+            <div class="product-image-wrap">
+              <img src="${p.image || '/produto-1.svg'}" onerror="this.src='/produto-1.svg'">
+            </div>
+
+            <div class="card-body">
+              <h3>${p.name || 'Produto'}</h3>
+              <b>${money(p.promo_price && p.is_promo ? p.promo_price : p.price)}</b>
+              <small>Categoria: ${p.category || 'Sem categoria'}</small>
+              <button onclick="window.location.href='/'">Ver produto</button>
+            </div>
+          </article>
+        `).join('');
+
+      } catch (error) {
+        area.innerHTML = '<p class="texto-suave">Erro ao carregar favoritos.</p>';
+      }
+    }
+
+    function showAccountTab(tabId){
+      document.querySelectorAll('.account-tab').forEach(tab => {
+        tab.classList.add('hidden');
+        tab.classList.remove('active');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    async function saveProfile(){
       const name = document.getElementById('editName').value.trim();
       const phone = document.getElementById('editPhone').value.trim();
       const email = document.getElementById('editEmail').value.trim();
-      const msg = document.getElementById('editMsg');
+      const msg = document.getElementById('profileMsg');
 
       if (!name || !phone) {
         msg.textContent = 'Nome e WhatsApp são obrigatórios.';
         return;
       }
 
-      localStorage.setItem('amcloset_customer', JSON.stringify({
+      await updateProfile({
         name,
         phone,
-        email
-      }));
-
-      msg.textContent = 'Dados atualizados neste dispositivo.';
-
-      document.getElementById('profileName').textContent = name;
-      document.getElementById('profilePhone').textContent = phone;
-      document.getElementById('profileEmail').textContent = email;
+        email,
+        address: currentCustomer.address || {}
+      }, msg);
     }
 
-    function logoutClient(){
+    async function saveAddress(){
+      const address = {
+        zip: document.getElementById('addrZip').value.trim(),
+        street: document.getElementById('addrStreet').value.trim(),
+        number: document.getElementById('addrNumber').value.trim(),
+        complement: document.getElementById('addrComplement').value.trim(),
+        neighborhood: document.getElementById('addrNeighborhood').value.trim(),
+        city: document.getElementById('addrCity').value.trim(),
+        state: document.getElementById('addrState').value.trim()
+      };
+
+      const msg = document.getElementById('addressMsg');
+
+      await updateProfile({
+        name: currentCustomer.name,
+        phone: currentCustomer.phone,
+        email: currentCustomer.email,
+        address
+      }, msg);
+    }
+
+    async function updateProfile(payload, msg){
+      msg.textContent = 'Salvando...';
+
+      try {
+        const response = await fetch('/api/customer/profile', {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            cpf: currentCustomer.cpf,
+            ...payload
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          msg.textContent = data.error || 'Erro ao salvar.';
+          return;
+        }
+
+        currentCustomer = data.customer;
+        saveAccount(data.customer);
+        msg.textContent = 'Dados salvos com sucesso.';
+        await loadAccountData(data.customer);
+
+      } catch (error) {
+        msg.textContent = 'Erro ao salvar.';
+      }
+    }
+
+    function logoutAccount(){
       localStorage.removeItem('amcloset_customer');
       location.reload();
     }
 
-    loadClientFromStorage();
+    async function autoLogin(){
+      const saved = getSavedAccount();
+
+      if (saved && saved.cpf) {
+        await loadAccountData(saved);
+      }
+    }
+
+    autoLogin();
   </script>
 </body>
 </html>
