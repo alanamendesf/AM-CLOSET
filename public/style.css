@@ -2378,3 +2378,139 @@ border-bottom: 1px solid #f1ece9;
   color:#b7791f;
   border:1px solid #ffe0a6;
 }
+
+/* HEADER PREMIUM AM CLOSET 4.0 */
+
+.premium-header{
+  background:#fffdfb;
+  border-bottom:1px solid #eee4dc;
+  box-shadow:0 8px 24px rgba(43,39,36,.06);
+}
+
+.premium-topo{
+  max-width:1500px;
+  margin:0 auto;
+  padding:26px 42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:36px;
+}
+
+.premium-logo{
+  font-size:36px;
+  letter-spacing:12px;
+  font-weight:400;
+  color:#111;
+  text-decoration:none;
+  white-space:nowrap;
+}
+
+.premium-menu{
+  display:flex;
+  align-items:center;
+  gap:34px;
+}
+
+.premium-nav-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
+  color:#111;
+}
+
+.premium-nav-item strong{
+  display:block;
+  font-size:18px;
+  font-weight:800;
+  line-height:1.1;
+}
+
+.premium-nav-item small{
+  display:block;
+  font-size:17px;
+  color:#111;
+  margin-top:4px;
+}
+
+.nav-home-icon,
+.nav-user-icon{
+  font-size:34px;
+  line-height:1;
+}
+
+.nav-bag-icon{
+  width:34px;
+  height:36px;
+  border:3px solid #111;
+  border-radius:4px;
+  position:relative;
+  display:inline-block;
+}
+
+.nav-bag-icon::before{
+  content:'';
+  position:absolute;
+  top:-14px;
+  left:6px;
+  width:16px;
+  height:15px;
+  border:3px solid #111;
+  border-bottom:none;
+  border-radius:14px 14px 0 0;
+}
+
+.cart-float{
+  display:none !important;
+}
+
+@media(max-width:900px){
+  .premium-topo{
+    padding:18px;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .premium-logo{
+    font-size:26px;
+    letter-spacing:8px;
+  }
+
+  .premium-menu{
+    width:100%;
+    justify-content:space-between;
+    gap:12px;
+  }
+
+  .premium-nav-item{
+    gap:8px;
+  }
+
+  .premium-nav-item strong{
+    font-size:13px;
+  }
+
+  .premium-nav-item small{
+    font-size:12px;
+  }
+
+  .nav-home-icon,
+  .nav-user-icon{
+    font-size:24px;
+  }
+
+  .nav-bag-icon{
+    width:26px;
+    height:28px;
+    border-width:2px;
+  }
+
+  .nav-bag-icon::before{
+    top:-10px;
+    left:5px;
+    width:12px;
+    height:11px;
+    border-width:2px;
+  }
+}
