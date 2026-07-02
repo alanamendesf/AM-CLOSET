@@ -1,0 +1,322 @@
+/* ==========================================================
+   AM CLOSET PREMIUM 5.0
+   Base do Design System
+========================================================== */
+
+:root{
+
+  --primary:#2b2724;
+  --secondary:#8b5e4b;
+
+  --background:#fbf8f4;
+  --surface:#fffdfb;
+
+  --border:#eadfd5;
+
+  --text:#2b2724;
+  --text-light:#7a6f67;
+
+  --success:#157347;
+  --danger:#b42318;
+
+  --radius:22px;
+
+  --shadow-sm:0 8px 18px rgba(43,39,36,.04);
+  --shadow-md:0 18px 45px rgba(43,39,36,.08);
+  --shadow-lg:0 25px 60px rgba(43,39,36,.12);
+
+  --transition:.28s ease;
+
+  --container:1450px;
+
+}
+
+/* ==========================================================
+RESET
+========================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+
+    background:var(--background);
+
+    color:var(--text);
+
+    font-family:
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    sans-serif;
+
+    line-height:1.5;
+
+}
+
+img{
+
+    display:block;
+
+    max-width:100%;
+
+}
+
+a{
+
+    text-decoration:none;
+
+    color:inherit;
+
+}
+
+button{
+
+    cursor:pointer;
+
+    font-family:inherit;
+
+}
+
+input,
+textarea,
+select{
+
+    font-family:inherit;
+
+}
+
+/* ==========================================================
+CONTAINER
+========================================================== */
+
+.container{
+
+    width:min(100% - 80px,var(--container));
+
+    margin:auto;
+
+}
+
+@media(max-width:900px){
+
+.container{
+
+    width:min(100% - 32px,var(--container));
+
+}
+
+}
+
+/* ==========================================================
+HEADER
+========================================================== */
+
+.loja-topo{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:999;
+
+    background:rgba(255,253,251,.96);
+
+    backdrop-filter:blur(16px);
+
+    border-bottom:1px solid var(--border);
+
+}
+
+.topo-linha{
+
+    width:min(100% - 80px,var(--container));
+
+    margin:auto;
+
+    height:88px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+}
+
+.marca{
+
+    font-size:34px;
+
+    font-weight:300;
+
+    letter-spacing:12px;
+
+    color:var(--text);
+
+}
+
+.menu-loja{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:46px;
+
+}
+
+.menu-loja a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    color:var(--text);
+
+    transition:.25s;
+
+}
+
+.menu-loja a:hover{
+
+    opacity:.65;
+
+}
+
+.menu-title{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.menu-title strong{
+
+    font-size:17px;
+
+    font-weight:700;
+
+}
+
+.menu-title small{
+
+    color:var(--text-light);
+
+    font-size:13px;
+
+}
+
+/* ==========================================================
+ÍCONE CASA
+========================================================== */
+
+.icon-home{
+
+width:24px;
+
+height:24px;
+
+stroke:#2b2724;
+
+stroke-width:1.8;
+
+fill:none;
+
+}
+
+/* ==========================================================
+ÍCONE USUÁRIO
+========================================================== */
+
+.icon-user{
+
+width:24px;
+
+height:24px;
+
+stroke:#2b2724;
+
+stroke-width:1.8;
+
+fill:none;
+
+}
+
+/* ==========================================================
+ÍCONE SACOLA
+========================================================== */
+
+.icon-bag{
+
+width:25px;
+
+height:25px;
+
+stroke:#2b2724;
+
+stroke-width:1.8;
+
+fill:none;
+
+}
+
+/* ==========================================================
+RESPONSIVO HEADER
+========================================================== */
+
+@media(max-width:900px){
+
+.topo-linha{
+
+height:auto;
+
+padding:20px 0;
+
+flex-direction:column;
+
+gap:24px;
+
+}
+
+.menu-loja{
+
+gap:18px;
+
+flex-wrap:wrap;
+
+justify-content:center;
+
+}
+
+.marca{
+
+font-size:26px;
+
+letter-spacing:7px;
+
+}
+
+.menu-title strong{
+
+font-size:14px;
+
+}
+
+.menu-title small{
+
+font-size:12px;
+
+}
+
+}
