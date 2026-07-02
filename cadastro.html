@@ -17,7 +17,6 @@
         <a href="/favoritos.html">Favoritos</a>
         <a href="/cliente.html">Área da Cliente</a>
         <a href="/carrinho.html">Carrinho</a>
-        <a href="/pedido.html">Acompanhar Pedido</a>
       </nav>
     </div>
   </header>
@@ -25,77 +24,87 @@
   <main class="loja-main">
     <section class="client-hero">
       <span>AM CLOSET</span>
-      <h1>Crie seu cadastro</h1>
-      <p>Salve seus dados, acompanhe seus favoritos e tenha uma experiência mais rápida na AM Closet.</p>
+      <h1>Crie sua conta</h1>
+      <p>Cadastre-se para acessar seus pedidos, favoritos e benefícios.</p>
     </section>
 
     <section class="client-consult-box cadastro-premium-box">
-      <h2>Seus dados</h2>
+      <h2>Dados da conta</h2>
 
-      <input id="clientName" placeholder="Nome completo" autocomplete="name">
+      <input id="clientName" placeholder="Nome completo">
+      <input id="clientCpf" placeholder="CPF">
       <input id="clientPhone" placeholder="WhatsApp com DDD">
       <input id="clientEmail" type="email" placeholder="E-mail">
+      <input id="clientPassword" type="password" placeholder="Crie uma senha">
 
-      <button onclick="saveClientProfile()">Cadastrar</button>
+      <button onclick="createClientAccount()">Criar conta</button>
 
       <p id="clientMsg"></p>
+
+      <a class="page-button" href="/cliente.html">Já tenho conta</a>
     </section>
   </main>
 
-  <footer>
-    <h3>AM Closet</h3>
-    <p>@useamcloseet</p>
-    <p>© 2026 AM Closet - Todos os direitos reservados.</p>
-  </footer>
-
   <script>
-    async function saveClientProfile(){
+    function onlyNumbers(value){
+      return String(value || '').replace(/\D/g, '');
+    }
+
+    async function createClientAccount(){
       const name = document.getElementById('clientName').value.trim();
+      const cpf = onlyNumbers(document.getElementById('clientCpf').value);
       const phone = document.getElementById('clientPhone').value.trim();
       const email = document.getElementById('clientEmail').value.trim();
+      const password = document.getElementById('clientPassword').value.trim();
       const msg = document.getElementById('clientMsg');
 
-      if (!name || !phone) {
-        msg.textContent = 'Preencha nome e WhatsApp.';
+      if (!name || !cpf || !phone || !password) {
+        msg.textContent = 'Preencha nome, CPF, WhatsApp e senha.';
         return;
       }
 
-      msg.textContent = 'Salvando cadastro...';
+      if (cpf.length !== 11) {
+        msg.textContent = 'Digite um CPF válido com 11 números.';
+        return;
+      }
+
+      if (password.length < 4) {
+        msg.textContent = 'A senha precisa ter pelo menos 4 caracteres.';
+        return;
+      }
+
+      msg.textContent = 'Criando sua conta...';
 
       try {
         const response = await fetch('/api/customers', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             name,
+            cpf,
             phone,
-            email
+            email,
+            password
           })
         });
 
         const data = await response.json();
 
         if (!response.ok || data.error) {
-          msg.textContent = data.error || 'Erro ao cadastrar.';
+          msg.textContent = data.error || 'Erro ao criar conta.';
           return;
         }
 
-        localStorage.setItem('amcloset_customer', JSON.stringify({
-          name,
-          phone,
-          email
-        }));
+        localStorage.setItem('amcloset_customer', JSON.stringify(data.customer));
 
-        msg.textContent = 'Cadastro realizado com sucesso! Redirecionando para sua área...';
+        msg.textContent = 'Conta criada com sucesso!';
 
         setTimeout(() => {
           window.location.href = '/cliente.html';
-        }, 900);
+        }, 800);
 
       } catch (error) {
-        msg.textContent = 'Erro ao salvar cadastro.';
+        msg.textContent = 'Erro ao criar conta.';
       }
     }
   </script>
