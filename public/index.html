@@ -26,7 +26,7 @@
 
         <a class="premium-nav-item" href="/carrinho.html">
           <span>
-            <strong>Carrinho (<span id="headerCartCount">0</span>)</strong>
+            <strong>Sacola (<span id="headerCartCount">0</span>)</strong>
             <small id="headerCartTotal">R$ 0,00</small>
           </span>
         </a>
@@ -36,27 +36,31 @@
 
   <main class="loja-main">
 
-    <section class="am-hero am-hero-6">
+    <section class="am-hero am-hero-6 hero-editorial">
       <div class="am-hero-content">
         <span>NOVA COLEÇÃO</span>
-        <h1>Elegância em cada detalhe.</h1>
+        <h1>Essência que valoriza você.</h1>
         <p>
-          Peças selecionadas para mulheres que valorizam estilo, conforto e exclusividade.
+          Peças selecionadas para compor looks elegantes, confortáveis e exclusivos.
         </p>
         <a href="#products">Conhecer coleção</a>
       </div>
 
-      <div class="am-hero-card">
-        <span>AM CLOSET</span>
-        <strong>Looks que valorizam você.</strong>
+      <div class="hero-image-card">
+        <img src="/produto-1.svg" alt="AM Closet Nova Coleção">
       </div>
     </section>
 
-    <section class="am-benefits">
+    <section class="am-benefits benefits-slim">
       <div><strong>Pagamento seguro</strong><span>Mercado Pago</span></div>
       <div><strong>Atendimento</strong><span>Via WhatsApp</span></div>
       <div><strong>Trocas</strong><span>Até 7 dias</span></div>
       <div><strong>Entrega</strong><span>Consulte sua região</span></div>
+    </section>
+
+    <section class="category-showcase">
+      <span>Escolha por categoria</span>
+      <div id="categoryTabs" class="category-tabs"></div>
     </section>
 
     <section class="search-section search-premium">
@@ -69,19 +73,19 @@
     </section>
 
     <section id="premiumSection" class="vitrine premium-section hidden">
-      <div class="premium-banner">
-        <span>Seleção especial</span>
-        <h2>AMCLOSET PREMIUM</h2>
-        <p>Peças escolhidas para compor uma vitrine mais elegante, exclusiva e sofisticada.</p>
+      <div class="premium-banner premium-banner-6">
+        <span>AM PREMIUM</span>
+        <h2>As peças mais exclusivas da coleção.</h2>
+        <p>Uma seleção especial para quem busca elegância, qualidade e presença.</p>
+        <a href="#premiumProducts">Ver seleção premium</a>
       </div>
 
       <div id="premiumProducts" class="grid"></div>
     </section>
 
-    <section class="vitrine">
-      <h2>Produtos</h2>
-
-      <div id="categoryTabs" class="category-tabs"></div>
+    <section class="vitrine products-section">
+      <span class="section-label">Vitrine AM Closet</span>
+      <h2>Peças que você vai amar</h2>
 
       <div id="products" class="grid"></div>
     </section>
@@ -90,12 +94,12 @@
 
   <div id="cartModal" class="cart-modal">
     <div class="cart-modal-content">
-      <h3>Produto adicionado ao carrinho</h3>
-      <p>Deseja continuar comprando ou ir para o carrinho?</p>
+      <h3>Produto adicionado à sacola</h3>
+      <p>Deseja continuar comprando ou ir para a sacola?</p>
 
       <div class="modal-buttons">
         <button onclick="continueShopping()">Continuar comprando</button>
-        <button onclick="window.location.href='/carrinho.html'">Ir para o carrinho</button>
+        <button onclick="window.location.href='/carrinho.html'">Ir para a sacola</button>
       </div>
     </div>
   </div>
@@ -148,7 +152,7 @@
     </div>
   </footer>
 
-  <script src="/app.js?v=101"></script>
+  <script src="/app.js?v=102"></script>
 
   <script>
     function updatePremiumHeaderCart(){
