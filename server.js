@@ -838,12 +838,15 @@ app.post('/api/customers', async (req, res) => {
     name: req.body.name || '',
     email: req.body.email || '',
     phone: req.body.phone || '',
-    cpf: cpf
+    cpf,
+    password: req.body.password || '',
+    address: req.body.address || {},
+    first_purchase_used: false
   };
 
-  if (!customer.name || !customer.phone || !customer.cpf) {
+  if (!customer.name || !customer.phone || !customer.cpf || !customer.password) {
     return res.status(400).json({
-      error: 'Preencha nome, WhatsApp e CPF.'
+      error: 'Preencha nome, WhatsApp, CPF e senha.'
     });
   }
 
@@ -854,11 +857,8 @@ app.post('/api/customers', async (req, res) => {
     .maybeSingle();
 
   if (existingCustomer) {
-    return res.json({
-      ok: true,
-      customer: existingCustomer,
-      first_purchase_coupon: 'PRIMEIRACOMPRA',
-      message: 'Cadastro já existente. Entrando na área da cliente.'
+    return res.status(400).json({
+      error: 'Já existe um cadastro com este CPF.'
     });
   }
 
@@ -869,9 +869,7 @@ app.post('/api/customers', async (req, res) => {
     .single();
 
   if (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(500).json({ error: error.message });
   }
 
   res.json({
@@ -879,6 +877,92 @@ app.post('/api/customers', async (req, res) => {
     customer: data,
     first_purchase_coupon: 'PRIMEIRACOMPRA'
   });
+});
+
+app.post('/api/customer/login', async (req, res) => {
+  try {
+    const cpf = String(req.body.cpf || '').replace(/\D/g, '');
+    const password = req.body.password || '';
+
+    if (!cpf || !password) {
+      return res.status(400).json({
+        error: 'Informe CPF e senha.'
+      });
+    }
+
+    const { data: customer, error } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('cpf', cpf)
+      .maybeSingle();
+
+    if (error || !customer) {
+      return res.status(404).json({
+        error: 'Cadastro não encontrado.'
+      });
+    }
+
+    if (String(customer.password || '') !== String(password)) {
+      return res.status(401).json({
+        error: 'Senha incorreta.'
+      });
+    }
+
+    res.json({
+      ok: true,
+      customer
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erro ao fazer login.',
+      details: err.message
+    });
+  }
+});
+
+app.put('/api/customer/profile', async (req, res) => {
+  try {
+    const cpf = String(req.body.cpf || '').replace(/\D/g, '');
+
+    if (!cpf) {
+      return res.status(400).json({
+        error: 'CPF obrigatório.'
+      });
+    }
+
+    const updatedCustomer = {
+      name: req.body.name || '',
+      email: req.body.email || '',
+      phone: req.body.phone || '',
+      address: req.body.address || {}
+    };
+
+    const { data, error } = await supabase
+      .from('customers')
+      .update(updatedCustomer)
+      .eq('cpf', cpf)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(500).json({
+        error: 'Erro ao atualizar cadastro.',
+        details: error.message
+      });
+    }
+
+    res.json({
+      ok: true,
+      customer: data
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erro ao atualizar perfil.',
+      details: err.message
+    });
+  }
 });
 
 app.get('/api/customers', checkAdmin, async (req, res) => {
